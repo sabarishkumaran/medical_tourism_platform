@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-3xl font-bold mb-8">
+Treatments
+</h1>
+
+<div class="grid md:grid-cols-3 gap-6">
+
+{% for treatment in treatments %}
+
+<div class="bg-white shadow rounded-lg p-5">
+
+<h3 class="text-xl font-semibold">
+{{ treatment.name }}
+</h3>
+
+<p class="text-gray-600 mt-2">
+Category: {{ treatment.category }}
+</p>
+
+<a
+href="{% url 'submit_inquiry' %}"
+class="text-blue-600 hover:underline mt-3 inline-block"
+>
+
+Get Quote
+
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

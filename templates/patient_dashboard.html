@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-3xl font-bold mb-8">
+My Inquiries
+</h1>
+
+<div class="space-y-4">
+
+{% for inquiry in inquiries %}
+
+<div class="bg-white shadow rounded-lg p-5">
+
+<p>
+<strong>Treatment:</strong> {{ inquiry.treatment.name }}
+</p>
+
+<p>
+<strong>Status:</strong>
+
+<span class="text-blue-600 font-medium">
+{{ inquiry.status }}
+</span>
+
+</p>
+
+</div>
+
+{% empty %}
+
+<p>No inquiries yet.</p>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

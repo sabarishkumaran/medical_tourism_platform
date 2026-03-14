@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="bg-white shadow rounded-lg p-8">
+
+<h1 class="text-3xl font-bold mb-4">
+{{ hospital.name }}
+</h1>
+
+<p class="text-gray-600 mb-6">
+{{ hospital.city }}, {{ hospital.user.country }}
+</p>
+
+<p class="mb-6">
+{{ hospital.description }}
+</p>
+
+<h2 class="text-xl font-semibold mb-4">
+Doctors
+</h2>
+
+<ul class="mb-6">
+
+{% for doctor in doctors %}
+
+<li class="mb-2">
+{{ doctor.name }} — {{ doctor.specialization }}
+</li>
+
+{% endfor %}
+
+</ul>
+
+
+<h2 class="text-xl font-semibold mb-4">
+Treatments
+</h2>
+
+<ul>
+
+{% for t in treatments %}
+
+<li class="mb-2">
+{{ t.treatment.name }} — ${{ t.price }}
+</li>
+
+{% endfor %}
+
+</ul>
+
+<a
+href="{% url 'submit_inquiry' %}"
+class="inline-block mt-6 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+>
+
+Get Treatment Quote
+
+</a>
+
+</div>
+
+{% endblock %}

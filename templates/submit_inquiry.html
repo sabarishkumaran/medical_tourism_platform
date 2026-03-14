@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="flex justify-center">
+
+<div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-xl">
+
+<h1 class="text-3xl font-bold mb-6 text-center">
+Submit Medical Inquiry
+</h1>
+
+<form method="POST" enctype="multipart/form-data" class="space-y-4">
+
+{% csrf_token %}
+
+<div>
+<label class="block text-sm font-medium mb-1">
+Treatment Needed
+</label>
+{{ form.treatment }}
+</div>
+
+<div>
+<label class="block text-sm font-medium mb-1">
+Describe Your Condition
+</label>
+{{ form.description }}
+</div>
+
+<div>
+<label class="block text-sm font-medium mb-1">
+Budget
+</label>
+{{ form.budget }}
+</div>
+
+<div>
+<label class="block text-sm font-medium mb-1">
+Preferred Treatment Country
+</label>
+{{ form.preferred_country }}
+</div>
+
+<div>
+<label class="block text-sm font-medium mb-1">
+Expected Travel Date
+</label>
+{{ form.travel_date }}
+</div>
+
+<div>
+<label class="block text-sm font-medium mb-1">
+Upload Medical Reports
+</label>
+<input type="file" name="documents" multiple class="w-full border rounded p-2">
+</div>
+
+<button
+type="submit"
+class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+>
+Submit Inquiry
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

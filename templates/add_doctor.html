@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6">Add Doctor</h1>
+
+  <form method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow">
+    {% csrf_token %}
+
+    <!-- Doctor Name -->
+    <div>
+      <label class="block font-medium text-gray-700 mb-1">Name</label>
+      {{ form.name|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+    </div>
+
+    <!-- Specialization -->
+    <div>
+      <label class="block font-medium text-gray-700 mb-1">Specialization</label>
+      {{ form.specialization|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+    </div>
+
+    <!-- Experience Years -->
+    <div>
+      <label class="block font-medium text-gray-700 mb-1">Experience (Years)</label>
+      {{ form.experience_years|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+    </div>
+
+    <!-- Success Rate -->
+    <div>
+      <label class="block font-medium text-gray-700 mb-1">Success Rate (%)</label>
+      {{ form.success_rate|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+    </div>
+
+    <!-- Bio -->
+    <div>
+      <label class="block font-medium text-gray-700 mb-1">Bio</label>
+      {{ form.bio|add_class:"w-full mt-1 p-2 border rounded h-32 focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="flex justify-end">
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        Add Doctor
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
