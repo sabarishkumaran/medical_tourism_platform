@@ -1,38 +1,58 @@
 {% extends "base.html" %}
 
 {% block content %}
+<section class="relative overflow-hidden bg-white rounded-3xl shadow-xl border border-slate-100 p-8 md:p-14 mb-10">
+  <div class="absolute -top-16 -right-16 w-56 h-56 bg-sky-100 rounded-full blur-3xl opacity-70"></div>
+  <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-indigo-100 rounded-full blur-3xl opacity-70"></div>
 
-<h1 class="text-4xl font-bold text-center mb-10">
-Find the Best Hospitals Abroad
-</h1>
+  <div class="relative z-10 max-w-3xl">
+    <p class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-600 bg-sky-50 border border-sky-100 px-3 py-1 rounded-full mb-4">
+      Trusted Global Care
+    </p>
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
+      Find the Best Hospitals Abroad
+    </h1>
+    <p class="text-lg text-slate-600 leading-relaxed mb-8">
+      Compare accredited hospitals, explore treatment packages, and confidently plan your care journey in one place.
+    </p>
+    <a href="{% url 'treatments' %}" class="inline-flex items-center gap-2 bg-sky-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-sky-700 transition shadow-md">
+      Explore Treatments
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
 
-<div class="grid md:grid-cols-3 gap-6">
+<section>
+  <div class="flex items-center justify-between mb-5">
+    <h2 class="text-2xl font-bold text-slate-800">Featured Hospitals</h2>
+    <span class="text-sm text-slate-500">{{ hospitals|length }} available</span>
+  </div>
 
-{% for hospital in hospitals %}
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+    {% for hospital in hospitals %}
+      <article class="group bg-white/95 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 p-6">
+        <div class="w-11 h-11 mb-4 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 text-sky-700 font-bold flex items-center justify-center">
+          {{ hospital.name|slice:":1"|upper }}
+        </div>
 
-<div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-xl font-semibold text-slate-900 mb-2 group-hover:text-sky-700 transition">
+          {{ hospital.name }}
+        </h3>
 
-<h3 class="text-xl font-semibold mb-2">
-{{ hospital.name }}
-</h3>
+        <p class="text-slate-600 mb-5">
+          {{ hospital.city }}, {{ hospital.country }}
+        </p>
 
-<p class="text-gray-600 mb-4">
-{{ hospital.city }}, {{ hospital.country }}
-</p>
-
-<a
-href="{% url 'hospital_detail' hospital.id %}"
-class="text-blue-600 font-medium hover:underline"
->
-
-View Hospital
-
-</a>
-
-</div>
-
-{% endfor %}
-
-</div>
-
+        <a href="{% url 'hospital_detail' hospital.id %}" class="inline-flex items-center gap-2 text-sky-700 font-semibold hover:text-sky-900 transition">
+          View Hospital
+          <span aria-hidden="true">→</span>
+        </a>
+      </article>
+    {% empty %}
+      <div class="md:col-span-2 xl:col-span-3 bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500 shadow-sm">
+        No hospitals available yet. Please check back soon.
+      </div>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}
