@@ -1,79 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="flex justify-center items-center min-h-[70vh]">
+  <div class="bg-white border border-slate-200 shadow-xl rounded-2xl p-8 w-full max-w-md">
+    <h2 class="text-3xl font-bold text-center text-slate-900 mb-6">Login</h2>
 
-<div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+    <form method="POST" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-semibold text-slate-600 mb-1">Username</label>
+        <input type="text" name="username" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-600 mb-1">Password</label>
+        <input type="password" name="password" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:bg-blue-700 transition font-semibold">Login</button>
+    </form>
 
-<h2 class="text-2xl font-bold text-center mb-6">
-Login
-</h2>
-
-<form method="POST" class="space-y-4">
-
-{% csrf_token %}
-
-<!-- Username -->
-
-<div>
-
-<label class="block text-sm font-medium mb-1">
-Username
-</label>
-
-<input
-type="text"
-name="username"
-class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-required
->
-
+    <p class="text-sm text-center mt-4 text-slate-500">
+      Don't have an account?
+      <a href="{% url 'register' %}" class="text-blue-600 hover:underline font-medium">Register</a>
+    </p>
+  </div>
 </div>
-
-
-<!-- Password -->
-
-<div>
-
-<label class="block text-sm font-medium mb-1">
-Password
-</label>
-
-<input
-type="password"
-name="password"
-class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-required
->
-
-</div>
-
-
-<button
-type="submit"
-class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
->
-
-Login
-
-</button>
-
-</form>
-
-
-<p class="text-sm text-center mt-4">
-
-Don't have an account?
-
-<a href="{% url 'register' %}" class="text-blue-600 hover:underline">
-Register
-</a>
-
-</p>
-
-</div>
-
-</div>
-
 {% endblock %}

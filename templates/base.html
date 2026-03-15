@@ -1,109 +1,87 @@
 {% load tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<title>MedTour</title>
-
-{% tailwind_css %}
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedTour</title>
+  {% tailwind_css %}
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<body class="min-h-screen bg-slate-100 text-slate-800 flex flex-col">
 
-<body class="bg-gray-100">
-
-<!-- HEADER -->
-
-<header class="bg-blue-600 text-white">
-
-<div class="container mx-auto flex justify-between items-center p-4">
-
-<h1 class="text-xl font-bold">
-<a href="{% url 'home' %}">MedTour</a>
-</h1>
-
-<nav class="space-x-6 flex items-center">
-
-<a href="{% url 'home' %}" class="hover:underline">Home</a>
-<a href="{% url 'treatments' %}" class="hover:underline">Treatments</a>
-
-{% if user.is_authenticated %}
-
-<!-- Hospital or Patient Dashboard Link -->
-{% if user.role == "PATIENT" %}
-<a href="{% url 'patient_dashboard' %}">Dashboard</a>
-{% elif user.role == "HOSPITAL" %}
-<a href="{% url 'hospital_dashboard' %}">Dashboard</a>
-{% endif %}
-
-{% if user.role == "ADMIN" or user.role == "COORDINATOR" %}
-<a href="{% url 'pending_hospitals' %}">Pending Hospitals</a>
-{% endif %}
-
-<!-- Profile Avatar Dropdown -->
-<div class="relative inline-block" x-data="{ open: false }">
-  <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
-    <!-- Avatar or Initial -->
-    {% if user.role == "PATIENT" and user.patientprofile.avatar %}
-      <img src="{{ user.patientprofile.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
-    {% elif user.role == "HOSPITAL" and user.hospital.avatar %}
-      <img src="{{ user.hospital.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
-    {% else %}
-      <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
-        {{ user.first_name|default:"U"|slice:":1" }}
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+  <div class="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+    <a href="{% url 'home' %}" class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-md">
+        ❤
       </div>
-    {% endif %}
-    <span class="hidden md:block">{{ user.first_name }}</span>
-    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
+      <span class="text-3xl font-extrabold tracking-tight text-slate-900">MediTour</span>
+    </a>
 
-  <!-- Dropdown Menu -->
-  <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white text-gray-800 border rounded shadow-lg z-50">
-    <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-gray-100">View Profile</a>
-    <a href="{% url 'password_change' %}" class="block px-4 py-2 hover:bg-gray-100">Change Password</a>
-    <form method="POST" action="{% url 'logout' %}">
-      {% csrf_token %}
-      <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
-    </form>
+    <nav class="hidden lg:flex items-center gap-8 text-lg font-semibold text-slate-600">
+      <a href="{% url 'home' %}" class="hover:text-blue-600 transition">Home</a>
+      <a href="{% url 'treatments' %}" class="hover:text-blue-600 transition">Treatments</a>
+      {% if user.is_authenticated and user.role == "HOSPITAL" %}
+        <a href="{% url 'hospital_dashboard' %}" class="hover:text-blue-600 transition">Hospitals</a>
+      {% else %}
+        <a href="{% url 'home' %}" class="hover:text-blue-600 transition">Hospitals</a>
+      {% endif %}
+      <a href="{% url 'home' %}" class="hover:text-blue-600 transition">Blog</a>
+      <a href="{% url 'home' %}" class="hover:text-blue-600 transition">Concierge</a>
+    </nav>
+
+    <div class="flex items-center gap-4">
+      {% if user.is_authenticated %}
+        {% if user.role == "PATIENT" %}
+          <a href="{% url 'patient_dashboard' %}" class="hidden md:inline text-slate-600 hover:text-blue-600 font-medium">Dashboard</a>
+        {% elif user.role == "HOSPITAL" %}
+          <a href="{% url 'hospital_dashboard' %}" class="hidden md:inline text-slate-600 hover:text-blue-600 font-medium">Dashboard</a>
+        {% endif %}
+
+        {% if user.role == "ADMIN" or user.role == "COORDINATOR" %}
+          <a href="{% url 'pending_hospitals' %}" class="hidden md:inline text-slate-600 hover:text-blue-600 font-medium">Pending</a>
+        {% endif %}
+
+        <div class="relative inline-block" x-data="{ open: false }">
+          <button @click="open = !open" class="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-slate-100 transition">
+            {% if user.role == "PATIENT" and user.patientprofile.avatar %}
+              <img src="{{ user.patientprofile.avatar.url }}" alt="avatar" class="w-9 h-9 rounded-full ring-2 ring-blue-100">
+            {% elif user.role == "HOSPITAL" and user.hospital.avatar %}
+              <img src="{{ user.hospital.avatar.url }}" alt="avatar" class="w-9 h-9 rounded-full ring-2 ring-blue-100">
+            {% else %}
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold">
+                {{ user.first_name|default:"U"|slice:":1" }}
+              </div>
+            {% endif %}
+            <span class="hidden md:block font-medium">{{ user.first_name|default:user.username }}</span>
+          </button>
+
+          <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+            <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-slate-50">View Profile</a>
+            <a href="{% url 'password_change' %}" class="block px-4 py-2 hover:bg-slate-50">Change Password</a>
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="w-full text-left px-4 py-2 hover:bg-slate-50">Logout</button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="text-slate-600 hover:text-blue-600 font-medium">Login</a>
+        <a href="{% url 'register' %}" class="bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow">Get Quote</a>
+      {% endif %}
+    </div>
   </div>
-</div>
-
-{% else %}
-
-<a href="{% url 'login' %}">Login</a>
-
-{% endif %}
-</nav>
-
-</div>
-
 </header>
 
+<main class="container mx-auto px-4 md:px-8 py-10 flex-1">
+  {% block content %}{% endblock %}
+</main>
 
-<!-- CONTENT -->
-
-<div class="container mx-auto p-8">
-
-{% block content %}
-{% endblock %}
-
-</div>
-
-
-<!-- FOOTER -->
-
-<footer class="bg-gray-800 text-white mt-10">
-
-<div class="container mx-auto p-6 text-center">
-
-<p>© 2026 MedTour | Medical Tourism Platform</p>
-
-</div>
-
+<footer class="bg-slate-900 text-slate-300 mt-12">
+  <div class="container mx-auto px-4 md:px-8 py-8 text-center text-sm">
+    © 2026 MediTour • Medical Tourism Platform
+  </div>
 </footer>
-
 </body>
 </html>

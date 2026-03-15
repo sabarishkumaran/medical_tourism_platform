@@ -1,98 +1,56 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 
 {% block content %}
-
 <div class="flex justify-center items-center min-h-[70vh]">
+  <div class="bg-white border border-slate-200 shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+    <h2 class="text-3xl font-bold text-center text-slate-900 mb-6">Create Account</h2>
 
-<div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+    <form method="POST" class="space-y-4">
+      {% csrf_token %}
+      {{ form.username.label_tag }}
+      {{ form.username|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+      {{ form.email.label_tag }}
+      {{ form.email|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+      {{ form.role.label_tag }}
+      {{ form.role|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+      {{ form.phone.label_tag }}
+      {{ form.phone|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+      {{ form.country.label_tag }}
+      {{ form.country|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
 
-<h2 class="text-2xl font-bold text-center mb-6">
-Register
-</h2>
+      <div id="hospital-fields" class="hidden space-y-3 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+        <h3 class="font-semibold text-lg">Hospital Details</h3>
+        {{ form.hospital_name.label_tag }}
+        {{ form.hospital_name|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+        {{ form.hospital_city.label_tag }}
+        {{ form.hospital_city|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+        {{ form.hospital_address.label_tag }}
+        {{ form.hospital_address|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+        {{ form.hospital_description.label_tag }}
+        {{ form.hospital_description|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+        {{ form.hospital_established_year.label_tag }}
+        {{ form.hospital_established_year|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+      </div>
 
-<form method="POST" class="space-y-4">
+      {{ form.password1.label_tag }}
+      {{ form.password1|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
+      {{ form.password2.label_tag }}
+      {{ form.password2|add_class:"w-full border border-slate-300 rounded-xl px-4 py-2.5" }}
 
-{% csrf_token %}
-
-{{ form.username.label_tag }}
-{{ form.username }}
-
-{{ form.email.label_tag }}
-{{ form.email }}
-
-{{ form.role.label_tag }}
-{{ form.role }}
-
-{{ form.phone.label_tag }}
-{{ form.phone }}
-
-{{ form.country.label_tag }}
-{{ form.country }}
-
-<div id="hospital-fields" class="hidden space-y-3">
-
-<h3 class="font-semibold text-lg">
-Hospital Details
-</h3>
-
-{{ form.hospital_name.label_tag }}
-{{ form.hospital_name }}
-
-{{ form.hospital_city.label_tag }}
-{{ form.hospital_city }}
-
-{{ form.hospital_address.label_tag }}
-{{ form.hospital_address }}
-
-{{ form.hospital_description.label_tag }}
-{{ form.hospital_description }}
-
-{{ form.hospital_established_year.label_tag }}
-{{ form.hospital_established_year }}
-
+      <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:bg-blue-700 font-semibold">Register</button>
+    </form>
+  </div>
 </div>
-
-{{ form.password1.label_tag }}
-{{ form.password1 }}
-
-{{ form.password2.label_tag }}
-{{ form.password2 }}
-
-<button
-type="submit"
-class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
-
-Register
-
-</button>
-
-</form>
-
-</div>
-
-</div>
-
 
 <script>
-
-const roleField = document.querySelector("#id_role")
-const hospitalFields = document.querySelector("#hospital-fields")
-
+const roleField = document.querySelector('#id_role')
+const hospitalFields = document.querySelector('#hospital-fields')
 function toggleHospitalFields(){
-
-if(roleField.value === "HOSPITAL"){
-hospitalFields.classList.remove("hidden")
+  if (roleField.value === 'HOSPITAL') hospitalFields.classList.remove('hidden')
+  else hospitalFields.classList.add('hidden')
 }
-else{
-hospitalFields.classList.add("hidden")
-}
-
-}
-
-roleField.addEventListener("change", toggleHospitalFields)
-
+roleField.addEventListener('change', toggleHospitalFields)
 toggleHospitalFields()
-
 </script>
-
 {% endblock %}

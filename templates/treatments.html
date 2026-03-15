@@ -1,38 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1 class="text-3xl font-bold mb-8">
-Treatments
-</h1>
-
-<div class="grid md:grid-cols-3 gap-6">
-
-{% for treatment in treatments %}
-
-<div class="bg-white shadow rounded-lg p-5">
-
-<h3 class="text-xl font-semibold">
-{{ treatment.name }}
-</h3>
-
-<p class="text-gray-600 mt-2">
-Category: {{ treatment.category }}
-</p>
-
-<a
-href="{% url 'submit_inquiry' %}"
-class="text-blue-600 hover:underline mt-3 inline-block"
->
-
-Get Quote
-
-</a>
-
+<h1 class="text-4xl font-bold text-slate-900 mb-8">Treatments</h1>
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+  {% for treatment in treatments %}
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl transition">
+      <h3 class="text-2xl font-semibold text-slate-900">{{ treatment.name }}</h3>
+      <p class="text-slate-600 mt-2">Category: {{ treatment.category }}</p>
+      <a href="{% url 'submit_inquiry' %}" class="text-blue-600 hover:text-blue-800 font-semibold mt-4 inline-block">Get Quote →</a>
+    </div>
+  {% empty %}
+    <div class="col-span-full bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500">No treatments available right now.</div>
+  {% endfor %}
 </div>
-
-{% endfor %}
-
-</div>
-
 {% endblock %}

@@ -1,86 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-8">
-
-  <!-- Doctors -->
+<div class="space-y-10">
   <div>
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Doctors</h2>
-      <a href="{% url 'add_doctor' %}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-        + Add Doctor
-      </a>
+      <h2 class="text-3xl font-bold">Doctors</h2>
+      <a href="{% url 'add_doctor' %}" class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700">+ Add Doctor</a>
     </div>
-    <ul class="space-y-2">
+    <ul class="space-y-3">
       {% for doctor in doctors %}
-        <li class="bg-white p-4 rounded shadow">
-          <p class="font-semibold">{{ doctor.name }}</p>
-          <p class="text-gray-600">{{ doctor.specialization }} | {{ doctor.experience_years }} yrs</p>
-          <p class="text-gray-500">Success Rate: {{ doctor.success_rate }}%</p>
+        <li class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+          <p class="font-semibold text-lg">{{ doctor.name }}</p>
+          <p class="text-slate-600">{{ doctor.specialization }} | {{ doctor.experience_years }} yrs</p>
+          <p class="text-slate-500">Success Rate: {{ doctor.success_rate }}%</p>
         </li>
       {% empty %}
-        <li>No doctors added yet.</li>
+        <li class="bg-white border border-slate-200 p-4 rounded-2xl text-slate-500">No doctors added yet.</li>
       {% endfor %}
     </ul>
   </div>
 
-  <!-- Treatment Packages -->
   <div>
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Treatment Packages</h2>
-      <a href="{% url 'add_treatment_package' %}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
-        + Add Package
-      </a>
+      <h2 class="text-3xl font-bold">Treatment Packages</h2>
+      <a href="{% url 'add_treatment_package' %}" class="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700">+ Add Package</a>
     </div>
-    <ul class="space-y-2">
+    <ul class="space-y-3">
       {% for package in packages %}
-        <li class="bg-white p-4 rounded shadow">
-          <p class="font-semibold">{{ package.treatment.name }}</p>
-          <p class="text-gray-600">{{ package.treatment.category }}</p>
-          <p class="text-gray-600">Doctor: {{ package.doctor.name }}</p>
-          <p class="text-gray-500 truncate">{{ package.treatment.description|truncatechars:100 }}</p>
-          <p class="text-gray-500 font-medium">Price: {{ package.price }} {{ package.currency }}</p>
-          <p class="text-gray-500">Stay: {{ package.stay_days }} days | Recovery: {{ package.recovery_days }} days</p>
+        <li class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+          <p class="font-semibold text-lg">{{ package.treatment.name }}</p>
+          <p class="text-slate-600">{{ package.treatment.category }}</p>
+          <p class="text-slate-600">Doctor: {{ package.doctor.name }}</p>
+          <p class="text-slate-500">{{ package.treatment.description|truncatechars:100 }}</p>
+          <p class="text-slate-500 font-medium">Price: {{ package.price }} {{ package.currency }}</p>
+          <p class="text-slate-500">Stay: {{ package.stay_days }} days | Recovery: {{ package.recovery_days }} days</p>
         </li>
       {% empty %}
-        <li>No treatment packages added yet.</li>
+        <li class="bg-white border border-slate-200 p-4 rounded-2xl text-slate-500">No treatment packages added yet.</li>
       {% endfor %}
     </ul>
   </div>
 
-  <!-- Recent Inquiries -->
   <div>
-    <h2 class="text-2xl font-bold mb-4">Recent Inquiries</h2>
+    <h2 class="text-3xl font-bold mb-4">Recent Inquiries</h2>
     <div class="space-y-4">
       {% for inquiry in recent_inquiries %}
-        <div class="bg-white shadow rounded-lg p-5 flex justify-between items-center">
+        <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex flex-col md:flex-row justify-between md:items-center gap-4">
           <div>
             <p><strong>Patient:</strong> {{ inquiry.patient.get_full_name }}</p>
             <p><strong>Treatment:</strong> {{ inquiry.treatment.name }}</p>
             <p><strong>Date:</strong> {{ inquiry.created_at|date:"M d, Y" }}</p>
-            <p>
-              <strong>Status:</strong>
-              <span class="px-2 py-1 rounded-full text-white
-                {% if inquiry.status == 'NEW' %}bg-yellow-500
-                {% elif inquiry.status == 'QUOTE_SENT' %}bg-blue-500
-                {% elif inquiry.status == 'CONFIRMED' %}bg-green-500
-                {% elif inquiry.status == 'COMPLETED' %}bg-gray-500
-                {% endif %}">
-                {{ inquiry.status }}
-              </span>
-            </p>
+            <p><strong>Status:</strong> {{ inquiry.status }}</p>
           </div>
-          <div>
-            <a href="{% url 'respond_inquiry' inquiry.id %}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-              Respond
-            </a>
-          </div>
+          <a href="{% url 'respond_inquiry' inquiry.id %}" class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700">Respond</a>
         </div>
       {% empty %}
-        <p>No recent inquiries.</p>
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 text-slate-500">No recent inquiries.</div>
       {% endfor %}
     </div>
   </div>
-
 </div>
 {% endblock %}

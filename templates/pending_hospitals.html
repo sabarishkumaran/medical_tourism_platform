@@ -1,55 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1 class="text-3xl font-bold mb-6">
-Pending Hospitals
-</h1>
-
+<h1 class="text-4xl font-bold mb-6">Pending Hospitals</h1>
 <div class="space-y-4">
-
-{% for hospital in hospitals %}
-
-<div class="bg-white shadow rounded-lg p-6 flex justify-between items-center">
-
-<div>
-
-<h3 class="text-lg font-semibold">
-{{ hospital.name }}
-</h3>
-
-<p class="text-gray-600">
-{{ hospital.city }}, {{ hospital.country }}
-</p>
-
+  {% for hospital in hospitals %}
+    <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+      <div>
+        <h3 class="text-xl font-semibold">{{ hospital.name }}</h3>
+        <p class="text-slate-500">{{ hospital.city }}, {{ hospital.country }}</p>
+      </div>
+      <div class="space-x-3">
+        <a href="{% url 'approve_hospital' hospital.id %}" class="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700">Approve</a>
+        <a href="{% url 'reject_hospital' hospital.id %}" class="bg-rose-600 text-white px-4 py-2 rounded-xl hover:bg-rose-700">Reject</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500">No pending hospitals.</div>
+  {% endfor %}
 </div>
-
-<div class="space-x-4">
-
-<a
-href="{% url 'approve_hospital' hospital.id %}"
-class="bg-green-600 text-white px-4 py-2 rounded"
->
-
-Approve
-
-</a>
-
-<a
-href="{% url 'reject_hospital' hospital.id %}"
-class="bg-red-600 text-white px-4 py-2 rounded"
->
-
-Reject
-
-</a>
-
-</div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
 {% endblock %}

@@ -1,63 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="bg-white border border-slate-200 shadow-xl rounded-2xl p-8">
+  <h1 class="text-4xl font-bold mb-2 text-slate-900">{{ hospital.name }}</h1>
+  <p class="text-slate-500 mb-6">{{ hospital.city }}, {{ hospital.user.country }}</p>
+  <p class="mb-8 text-slate-700">{{ hospital.description }}</p>
 
-<div class="bg-white shadow rounded-lg p-8">
+  <h2 class="text-2xl font-bold mb-4">Doctors</h2>
+  <ul class="space-y-2 mb-8">
+    {% for doctor in doctors %}
+      <li class="bg-slate-50 border border-slate-200 rounded-xl p-3">{{ doctor.name }} — {{ doctor.specialization }}</li>
+    {% empty %}
+      <li class="text-slate-500">No doctors listed.</li>
+    {% endfor %}
+  </ul>
 
-<h1 class="text-3xl font-bold mb-4">
-{{ hospital.name }}
-</h1>
+  <h2 class="text-2xl font-bold mb-4">Treatments</h2>
+  <ul class="space-y-2">
+    {% for t in treatments %}
+      <li class="bg-slate-50 border border-slate-200 rounded-xl p-3">{{ t.treatment.name }} — ${{ t.price }}</li>
+    {% empty %}
+      <li class="text-slate-500">No treatment packages listed.</li>
+    {% endfor %}
+  </ul>
 
-<p class="text-gray-600 mb-6">
-{{ hospital.city }}, {{ hospital.user.country }}
-</p>
-
-<p class="mb-6">
-{{ hospital.description }}
-</p>
-
-<h2 class="text-xl font-semibold mb-4">
-Doctors
-</h2>
-
-<ul class="mb-6">
-
-{% for doctor in doctors %}
-
-<li class="mb-2">
-{{ doctor.name }} — {{ doctor.specialization }}
-</li>
-
-{% endfor %}
-
-</ul>
-
-
-<h2 class="text-xl font-semibold mb-4">
-Treatments
-</h2>
-
-<ul>
-
-{% for t in treatments %}
-
-<li class="mb-2">
-{{ t.treatment.name }} — ${{ t.price }}
-</li>
-
-{% endfor %}
-
-</ul>
-
-<a
-href="{% url 'submit_inquiry' %}"
-class="inline-block mt-6 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
->
-
-Get Treatment Quote
-
-</a>
-
+  <a href="{% url 'submit_inquiry' %}" class="inline-block mt-8 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-semibold">Get Treatment Quote</a>
 </div>
-
 {% endblock %}

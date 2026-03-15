@@ -1,72 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="flex justify-center">
+  <div class="bg-white border border-slate-200 shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+    <h1 class="text-3xl font-bold mb-6 text-center">Submit Medical Inquiry</h1>
 
-<div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-xl">
-
-<h1 class="text-3xl font-bold mb-6 text-center">
-Submit Medical Inquiry
-</h1>
-
-<form method="POST" enctype="multipart/form-data" class="space-y-4">
-
-{% csrf_token %}
-
-<div>
-<label class="block text-sm font-medium mb-1">
-Treatment Needed
-</label>
-{{ form.treatment }}
+    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      <div><label class="block text-sm font-semibold mb-1">Treatment Needed</label>{{ form.treatment }}</div>
+      <div><label class="block text-sm font-semibold mb-1">Describe Your Condition</label>{{ form.description }}</div>
+      <div><label class="block text-sm font-semibold mb-1">Budget</label>{{ form.budget }}</div>
+      <div><label class="block text-sm font-semibold mb-1">Preferred Treatment Country</label>{{ form.preferred_country }}</div>
+      <div><label class="block text-sm font-semibold mb-1">Expected Travel Date</label>{{ form.travel_date }}</div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Upload Medical Reports</label>
+        <input type="file" name="documents" multiple class="w-full border border-slate-300 rounded-xl p-2.5">
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:bg-blue-700 font-semibold">Submit Inquiry</button>
+    </form>
+  </div>
 </div>
-
-<div>
-<label class="block text-sm font-medium mb-1">
-Describe Your Condition
-</label>
-{{ form.description }}
-</div>
-
-<div>
-<label class="block text-sm font-medium mb-1">
-Budget
-</label>
-{{ form.budget }}
-</div>
-
-<div>
-<label class="block text-sm font-medium mb-1">
-Preferred Treatment Country
-</label>
-{{ form.preferred_country }}
-</div>
-
-<div>
-<label class="block text-sm font-medium mb-1">
-Expected Travel Date
-</label>
-{{ form.travel_date }}
-</div>
-
-<div>
-<label class="block text-sm font-medium mb-1">
-Upload Medical Reports
-</label>
-<input type="file" name="documents" multiple class="w-full border rounded p-2">
-</div>
-
-<button
-type="submit"
-class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
->
-Submit Inquiry
-</button>
-
-</form>
-
-</div>
-
-</div>
-
 {% endblock %}
