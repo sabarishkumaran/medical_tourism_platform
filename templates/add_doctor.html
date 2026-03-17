@@ -2,49 +2,58 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-  <h1 class="text-3xl font-bold mb-6">Add Doctor</h1>
+<div class="container mx-auto px-4 md:px-8 py-10">
+<div class="max-w-3xl mx-auto py-10 animate-fade-up">
 
-  <form method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow">
-    {% csrf_token %}
-
-    <!-- Doctor Name -->
-    <div>
-      <label class="block font-medium text-gray-700 mb-1">Name</label>
-      {{ form.name|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-sky-900 to-indigo-900 rounded-[2rem] p-8 mb-8 text-white shadow-lg flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold mb-1" style="font-family: 'Outfit', sans-serif;">Add New Doctor</h1>
+            <p class="text-sky-200">Expand your medical team and showcase your experts.</p>
+        </div>
+        <div class="hidden sm:flex w-16 h-16 bg-white/10 rounded-2xl items-center justify-center backdrop-blur text-white border border-white/20">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
     </div>
 
-    <!-- Specialization -->
-    <div>
-      <label class="block font-medium text-gray-700 mb-1">Specialization</label>
-      {{ form.specialization|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
-    </div>
+    <div class="bg-white shadow-xl rounded-[2rem] p-8 border border-slate-100">
 
-    <!-- Experience Years -->
-    <div>
-      <label class="block font-medium text-gray-700 mb-1">Experience (Years)</label>
-      {{ form.experience_years|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
-    </div>
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
 
-    <!-- Success Rate -->
-    <div>
-      <label class="block font-medium text-gray-700 mb-1">Success Rate (%)</label>
-      {{ form.success_rate|add_class:"w-full mt-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" }}
-    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="group md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Doctor Name</label>
+                    {% render_field form.name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. Dr. Jane Doe" %}
+                </div>
 
-    <!-- Bio -->
-    <div>
-      <label class="block font-medium text-gray-700 mb-1">Bio</label>
-      {{ form.bio|add_class:"w-full mt-1 p-2 border rounded h-32 focus:outline-none focus:ring-2 focus:ring-blue-400" }}
-    </div>
+                <div class="group">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Specialization</label>
+                    {% render_field form.specialization class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. Cardiology" %}
+                </div>
 
-    <!-- Submit Button -->
-    <div class="flex justify-end">
-      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-        Add Doctor
-      </button>
-    </div>
+                <div class="group">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Years of Experience</label>
+                    {% render_field form.experience_years class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                </div>
 
-  </form>
+                <div class="group">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Success Rate (%)</label>
+                    {% render_field form.success_rate class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 98" %}
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex gap-4 justify-end">
+                <a href="{% url 'hospital_dashboard' %}" class="bg-slate-100 text-slate-600 font-bold py-3 px-6 rounded-xl hover:bg-slate-200 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all hover:bg-sky-600 transform hover:-translate-y-0.5">
+                    Save Doctor
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
 </div>
 {% endblock %}

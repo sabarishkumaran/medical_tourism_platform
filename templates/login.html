@@ -1,79 +1,83 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+<div class="h-[85vh] -mt-10 mb-[-2.5rem] flex items-center justify-center p-4 animate-fade-up">
 
-<div class="flex justify-center items-center min-h-[70vh]">
+    <div class="w-full max-w-5xl bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row h-full max-h-[700px]">
+        
+        <!-- Left Side: Image/Brand -->
+        <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-indigo-900 to-slate-900 relative p-12 flex-col justify-between overflow-hidden">
+            <!-- Background Image -->
+            <div class="absolute inset-0 opacity-40 mix-blend-overlay">
+                <img src="https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=2670&auto=format&fit=crop" class="w-full h-full object-cover" alt="Medical professional">
+            </div>
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
 
-<div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+            <div class="relative z-10">
+                <a href="{% url 'home' %}" class="inline-block mb-10">
+                    <div class="w-12 h-12 bg-white/10 rounded-xl backdrop-blur border border-white/20 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                    </div>
+                </a>
+                <h2 class="text-4xl font-extrabold text-white mb-4 leading-tight" style="font-family: 'Outfit', sans-serif;">Welcome to the Future of Healthcare.</h2>
+                <p class="text-indigo-200 text-lg">Sign in to access your dashboard, review treatment plans, and connect with world-class hospitals.</p>
+            </div>
+            
+            <div class="relative z-10 flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur border border-white/10">
+                <div class="flex -space-x-2">
+                    <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://ui-avatars.com/api/?name=SJ&background=38bdf8&color=fff" alt="">
+                    <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://ui-avatars.com/api/?name=MT&background=818cf8&color=fff" alt="">
+                    <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://ui-avatars.com/api/?name=AW&background=34d399&color=fff" alt="">
+                </div>
+                <div class="text-xs text-indigo-100">
+                    Join <span class="text-white font-bold">15,000+</span> global patients getting premium care.
+                </div>
+            </div>
+        </div>
 
-<h2 class="text-2xl font-bold text-center mb-6">
-Login
-</h2>
+        <!-- Right Side: Form -->
+        <div class="w-full md:w-1/2 p-8 md:p-14 lg:p-16 flex flex-col justify-center bg-white">
+            <div class="w-full max-w-md mx-auto">
+                <div class="mb-10 text-center md:text-left">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">Sign In</h2>
+                    <p class="text-slate-500">Please enter your credentials to proceed.</p>
+                </div>
 
-<form method="POST" class="space-y-4">
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="space-y-5">
+                        <div class="group">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Username</label>
+                            <input type="text" name="username" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none placeholder:text-slate-400" required placeholder="Enter your username">
+                        </div>
 
-{% csrf_token %}
+                        <div class="group">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider group-focus-within:text-sky-600 transition-colors">Password</label>
+                                <a href="#" class="text-xs font-bold text-sky-600 hover:text-sky-800 transition-colors">Forgot Password?</a>
+                            </div>
+                            <input type="password" name="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none placeholder:text-slate-400" required placeholder="••••••••">
+                        </div>
+                    </div>
 
-<!-- Username -->
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                        Log In to Account
+                    </button>
+                </form>
 
-<div>
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-slate-500">
+                        Don't have an account? 
+                        <a href="{% url 'register' %}" class="text-sky-600 font-bold hover:text-sky-800 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-sky-800 hover:after:w-full after:transition-all after:duration-300">Create one now</a>
+                    </p>
+                </div>
+            </div>
+        </div>
 
-<label class="block text-sm font-medium mb-1">
-Username
-</label>
-
-<input
-type="text"
-name="username"
-class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-required
->
-
+    </div>
 </div>
-
-
-<!-- Password -->
-
-<div>
-
-<label class="block text-sm font-medium mb-1">
-Password
-</label>
-
-<input
-type="password"
-name="password"
-class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-required
->
-
 </div>
-
-
-<button
-type="submit"
-class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
->
-
-Login
-
-</button>
-
-</form>
-
-
-<p class="text-sm text-center mt-4">
-
-Don't have an account?
-
-<a href="{% url 'register' %}" class="text-blue-600 hover:underline">
-Register
-</a>
-
-</p>
-
-</div>
-
-</div>
-
 {% endblock %}

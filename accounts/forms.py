@@ -12,6 +12,7 @@ class RegisterForm(UserCreationForm):
     hospital_address = forms.CharField(required=False)
     hospital_description = forms.CharField(required=False, widget=forms.Textarea)
     hospital_established_year = forms.IntegerField(required=False)
+    hospital_certificate = forms.FileField(required=False)
 
     class Meta:
         model = User
@@ -47,6 +48,8 @@ class RegisterForm(UserCreationForm):
                 self.add_error('hospital_description', 'This field is required for hospitals.')
             if not cleaned_data.get('hospital_established_year'):
                 self.add_error('hospital_established_year', 'This field is required for hospitals.')
+            if not self.files.get('hospital_certificate'):
+                self.add_error('hospital_certificate', 'Certificate document is mandatory for hospitals.')
         return cleaned_data
     
 

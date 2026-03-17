@@ -22,5 +22,16 @@ def treatment_list(request):
     context = {
         "treatments": treatments
     }
-
     return render(request, "treatments.html", context)
+
+def concierge(request):
+    return render(request, "concierge.html")
+
+def blog(request):
+    return render(request, "blog.html")
+
+def about(request):
+    return render(request, "about.html")
+
+def contact(request):
+    return render(request, "contact.html")

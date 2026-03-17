@@ -39,13 +39,31 @@ def pending_hospitals(request):
     return render(request, "pending_hospitals.html", {"hospitals": hospitals})
 
 @login_required
+def review_hospital(request, hospital_id):
+
+    if request.user.role not in ['ADMIN', 'COORDINATOR']:
+        return HttpResponse("Unauthorized")
+
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+
+    return render(request, "review_hospital.html", {
+        "hospital": hospital,
+        "accreditation_choices": Hospital.ACCREDITATION_CHOICES,
+    })
+
+@login_required
 def approve_hospital(request, hospital_id):
 
     if request.user.role not in ['ADMIN', 'COORDINATOR']:
         return HttpResponse("Unauthorized")
 
-    hospital = Hospital.objects.get(id=hospital_id)
+    if request.method != "POST":
+        return redirect("review_hospital", hospital_id=hospital_id)
 
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+
+    accreditation = request.POST.get("accreditation", "")
+    hospital.accreditation = accreditation
     hospital.status = "APPROVED"
     hospital.save()
 
@@ -57,7 +75,10 @@ def reject_hospital(request, hospital_id):
     if request.user.role not in ['ADMIN', 'COORDINATOR']:
         return HttpResponse("Unauthorized")
 
-    hospital = Hospital.objects.get(id=hospital_id)
+    if request.method != "POST":
+        return redirect("review_hospital", hospital_id=hospital_id)
+
+    hospital = get_object_or_404(Hospital, id=hospital_id)
 
     hospital.status = "REJECTED"
     hospital.save()

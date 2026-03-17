@@ -12,6 +12,15 @@ class Hospital(models.Model):
         ('REJECTED', 'Rejected'),
     )
 
+    ACCREDITATION_CHOICES = (
+        ('', 'Not Set'),
+        ('JCI', 'JCI (Joint Commission International)'),
+        ('NABH', 'NABH (National Accreditation Board)'),
+        ('ISO', 'ISO 9001 Certified'),
+        ('JACHO', 'JACHO Accredited'),
+        ('OTHER', 'Other'),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     address = models.CharField(max_length=300)
@@ -20,7 +29,9 @@ class Hospital(models.Model):
 
     description = models.TextField()
 
-    accreditation = models.CharField(max_length=200, blank=True)
+    accreditation = models.CharField(max_length=200, blank=True, choices=ACCREDITATION_CHOICES, default='')
+
+    certificate = models.FileField(upload_to='hospital_certificates/', blank=True, null=True)
 
     established_year = models.IntegerField()
 

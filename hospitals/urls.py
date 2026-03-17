@@ -5,6 +5,8 @@ urlpatterns = [
 
     path('pending/', views.pending_hospitals, name="pending_hospitals"),
 
+    path('review/<int:hospital_id>/', views.review_hospital, name="review_hospital"),
+
     path('approve/<int:hospital_id>/', views.approve_hospital, name="approve_hospital"),
 
     path('reject/<int:hospital_id>/', views.reject_hospital, name="reject_hospital"),

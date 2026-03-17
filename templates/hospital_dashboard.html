@@ -1,86 +1,215 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="container mx-auto px-4 md:px-8 py-10">
+<div class="max-w-[1400px] mx-auto flex flex-col md:flex-row gap-8 animate-fade-up">
 
-  <!-- Doctors -->
-  <div>
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Doctors</h2>
-      <a href="{% url 'add_doctor' %}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-        + Add Doctor
-      </a>
-    </div>
-    <ul class="space-y-2">
-      {% for doctor in doctors %}
-        <li class="bg-white p-4 rounded shadow">
-          <p class="font-semibold">{{ doctor.name }}</p>
-          <p class="text-gray-600">{{ doctor.specialization }} | {{ doctor.experience_years }} yrs</p>
-          <p class="text-gray-500">Success Rate: {{ doctor.success_rate }}%</p>
-        </li>
-      {% empty %}
-        <li>No doctors added yet.</li>
-      {% endfor %}
-    </ul>
-  </div>
+    <!-- Hospital Sidebar Navigation -->
+    <aside class="w-full md:w-72 flex-shrink-0">
+        <div class="bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-700 p-6 sticky top-28 overflow-hidden relative">
+            <!-- Decorative blur -->
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/20 rounded-full blur-2xl"></div>
+            
+            <div class="flex items-center gap-4 mb-8 relative z-10">
+                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center font-bold text-xl shadow-inner border border-white/10 backdrop-blur-sm">
+                    {{ user.hospital.name|default:"H"|slice:":1" }}
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-100 line-clamp-1" title="{{ user.hospital.name|default:'Hospital' }}">{{ user.hospital.name|default:'Hospital Admin' }}</h3>
+                    <p class="text-xs text-sky-400 font-medium uppercase tracking-wider flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Verified Partner</p>
+                </div>
+            </div>
 
-  <!-- Treatment Packages -->
-  <div>
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Treatment Packages</h2>
-      <a href="{% url 'add_treatment_package' %}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
-        + Add Package
-      </a>
-    </div>
-    <ul class="space-y-2">
-      {% for package in packages %}
-        <li class="bg-white p-4 rounded shadow">
-          <p class="font-semibold">{{ package.treatment.name }}</p>
-          <p class="text-gray-600">{{ package.treatment.category }}</p>
-          <p class="text-gray-600">Doctor: {{ package.doctor.name }}</p>
-          <p class="text-gray-500 truncate">{{ package.treatment.description|truncatechars:100 }}</p>
-          <p class="text-gray-500 font-medium">Price: {{ package.price }} {{ package.currency }}</p>
-          <p class="text-gray-500">Stay: {{ package.stay_days }} days | Recovery: {{ package.recovery_days }} days</p>
-        </li>
-      {% empty %}
-        <li>No treatment packages added yet.</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- Recent Inquiries -->
-  <div>
-    <h2 class="text-2xl font-bold mb-4">Recent Inquiries</h2>
-    <div class="space-y-4">
-      {% for inquiry in recent_inquiries %}
-        <div class="bg-white shadow rounded-lg p-5 flex justify-between items-center">
-          <div>
-            <p><strong>Patient:</strong> {{ inquiry.patient.get_full_name }}</p>
-            <p><strong>Treatment:</strong> {{ inquiry.treatment.name }}</p>
-            <p><strong>Date:</strong> {{ inquiry.created_at|date:"M d, Y" }}</p>
-            <p>
-              <strong>Status:</strong>
-              <span class="px-2 py-1 rounded-full text-white
-                {% if inquiry.status == 'NEW' %}bg-yellow-500
-                {% elif inquiry.status == 'QUOTE_SENT' %}bg-blue-500
-                {% elif inquiry.status == 'CONFIRMED' %}bg-green-500
-                {% elif inquiry.status == 'COMPLETED' %}bg-gray-500
-                {% endif %}">
-                {{ inquiry.status }}
-              </span>
-            </p>
-          </div>
-          <div>
-            <a href="{% url 'respond_inquiry' inquiry.id %}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-              Respond
-            </a>
-          </div>
+            <nav class="space-y-2 relative z-10">
+                <a href="{% url 'hospital_dashboard' %}" class="flex items-center gap-3 px-4 py-3 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-xl font-bold transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Dashboard
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Treatments
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors justify-between">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        Inquiries
+                    </div>
+                    {% if recent_inquiries|length > 0 %}
+                    <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ recent_inquiries|length }}</span>
+                    {% endif %}
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Appointments
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Payments
+                </a>
+                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors mt-6">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    Hospital Profile
+                </a>
+            </nav>
         </div>
-      {% empty %}
-        <p>No recent inquiries.</p>
-      {% endfor %}
-    </div>
-  </div>
+    </aside>
 
+    <!-- Main Dashboard Body -->
+    <main class="flex-1 space-y-8">
+        <!-- Header & Metrics -->
+        <div>
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Hospital Operations</h1>
+                    <p class="text-slate-500">Manage patient inquiries, treatment packages, and doctors.</p>
+                </div>
+                <div class="hidden sm:block">
+                    <span class="text-sm font-bold text-slate-400">Current Period:</span>
+                    <select class="ml-2 bg-white border border-slate-200 rounded-lg px-3 py-1 text-sm font-medium text-slate-700 focus:outline-none focus:border-sky-500">
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                        <option>This Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Metric Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-grid">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-sky-200 transition-colors">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-sky-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
+                    <div class="text-3xl font-black text-slate-800 mb-1">{{ recent_inquiries|length|default:"0" }}</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">New Inquiries</div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-amber-200 transition-colors">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
+                    <div class="text-3xl font-black text-slate-800 mb-1">0</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Pending Quotes</div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-emerald-200 transition-colors">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
+                    <div class="text-3xl font-black text-slate-800 mb-1">{{ packages|length|default:"0" }}</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Active Packages</div>
+                </div>
+                <div class="bg-gradient-to-br from-indigo-600 to-sky-700 text-white rounded-2xl p-6 shadow-lg border border-indigo-500 flex flex-col justify-center">
+                    <div class="text-3xl font-black mb-1">$0k</div>
+                    <div class="text-xs font-bold text-indigo-200 uppercase tracking-wide">Est. Revenue</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Recent Inquiries Section -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Recent Inquiries Action</h2>
+                    <button class="text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors">View All</button>
+                </div>
+                
+                <div class="flex-1 overflow-auto">
+                    {% if recent_inquiries %}
+                        <div class="divide-y divide-slate-100">
+                            {% for inquiry in recent_inquiries %}
+                            <div class="p-5 hover:bg-slate-50 transition-colors group">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                            {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
+                                            <p class="text-xs text-slate-500">{{ inquiry.created_at|date:"M d, Y" }}</p>
+                                        </div>
+                                    </div>
+                                    {% if inquiry.status == 'NEW' %}
+                                        <span class="bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-2 py-1 rounded-full">New</span>
+                                    {% elif inquiry.status == 'QUOTE_SENT' %}
+                                        <span class="bg-sky-100 text-sky-800 text-[10px] uppercase font-bold px-2 py-1 rounded-full">Quote Sent</span>
+                                    {% else %}
+                                        <span class="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold px-2 py-1 rounded-full">{{ inquiry.status }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-13 pl-10 border-l-2 border-slate-100 mt-2">
+                                    <p class="text-sm font-semibold text-slate-700">{{ inquiry.treatment.name }}</p>
+                                    <div class="mt-3">
+                                        <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-slate-900 hover:bg-sky-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-sm">Review & Quote</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-10 text-center flex flex-col items-center justify-center h-full">
+                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3 text-slate-300">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                            </div>
+                            <h3 class="font-bold text-slate-800 mb-1">No pending inquiries</h3>
+                            <p class="text-sm text-slate-500">You're all caught up!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="space-y-8 flex flex-col">
+                <!-- Treatment Packages Section -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Active Packages</h2>
+                        <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        {% for package in packages %}
+                        <div class="p-4 border border-slate-100 rounded-xl hover:border-sky-200 hover:shadow-md transition-all group flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm">{{ package.treatment.name }}</h3>
+                                <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ package.treatment.category }} • {{ package.doctor.name }}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-black text-slate-800">${{ package.price }}</div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">{{ package.stay_days }}d stay</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-slate-500 p-4 bg-slate-50 rounded-xl text-center border border-slate-100 border-dashed">No treatment packages published yet. Create one to attract patients.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Doctors Section -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex-1">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Medical Team</h2>
+                        <a href="{% url 'add_doctor' %}" class="text-sm font-bold bg-sky-50 text-sky-600 hover:bg-sky-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        {% for doctor in doctors %}
+                        <div class="p-3 border border-slate-100 rounded-xl flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0">
+                                <img src="https://ui-avatars.com/api/?name={{ doctor.name }}&background=e2e8f0&color=475569" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-800 text-sm">{{ doctor.name }}</h3>
+                                <p class="text-xs text-sky-600 font-semibold">{{ doctor.specialization }}</p>
+                            </div>
+                            <div class="text-right flex flex-col items-end">
+                                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ doctor.success_rate }}% Success</span>
+                                <span class="text-[10px] text-slate-400 mt-1">{{ doctor.experience_years }} yrs exp</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-slate-500 p-4 bg-slate-50 rounded-xl text-center border border-slate-100 border-dashed">No doctors added to your roster.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
 </div>
 {% endblock %}

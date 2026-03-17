@@ -20,7 +20,7 @@ def register(request):
 
     if request.method == "POST":
 
-        form = RegisterForm(request.POST)
+        form = RegisterForm(request.POST, request.FILES)
 
         if form.is_valid():
 
@@ -36,6 +36,7 @@ def register(request):
                     address=form.cleaned_data["hospital_address"],
                     description=form.cleaned_data["hospital_description"],
                     established_year=form.cleaned_data["hospital_established_year"],
+                    certificate=request.FILES.get("hospital_certificate"),
                 )
 
             return redirect("login")

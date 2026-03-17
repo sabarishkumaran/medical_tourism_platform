@@ -1,55 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
 
-<h1 class="text-3xl font-bold mb-6">
-Pending Hospitals
-</h1>
+    <div class="mb-10">
+        <h1 class="text-4xl font-extrabold text-slate-900" style="font-family: 'Outfit', sans-serif;">Pending Hospital Approvals</h1>
+        <p class="text-slate-500 mt-2">Review and verify hospital registrations before they go live on the platform.</p>
+    </div>
 
-<div class="space-y-4">
+    {% if hospitals %}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 stagger-grid">
+        {% for hospital in hospitals %}
+        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex items-center justify-between">
+                <span class="text-white font-bold text-sm uppercase tracking-wider">Pending Review</span>
+                <span class="text-white/70 text-xs">{{ hospital.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+                <h3 class="text-xl font-bold text-slate-800 mb-1" style="font-family: 'Outfit', sans-serif;">{{ hospital.name }}</h3>
+                <p class="text-slate-500 text-sm mb-4">{{ hospital.city }} · Est. {{ hospital.established_year }}</p>
+                <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-1">{{ hospital.description|truncatewords:30 }}</p>
 
-{% for hospital in hospitals %}
+                <div class="flex items-center gap-3 mb-6">
+                    {% if hospital.certificate %}
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Certificate Uploaded
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-600 text-xs font-semibold rounded-full border border-red-200">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        No Certificate
+                    </span>
+                    {% endif %}
+                </div>
 
-<div class="bg-white shadow rounded-lg p-6 flex justify-between items-center">
-
-<div>
-
-<h3 class="text-lg font-semibold">
-{{ hospital.name }}
-</h3>
-
-<p class="text-gray-600">
-{{ hospital.city }}, {{ hospital.country }}
-</p>
+                <a href="{% url 'review_hospital' hospital.id %}" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 text-center text-sm">
+                    Review Details →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-16 text-center">
+        <svg class="w-16 h-16 text-slate-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <h2 class="text-2xl font-bold text-slate-300 mb-2" style="font-family: 'Outfit', sans-serif;">All Clear!</h2>
+        <p class="text-slate-400">No pending hospital applications to review.</p>
+    </div>
+    {% endif %}
 
 </div>
-
-<div class="space-x-4">
-
-<a
-href="{% url 'approve_hospital' hospital.id %}"
-class="bg-green-600 text-white px-4 py-2 rounded"
->
-
-Approve
-
-</a>
-
-<a
-href="{% url 'reject_hospital' hospital.id %}"
-class="bg-red-600 text-white px-4 py-2 rounded"
->
-
-Reject
-
-</a>
-
-</div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
 {% endblock %}
