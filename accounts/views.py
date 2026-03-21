@@ -3,15 +3,79 @@ from inquiries.models import Inquiry
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import ProfileForm, RegisterForm
+from .forms import ProfileForm, RegisterForm, StaffCreationForm
 from .models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+
+@login_required
+def manage_staff(request):
+    if request.user.role != 'ADMIN' and not request.user.is_superuser:
+        return HttpResponse("Unauthorized", status=403)
+    
+    from django.core.paginator import Paginator
+    staff_users_all = User.objects.filter(role__in=['ADMIN', 'COORDINATOR']).order_by('-date_joined')
+    
+    paginator = Paginator(staff_users_all, 10)
+    page_number = request.GET.get('page')
+    staff_users = paginator.get_page(page_number)
+    
+    if request.method == "POST":
+        form = StaffCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f"Staff account for {user.username} created successfully.")
+            return redirect('manage_staff')
+    else:
+        form = StaffCreationForm()
+        
+    return render(request, "manage_staff.html", {
+        "staff_users": staff_users,
+        "form": form
+    })
+
+@login_required
+def admin_dashboard(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        return HttpResponse("Unauthorized", status=403)
+    
+    from inquiries.models import ContactMessage
+    from hospitals.models import Hospital
+    from .models import User
+    
+    # KPI Stats
+    stats = {
+        'total_hospitals': Hospital.objects.count(),
+        'pending_hospitals': Hospital.objects.filter(status='PENDING').count(),
+        'approved_hospitals': Hospital.objects.filter(status='APPROVED').count(),
+        'total_inquiries': Inquiry.objects.count(),
+        'total_patients': User.objects.filter(role='PATIENT').count(),
+        'unread_contacts': ContactMessage.objects.filter(is_read=False).count(),
+    }
+    
+    # Recent Activity
+    recent_inquiries = Inquiry.objects.select_related('patient', 'treatment').order_by('-created_at')[:5]
+    recent_hospitals = Hospital.objects.select_related('user').order_by('-user__date_joined')[:5]
+    recent_messages = ContactMessage.objects.order_by('-created_at')[:5]
+    
+    context = {
+        'stats': stats,
+        'recent_inquiries': recent_inquiries,
+        'recent_hospitals': recent_hospitals,
+        'recent_messages': recent_messages,
+    }
+    
+    return render(request, "admin_dashboard.html", context)
 
 @login_required
 def patient_dashboard(request):
-
-    inquiries = Inquiry.objects.filter(patient=request.user)
+    from django.core.paginator import Paginator
+    inquiries_all = Inquiry.objects.filter(patient=request.user).order_by('-created_at')
+    
+    paginator = Paginator(inquiries_all, 10)
+    page_number = request.GET.get('page')
+    inquiries = paginator.get_page(page_number)
 
     return render(request, "patient_dashboard.html", {
         "inquiries": inquiries
@@ -70,7 +134,7 @@ def user_login(request):
                 if user.role == 'HOSPITAL':
                     return redirect("hospital_dashboard")
                 elif user.role in ['ADMIN', 'COORDINATOR']:
-                    return redirect("pending_hospitals")
+                    return redirect("admin_dashboard")
                 else:
                     return redirect("patient_dashboard")
 

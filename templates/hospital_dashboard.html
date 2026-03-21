@@ -149,9 +149,9 @@
                 <!-- Treatment Packages Section -->
                 <div id="treatments" class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Active Packages</h2>
-                        <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add
+                        <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
+                        <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Package
                         </a>
                     </div>
                     
@@ -185,9 +185,9 @@
                     <div class="flex justify-between items-center mb-6">
                         <div class="flex items-center gap-2">
                             <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Medical Team</h2>
-                            <a href="{% url 'manage_doctors' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 px-2 py-0.5 rounded-full">Manage All &rarr;</a>
+                            <a href="{% url 'manage_doctors' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 px-2 py-0.5 rounded-full cursor-pointer">Manage All &rarr;</a>
                         </div>
-                        <a href="{% url 'add_doctor' %}" class="text-sm font-bold bg-sky-50 text-sky-600 hover:bg-sky-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <a href="{% url 'add_doctor' %}" class="text-sm font-bold bg-sky-50 text-sky-600 hover:bg-sky-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add
                         </a>
                     </div>
@@ -214,6 +214,10 @@
                                 <a href="{% url 'edit_doctor' doctor.id %}" class="text-sky-500 hover:text-sky-700 p-1" title="Edit Doctor">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 </a>
+                                <a href="{% url 'review_hospital' user.hospital.id %}" class="flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-700 rounded-xl hover:bg-sky-100 transition-colors group cursor-pointer">
+                            <svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            <span class="text-sm font-bold">Public View</span>
+                        </a>
                                 <form action="{% url 'delete_doctor' doctor.id %}" method="POST" class="inline m-0" onsubmit="return confirm('Are you sure you want to delete this doctor?');">
                                     {% csrf_token %}
                                     <button type="submit" class="text-red-500 hover:text-red-700 p-1" title="Delete Doctor">

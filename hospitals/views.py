@@ -34,7 +34,14 @@ def hospital_detail(request, id):
 def pending_hospitals(request):
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
         raise PermissionDenied
-    hospitals = Hospital.objects.filter(status='PENDING')
+        
+    from django.core.paginator import Paginator
+    hospitals_all = Hospital.objects.filter(status='PENDING').order_by('-user__date_joined')
+    
+    paginator = Paginator(hospitals_all, 10)
+    page_number = request.GET.get('page')
+    hospitals = paginator.get_page(page_number)
+    
     return render(request, "pending_hospitals.html", {"hospitals": hospitals})
 
 @hospital_required
@@ -141,7 +148,13 @@ def hospital_dashboard(request):
 @hospital_required
 def manage_doctors(request):
     hospital = request.user.hospital
-    doctors = Doctor.objects.filter(hospital=hospital)
+    from django.core.paginator import Paginator
+    doctors_all = Doctor.objects.filter(hospital=hospital).order_by('name')
+    
+    paginator = Paginator(doctors_all, 12)
+    page_number = request.GET.get('page')
+    doctors = paginator.get_page(page_number)
+    
     return render(request, "manage_doctors.html", {
         "hospital": hospital,
         "doctors": doctors
@@ -197,12 +210,6 @@ def delete_doctor(request, doctor_id):
 def doctor_detail(request, doctor_id):
     doctor = get_object_or_404(Doctor, id=doctor_id)
     return render(request, "doctor_detail.html", {"doctor": doctor})
-    if request.method == "POST":
-        doctor = get_object_or_404(Doctor, id=doctor_id)
-        if doctor.hospital != request.user.hospital:
-            return HttpResponse("Unauthorized")
-        doctor.delete()
-    return redirect('hospital_dashboard')
 
 @hospital_required
 def delete_treatment_package(request, package_id):
@@ -212,3 +219,38 @@ def delete_treatment_package(request, package_id):
             return HttpResponse("Unauthorized")
         package.delete()
     return redirect('hospital_dashboard')
+
+def hospital_list(request):
+    from django.db.models import Q
+    from django.core.paginator import Paginator
+    
+    query = request.GET.get('q', '')
+    country = request.GET.get('country', '')
+    
+    hospitals_all = Hospital.objects.filter(status='APPROVED').order_by('name')
+    
+    if query:
+        hospitals_all = hospitals_all.filter(
+            Q(name__icontains=query) | 
+            Q(city__icontains=query) | 
+            Q(user__country__icontains=query)
+        )
+    
+    if country:
+        hospitals_all = hospitals_all.filter(user__country__icontains=country)
+        
+    paginator = Paginator(hospitals_all, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get distinct countries for filter dropdown
+    countries = Hospital.objects.filter(status='APPROVED').values_list('user__country', flat=True).distinct()
+    
+    context = {
+        'page_obj': page_obj,
+        'countries': countries,
+        'query': query,
+        'current_country': country,
+    }
+    
+    return render(request, "hospital_list.html", context)

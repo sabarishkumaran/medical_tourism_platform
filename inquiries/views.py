@@ -41,9 +41,11 @@ def submit_inquiry(request):
     return render(request, "submit_inquiry.html", {"form": form})
 
 
+from django.core.paginator import Paginator
+
 @login_required
-def contact_inbox(request):
-    if not request.user.is_superuser:
+def inquiry_hub(request):
+    if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
         return HttpResponse("Unauthorized", status=403)
 
     from .models import ContactMessage
@@ -61,7 +63,12 @@ def contact_inbox(request):
         except ContactMessage.DoesNotExist:
             messages.error(request, "Message not found.")
         
-        return redirect('contact_inbox')
+        return redirect('inquiry_hub')
 
-    messages_list = ContactMessage.objects.all().order_by('-created_at')
-    return render(request, "contact_inbox.html", {"messages_list": messages_list})
+    messages_all = ContactMessage.objects.all().order_by('-created_at')
+    
+    paginator = Paginator(messages_all, 10) # 10 messages per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, "inquiry_hub.html", {"page_obj": page_obj})

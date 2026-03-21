@@ -78,37 +78,100 @@
         </a>
       </h1>
 
-      <!-- Center: Navigation Menu -->
+      <!-- Center: Navigation Menu (Desktop) -->
       <nav class="hidden md:flex space-x-6 items-center text-[14px] font-bold text-slate-600">
         {% if not user.is_authenticated %}
-          <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Home</a>
-          <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Treatments</a>
-          <a href="{% url 'blog' %}" class="nav-link hover:text-slate-900 transition-colors">Blog</a>
-          <a href="{% url 'about' %}" class="nav-link hover:text-slate-900 transition-colors">About</a>
-          <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors">Contact</a>
+        <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Home</a>
+        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Treatments</a>
+        <a href="{% url 'blog' %}" class="nav-link hover:text-slate-900 transition-colors">Blog</a>
+        <a href="{% url 'about' %}" class="nav-link hover:text-slate-900 transition-colors">About</a>
+        <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors">Contact</a>
         {% elif user.role == 'HOSPITAL' %}
           <a href="{% url 'hospital_dashboard' %}" class="nav-link text-sky-600 hover:text-sky-700 transition-colors">Operations Dashboard</a>
           <a href="{% url 'hospital_dashboard' %}#treatments" class="nav-link hover:text-slate-900 transition-colors">Active Treatments</a>
-          <a href="{% url 'manage_doctors' %}" class="nav-link hover:text-slate-900 transition-colors">Medical Team</a>
+        <a href="{% url 'manage_doctors' %}" class="nav-link hover:text-slate-900 transition-colors">Medical Team</a>
           <a href="{% url 'hospital_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">Inquiries</a>
         {% elif user.role == 'PATIENT' %}
           <a href="{% url 'patient_dashboard' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors">Care Dashboard</a>
-          <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Find Care</a>
+        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Find Care</a>
           <a href="{% url 'patient_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">My Inquiries</a>
-        {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' %}
-          <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Admin Home</a>
-          <a href="{% url 'pending_hospitals' %}" class="nav-link text-amber-600 hover:text-amber-700 transition-colors">Approvals</a>
-          <a href="{% url 'contact_inbox' %}" class="nav-link hover:text-slate-900 transition-colors">Contact Inbox</a>
+        {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
+        <a href="{% url 'admin_dashboard' %}" class="nav-link hover:text-slate-900 transition-colors">Admin Home</a>
+        <a href="{% url 'pending_hospitals' %}" class="nav-link text-amber-600 hover:text-amber-700 transition-colors">Approvals</a>
+        {% if user.role == 'ADMIN' or user.is_superuser %}
+        <a href="{% url 'manage_staff' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors">Manage Team</a>
+        {% endif %}
+        <a href="{% url 'inquiry_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1">
+          Inquiry Hub
+          {% if unread_contact_count > 0 %}
+          <span
+            class="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full animate-pulse shadow-sm">
+            {{ unread_contact_count }}
+          </span>
+          {% endif %}
+        </a>
         {% endif %}
       </nav>
 
-      <!-- Right: User Actions / L10n -->
-      <div class="flex items-center gap-4 text-sm font-semibold">
-        <!-- Auth -->
-        {% if user.is_authenticated %}
+      <!-- Right: User Actions / Mobile Toggle -->
+      <div class="flex items-center gap-2 md:gap-4 text-sm font-semibold" x-data="{ mobileMenuOpen: false }">
         
+        <!-- Mobile Toggle Button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <!-- Mobile Menu Overlay -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-4"
+             @click.away="mobileMenuOpen = false"
+             class="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl z-50 py-6 px-4 md:hidden flex flex-col gap-4 overflow-y-auto max-h-[80vh]"
+             style="display: none;">
+            
+            {% if not user.is_authenticated %}
+            <a href="{% url 'home' %}" class="p-4 bg-slate-50 rounded-2xl font-bold text-slate-700">Home</a>
+            <a href="{% url 'treatments' %}" class="p-4 bg-slate-50 rounded-2xl font-bold text-slate-700">Treatments</a>
+            <a href="{% url 'login' %}" class="p-4 bg-sky-600 text-white rounded-2xl font-bold text-center">Login</a>
+            <a href="{% url 'register' %}" class="p-4 border-2 border-slate-100 rounded-2xl font-bold text-center text-slate-700">Register</a>
+            {% else %}
+                <div class="px-2 mb-2">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Navigation</p>
+                </div>
+                {% if user.role == 'HOSPITAL' %}
+                    <a href="{% url 'hospital_dashboard' %}" class="p-3 bg-sky-50 text-sky-700 rounded-xl font-bold">Dashboard</a>
+                    <a href="{% url 'manage_doctors' %}" class="p-3 hover:bg-slate-50 rounded-xl font-bold text-slate-600">Medical Team</a>
+                {% elif user.role == 'PATIENT' %}
+                    <a href="{% url 'patient_dashboard' %}" class="p-3 bg-indigo-50 text-indigo-700 rounded-xl font-bold">Care Dashboard</a>
+                    <a href="{% url 'treatments' %}" class="p-3 hover:bg-slate-50 rounded-xl font-bold text-slate-600">Find Care</a>
+                {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
+                    <a href="{% url 'admin_dashboard' %}" class="p-3 bg-slate-900 text-white rounded-xl font-bold">Admin Dashboard</a>
+                    <a href="{% url 'pending_hospitals' %}" class="p-3 hover:bg-amber-50 rounded-xl font-bold text-amber-700">Approvals</a>
+                    <a href="{% url 'inquiry_hub' %}" class="p-3 hover:bg-slate-50 rounded-xl font-bold text-slate-600">Inquiry Hub</a>
+                {% endif %}
+                <hr class="border-slate-100 my-2">
+                <a href="{% url 'profile' %}" class="p-3 hover:bg-slate-50 rounded-xl font-bold text-slate-600">My Profile</a>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full text-left p-3 text-rose-600 font-bold hover:bg-rose-50 rounded-xl transition-colors">Sign Out</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Auth (Desktop) -->
+        {% if user.is_authenticated %}
+
         <div class="relative inline-block" x-data="{ open: false }">
-            <button @click="open = !open"
+          <button @click="open = !open"
             class="flex items-center gap-2 rounded-full p-1 pr-3 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all focus:outline-none group">
             {% if user.role == "PATIENT" and user.patientprofile.avatar %}
             <img src="{{ user.patientprofile.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
@@ -122,11 +185,11 @@
             {% endif %}
             <span class="hidden lg:block group-hover:text-sky-600 transition-colors max-w-[120px] truncate">
               {% if user.role == "HOSPITAL" and user.hospital %}
-                {{ user.hospital.name }}
+              {{ user.hospital.name }}
               {% elif user.first_name %}
-                {{ user.first_name }}
+              {{ user.first_name }}
               {% else %}
-                {{ user.username }}
+              {{ user.username }}
               {% endif %}
             </span>
             <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-500 transition-colors" fill="none"
@@ -151,12 +214,15 @@
                 </svg>
                 Account Profile
               </a>
-              {% if user.role == "ADMIN" or user.role == "COORDINATOR" %}
+              {% if user.is_superuser %}
               <a href="/admin"
                 class="flex items-center gap-2 px-3 py-2 text-sm rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                  </path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+                  </path>
                 </svg>
                 Django Admin
               </a>

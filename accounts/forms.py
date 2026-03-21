@@ -30,6 +30,11 @@ class RegisterForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Restrict public registration to only Patient and Hospital roles
+        self.fields['role'].choices = [
+            ('PATIENT', 'Patient'),
+            ('HOSPITAL', 'Hospital'),
+        ]
 
         for field in self.fields.values():
             field.widget.attrs.update({
@@ -62,6 +67,24 @@ class RegisterForm(UserCreationForm):
             if not self.files.get('hospital_certificate'):
                 self.add_error('hospital_certificate', 'Certificate document is mandatory for hospitals.')
         return cleaned_data
+
+
+class StaffCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "username", "email", "role"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Limit choices to staff roles
+        self.fields['role'].choices = [
+            ('ADMIN', 'Admin'),
+            ('COORDINATOR', 'Coordinator'),
+        ]
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                "class": "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:bg-white focus:border-sky-500 outline-none"
+            })
     
 
 

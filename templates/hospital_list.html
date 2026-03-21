@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <!-- Header Section -->
+    <div class="max-w-7xl mx-auto mb-12 animate-fade-up">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 text-center" style="font-family: 'Outfit', sans-serif;">Accredited Medical Facilities</h1>
+        <p class="text-slate-500 text-center max-w-2xl mx-auto text-lg mb-10">Browse our network of world-class hospitals and specialized clinics.</p>
+
+        <!-- Search & Filter Bar -->
+        <form method="GET" class="bg-white p-4 md:p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-stretch md:items-center w-full max-w-4xl mx-auto mb-16">
+            <div class="flex-1 relative">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search by name or city..." 
+                    class="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-sky-500 text-slate-700 text-sm">
+            </div>
+            
+            <div class="flex-1">
+                <select name="country" onchange="this.form.submit()"
+                    class="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-sky-500 text-slate-700 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1.25rem_center] bg-no-repeat text-sm">
+                    <option value="">All Countries</option>
+                    {% for cnt in countries %}
+                    <option value="{{ cnt }}" {% if current_country == cnt %}selected{% endif %}>{{ cnt }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="bg-slate-900 text-white font-bold px-10 py-4 rounded-2xl hover:bg-sky-600 transition-all shadow-lg active:scale-95">Search</button>
+        </form>
+    </div>
+
+    <!-- Hospital Grid -->
+    <div class="max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-grid">
+            {% for hospital in page_obj %}
+            <article class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
+                <!-- Hospital Image Container -->
+                <div class="h-56 bg-slate-100 relative overflow-hidden">
+                    {% if hospital.images.first %}
+                    <img src="{{ hospital.images.first.image.url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="{{ hospital.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Hospital Default">
+                    {% endif %}
+                    
+                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-slate-800 shadow-sm flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        {{ hospital.average_rating|default:"New"|floatformat:1 }}
+                    </div>
+
+                    <div class="absolute top-4 right-4 bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase shadow-sm">
+                        {{ hospital.get_accreditation_display|default:"Accredited" }}
+                    </div>
+                </div>
+
+                <!-- Info Holder -->
+                <div class="p-8 flex flex-col flex-1">
+                    <h3 class="text-xl font-bold text-slate-900 group-hover:text-sky-600 transition-colors mb-2" style="font-family: 'Outfit', sans-serif;">
+                        {{ hospital.name }}
+                    </h3>
+                    
+                    <p class="text-slate-500 text-sm mb-6 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        {{ hospital.city }}, {{ hospital.user.country }}
+                    </p>
+
+                    <div class="mt-auto">
+                        <a href="{% url 'hospital_detail' hospital.id %}" class="block w-full text-center bg-slate-50 group-hover:bg-sky-50 text-sky-700 font-bold py-3.5 rounded-2xl transition-all duration-300">
+                            View Facility Details
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="md:col-span-2 lg:col-span-3 bg-white border border-slate-100 rounded-[2.5rem] p-20 text-center text-slate-500 shadow-sm animate-fade-up">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800" style="font-family: 'Outfit', sans-serif;">No Medical Facilities Found</h3>
+                <p class="max-w-md mx-auto">We couldn't find any hospitals matching your search criteria. Try adjusting your filters or search keywords.</p>
+                <a href="{% url 'hospital_list' %}" class="inline-block mt-8 text-sky-600 font-bold hover:underline">Clear all filters</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if page_obj.has_other_pages %}
+        <div class="mt-16 flex items-center justify-between bg-white px-10 py-8 rounded-[2.5rem] border border-slate-100 shadow-sm animate-fade-up">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} facilities
+            </p>
+            <div class="flex items-center gap-3">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_country %}&country={{ current_country }}{% endif %}" 
+                   class="px-6 py-2.5 rounded-xl border border-slate-100 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 hover:text-sky-600 transition-all uppercase tracking-widest shadow-sm">Previous</a>
+                {% endif %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_country %}&country={{ current_country }}{% endif %}" 
+                   class="px-6 py-2.5 rounded-xl border border-slate-100 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 hover:text-sky-600 transition-all uppercase tracking-widest shadow-sm">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

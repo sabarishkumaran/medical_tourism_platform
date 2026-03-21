@@ -44,7 +44,7 @@
         <!-- Metric Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 stagger-grid">
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center">
-                <div class="text-3xl font-black text-slate-800 mb-1">{{ inquiries|length }}</div>
+                <div class="text-3xl font-black text-slate-800 mb-1">{{ inquiries.paginator.count }}</div>
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Inquiries</div>
             </div>
             <div class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 shadow-sm border border-indigo-100 flex flex-col justify-center">
@@ -118,6 +118,23 @@
                         </div>
                         {% endfor %}
                     </div>
+                    
+                    {% if inquiries.has_other_pages %}
+                    <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Page {{ inquiries.number }} of {{ inquiries.paginator.num_pages }}
+                        </p>
+                        <div class="flex items-center gap-2">
+                            {% if inquiries.has_previous %}
+                            <a href="?page={{ inquiries.previous_page_number }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all">Previous</a>
+                            {% endif %}
+                            
+                            {% if inquiries.has_next %}
+                            <a href="?page={{ inquiries.next_page_number }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all">Next</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                 {% else %}
                     <div class="p-16 text-center flex flex-col items-center">
                         <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">

@@ -66,8 +66,13 @@ def treatment_list(request):
     countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).exclude(user__country__exact="").values_list('user__country', flat=True).distinct()
     categories = Treatment.objects.values_list('category', flat=True).distinct()
 
+    from django.core.paginator import Paginator
+    paginator = Paginator(packages, 12) # 12 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "packages": packages,
+        "page_obj": page_obj,
         "countries": countries,
         "categories": categories,
         "current_category": category,
