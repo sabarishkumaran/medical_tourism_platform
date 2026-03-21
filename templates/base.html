@@ -32,7 +32,8 @@
   <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
 </head>
 
-<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans animate__animated animate__fadeIn overflow-x-hidden">
+<body
+  class="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans animate__animated animate__fadeIn overflow-x-hidden">
 
   <!-- Custom style for the animated hover underline -->
   <style>
@@ -78,65 +79,36 @@
       </h1>
 
       <!-- Center: Navigation Menu -->
-      <nav class="hidden md:flex space-x-8 items-center text-[15px] font-semibold text-slate-600">
-        <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Home</a>
-        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Treatments</a>
-        <a href="{% url 'concierge' %}" class="nav-link hover:text-slate-900 transition-colors">Concierge</a>
-        <a href="{% url 'blog' %}" class="nav-link hover:text-slate-900 transition-colors">Blog</a>
-        <a href="{% url 'about' %}" class="nav-link hover:text-slate-900 transition-colors">About Us</a>
-        <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors">Contact</a>
+      <nav class="hidden md:flex space-x-6 items-center text-[14px] font-bold text-slate-600">
+        {% if not user.is_authenticated %}
+          <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Home</a>
+          <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Treatments</a>
+          <a href="{% url 'blog' %}" class="nav-link hover:text-slate-900 transition-colors">Blog</a>
+          <a href="{% url 'about' %}" class="nav-link hover:text-slate-900 transition-colors">About</a>
+          <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors">Contact</a>
+        {% elif user.role == 'HOSPITAL' %}
+          <a href="{% url 'hospital_dashboard' %}" class="nav-link text-sky-600 hover:text-sky-700 transition-colors">Operations Dashboard</a>
+          <a href="{% url 'hospital_dashboard' %}#treatments" class="nav-link hover:text-slate-900 transition-colors">Active Treatments</a>
+          <a href="{% url 'manage_doctors' %}" class="nav-link hover:text-slate-900 transition-colors">Medical Team</a>
+          <a href="{% url 'hospital_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">Inquiries</a>
+        {% elif user.role == 'PATIENT' %}
+          <a href="{% url 'patient_dashboard' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors">Care Dashboard</a>
+          <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Find Care</a>
+          <a href="{% url 'patient_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">My Inquiries</a>
+        {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' %}
+          <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Admin Home</a>
+          <a href="{% url 'pending_hospitals' %}" class="nav-link text-amber-600 hover:text-amber-700 transition-colors">Approvals</a>
+          <a href="{% url 'contact_inbox' %}" class="nav-link hover:text-slate-900 transition-colors">Contact Inbox</a>
+        {% endif %}
       </nav>
 
       <!-- Right: User Actions / L10n -->
       <div class="flex items-center gap-4 text-sm font-semibold">
-
-        <!-- Language Selector -->
-        <div class="hidden lg:block relative" x-data="{ open: false }">
-          <button @click="open = !open"
-            class="flex items-center gap-1 text-slate-600 hover:text-sky-600 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-              </path>
-            </svg>
-            EN
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          <div x-show="open" @click.away="open = false"
-            class="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50 text-slate-700 backdrop-blur-lg"
-            style="display: none;">
-            <a href="#" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-700">English</a>
-            <a href="#" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-700">Arabic</a>
-            <a href="#" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-700">Russian</a>
-          </div>
-        </div>
-
-        <!-- Currency Selector -->
-        <div class="hidden lg:block relative" x-data="{ open: false }">
-          <button @click="open = !open"
-            class="flex items-center gap-1 text-slate-600 hover:text-sky-600 transition-colors">
-            USD
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          <div x-show="open" @click.away="open = false"
-            class="absolute right-0 mt-2 w-24 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50 text-slate-700 backdrop-blur-lg"
-            style="display: none;">
-            <a href="#" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-700 font-medium">USD ($)</a>
-            <a href="#" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-700 font-medium">EUR (€)</a>
-            <a href="#" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-700 font-medium">GBP (£)</a>
-          </div>
-        </div>
-
-        <div class="w-px h-6 bg-slate-200 hidden md:block mx-1"></div>
-
         <!-- Auth -->
         {% if user.is_authenticated %}
+        
         <div class="relative inline-block" x-data="{ open: false }">
-          <button @click="open = !open"
+            <button @click="open = !open"
             class="flex items-center gap-2 rounded-full p-1 pr-3 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all focus:outline-none group">
             {% if user.role == "PATIENT" and user.patientprofile.avatar %}
             <img src="{{ user.patientprofile.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
@@ -144,12 +116,19 @@
             <img src="{{ user.hospital.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
             {% else %}
             <div
-              class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold">
-              {{ user.first_name|default:"U"|slice:":1" }}
+              class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-xs">
+              {{ user.first_name|default:user.username|slice:":1"|upper }}
             </div>
             {% endif %}
-            <span class="hidden md:block group-hover:text-sky-600 transition-colors">{{
-              user.first_name|default:user.username }}</span>
+            <span class="hidden lg:block group-hover:text-sky-600 transition-colors max-w-[120px] truncate">
+              {% if user.role == "HOSPITAL" and user.hospital %}
+                {{ user.hospital.name }}
+              {% elif user.first_name %}
+                {{ user.first_name }}
+              {% else %}
+                {{ user.username }}
+              {% endif %}
+            </span>
             <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-500 transition-colors" fill="none"
               stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -160,46 +139,26 @@
             class="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl text-slate-700 border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden"
             style="display: none;">
             <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-              <p class="text-sm">Signed in as</p>
-              <p class="text-sm font-bold text-slate-900 truncate">{{ user.email }}</p>
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Signed in as</p>
+              <p class="text-xs font-bold text-slate-900 truncate">{{ user.email }}</p>
             </div>
             <div class="p-2 space-y-1">
-              {% if user.role == "HOSPITAL" %}
-              <a href="{% url 'hospital_dashboard' %}"
-                class="flex items-center gap-2 px-3 py-2 text-sm rounded-xl hover:bg-sky-50 hover:text-sky-700 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2">
-                  </path>
-                </svg>
-                Hospital Portal
-              </a>
-              {% else %}
-              <a href="{% url 'patient_dashboard' %}"
-                class="flex items-center gap-2 px-3 py-2 text-sm rounded-xl hover:bg-sky-50 hover:text-sky-700 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                  </path>
-                </svg>
-                Dashboard
-              </a>
-              {% endif %}
               <a href="{% url 'profile' %}"
                 class="flex items-center gap-2 px-3 py-2 text-sm rounded-xl hover:bg-sky-50 hover:text-sky-700 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
-                Settings
+                Account Profile
               </a>
               {% if user.role == "ADMIN" or user.role == "COORDINATOR" %}
-              <a href="{% url 'pending_hospitals' %}"
-                class="flex items-center gap-2 px-3 py-2 text-sm rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors">
+              <a href="/admin"
+                class="flex items-center gap-2 px-3 py-2 text-sm rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
-                Pending Approvals
+                Django Admin
               </a>
               {% endif %}
             </div>
@@ -248,7 +207,25 @@
     });
   </script>
 
-  <main class="flex-1 w-full bg-slate-50">
+  <main class="flex-1 w-full bg-slate-50 relative">
+    {% if messages %}
+    <div class="fixed top-24 right-4 z-50 flex flex-col gap-2">
+      {% for message in messages %}
+      <div class="bg-white border-l-4 border-sky-500 shadow-xl rounded-lg p-4 animate-fade-up flex items-start gap-3 w-80 relative" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+        <div class="text-sky-500 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-slate-800">{{ message }}</p>
+        </div>
+        <button @click="show = false" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </main>
 
@@ -317,11 +294,7 @@
                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>Treatments</a></li>
-            <li><a href="{% url 'concierge' %}"
-                class="hover:text-sky-400 transition-colors flex items-center gap-2"><svg class="w-3 h-3 text-sky-500"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>Concierge Services</a></li>
+
             <li><a href="/#hospitals" class="hover:text-sky-400 transition-colors flex items-center gap-2"><svg
                   class="w-3 h-3 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

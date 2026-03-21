@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from accounts.models import User
 from treatments.models import Treatment
 
@@ -41,7 +42,20 @@ class Hospital(models.Model):
         default='PENDING'
     )
 
+    beds_count = models.IntegerField(default=100)
+    international_patients = models.IntegerField(default=1000)
+
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def years_active(self):
+        from datetime import date
+        return date.today().year - self.established_year
+
+    @property
+    def average_rating(self):
+        avg = self.review_set.aggregate(Avg('rating'))['rating__avg']
+        return round(avg, 1) if avg else 0.0
 
     def __str__(self):
         return self.name
@@ -57,6 +71,7 @@ class Doctor(models.Model):
     success_rate = models.FloatField()
 
     bio = models.TextField()
+    photo = models.ImageField(upload_to='doctor_photos/', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -71,3 +86,7 @@ class TreatmentPackage(models.Model):
     recovery_days = models.IntegerField()
     def __str__(self):
         return f"{self.treatment.name} - {self.hospital.name}"
+
+class HospitalImage(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='hospital_images/')

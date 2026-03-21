@@ -66,6 +66,15 @@
                             {% render_field form.role class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:bg-white focus:border-sky-500 outline-none" x-model="role" %}
                         </div>
 
+                        <!-- Name Fields (Patient Only) -->
+                        <div class="group" x-show="role === 'PATIENT'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">First Name</label>
+                            {% render_field form.first_name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. John" %}
+                        </div>
+                        <div class="group" x-show="role === 'PATIENT'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Last Name</label>
+                            {% render_field form.last_name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. Smith" %}
+                        </div>
                         <div class="group">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Username</label>
                             {% render_field form.username class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}

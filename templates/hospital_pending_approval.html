@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="h-[60vh] flex items-center justify-center p-4 animate-fade-up">
+        
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 p-10 md:p-16 text-center max-w-2xl w-full">
+            
+            <div class="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-amber-100">
+                <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-4" style="font-family: 'Outfit', sans-serif;">Approval in Progress</h1>
+            <p class="text-slate-600 text-lg mb-8">
+                Your hospital application is currently under review by our administration team. This process ensures the highest quality standards for our platform. 
+                <br><br>
+                <strong>Please check after some time.</strong> We will notify you once your account is fully verified and activated.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'profile' %}" class="bg-indigo-50 text-indigo-700 font-bold py-3 px-8 rounded-xl hover:bg-indigo-100 transition-colors">
+                    Update Profile Details
+                </a>
+                <a href="{% url 'logout' %}" class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-sky-600 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] transition-colors">
+                    Sign Out
+                </a>
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

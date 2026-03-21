@@ -5,8 +5,12 @@
 
 <!-- Hospital Header Banner -->
 <div class="relative w-full h-[40vh] md:h-[50vh] rounded-[3rem] overflow-hidden mb-12 shadow-2xl animate-fade-up">
-    <!-- Placeholder Banner -->
-    <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop" class="w-full h-full object-cover" alt="{{ hospital.name }}">
+    <!-- Banner Image -->
+    {% if hospital.images.first %}
+        <img src="{{ hospital.images.first.image.url }}" class="w-full h-full object-cover" alt="{{ hospital.name }}">
+    {% else %}
+        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop" class="w-full h-full object-cover" alt="{{ hospital.name }}">
+    {% endif %}
     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
     
     <div class="absolute bottom-0 left-0 w-full p-8 md:p-16">
@@ -62,21 +66,34 @@
                     <p class="text-slate-600 leading-relaxed">{{ hospital.description|default:"A premier healthcare facility offering world-class treatments and specialized medical care. Dedicated to patient safety, comfort, and state-of-the-art medical technology." }}</p>
                 </div>
                 
+                {% if hospital.images.all|length > 1 %}
+                <div class="mt-8">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">Hospital Gallery</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for img in hospital.images.all %}
+                        <div class="h-32 rounded-xl overflow-hidden shadow-sm border border-slate-100 group">
+                            <img src="{{ img.image.url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Hospital Photo">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                        <div class="text-3xl font-bold text-sky-600 mb-1">20+</div>
+                        <div class="text-3xl font-bold text-sky-600 mb-1">{{ hospital.years_active }}+</div>
                         <div class="text-xs text-slate-500 uppercase tracking-wide">Years Active</div>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                        <div class="text-3xl font-bold text-indigo-600 mb-1">15k+</div>
+                        <div class="text-3xl font-bold text-indigo-600 mb-1">{{ hospital.international_patients }}+</div>
                         <div class="text-xs text-slate-500 uppercase tracking-wide">Intl Patients</div>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                        <div class="text-3xl font-bold text-emerald-600 mb-1">500+</div>
+                        <div class="text-3xl font-bold text-emerald-600 mb-1">{{ hospital.beds_count }}+</div>
                         <div class="text-xs text-slate-500 uppercase tracking-wide">Beds</div>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                        <div class="text-3xl font-bold text-amber-500 mb-1">4.9</div>
+                        <div class="text-3xl font-bold text-amber-500 mb-1">{% if hospital.average_rating %}{{ hospital.average_rating|floatformat:1 }}{% else %}New{% endif %}</div>
                         <div class="text-xs text-slate-500 uppercase tracking-wide">Rating</div>
                     </div>
                 </div>
@@ -84,20 +101,17 @@
                 <div>
                     <h3 class="text-lg font-bold text-slate-800 mb-4">Certifications & Accreditations</h3>
                     <div class="flex flex-wrap gap-4">
+                        {% if hospital.accreditation %}
                         <div class="flex items-center gap-3 bg-white border border-slate-200 shadow-sm px-4 py-3 rounded-xl">
                             <svg class="w-8 h-8 text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/></svg>
                             <div>
-                                <h4 class="font-bold text-slate-800 text-sm">JCI Accredited</h4>
-                                <p class="text-xs text-slate-500">Joint Commission International</p>
+                                <h4 class="font-bold text-slate-800 text-sm">{{ hospital.get_accreditation_display }}</h4>
+                                <p class="text-xs text-slate-500">Verified Medical Facility</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 bg-white border border-slate-200 shadow-sm px-4 py-3 rounded-xl">
-                            <svg class="w-8 h-8 text-sky-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-sm">ISO 9001:2015</h4>
-                                <p class="text-xs text-slate-500">Quality Management</p>
-                            </div>
-                        </div>
+                        {% else %}
+                        <p class="text-slate-500 text-sm">No specific certifications listed.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -110,11 +124,16 @@
                     {% for doctor in doctors %}
                     <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex gap-4 hover:shadow-md transition-shadow">
                         <div class="w-16 h-16 rounded-full bg-slate-200 flex-shrink-0 overflow-hidden">
-                            <!-- Placeholder avatar -->
-                            <img src="https://ui-avatars.com/api/?name={{ doctor.name }}&background=e0f2fe&color=0369a1&size=150" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                            {% if doctor.photo %}
+                                <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ doctor.name }}&background=e0f2fe&color=0369a1&size=150" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                            {% endif %}
                         </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-lg">{{ doctor.name }}</h3>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-slate-800 text-lg">
+                                <a href="{% url 'doctor_detail' doctor.id %}" class="hover:text-sky-600 transition-colors">{{ doctor.name }}</a>
+                            </h3>
                             <p class="text-sky-600 text-sm font-semibold mb-2">{{ doctor.specialization }}</p>
                             <div class="flex items-center gap-4 text-xs text-slate-500">
                                 <span class="flex items-center gap-1"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> 15+ Yrs Exp</span>

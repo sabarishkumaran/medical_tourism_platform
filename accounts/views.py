@@ -1,7 +1,8 @@
 from hospitals.models import Hospital
 from inquiries.models import Inquiry
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from .forms import ProfileForm, RegisterForm
 from .models import User
 from django.contrib.auth.forms import AuthenticationForm
@@ -66,7 +67,12 @@ def user_login(request):
 
             if user is not None:
                 login(request, user)
-                return redirect("patient_dashboard")
+                if user.role == 'HOSPITAL':
+                    return redirect("hospital_dashboard")
+                elif user.role in ['ADMIN', 'COORDINATOR']:
+                    return redirect("pending_hospitals")
+                else:
+                    return redirect("patient_dashboard")
 
     else:
         form = AuthenticationForm()
@@ -84,9 +90,10 @@ def profile_view(request):
     user = request.user
 
     if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=user)
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Profile details updated successfully.')
             return redirect('profile')
     else:
         form = ProfileForm(instance=user)

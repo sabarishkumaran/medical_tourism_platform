@@ -63,13 +63,12 @@
 
 <!-- Smart Search Section (Overlapping Hero) -->
 <section class="max-w-6xl mx-auto -mt-30 relative z-30 px-4 mb-24 animate-fade-up">
-    <div
-        class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-4">
+    <form action="{% url 'treatments' %}" method="GET" class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-4">
         <!-- Treatment / Specialty -->
         <div class="flex-1 relative" x-data="{ open: false, search: '' }">
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Treatment /
                 Specialty</label>
-            <input type="text" x-model="search" @focus="open = true" @click.away="open = false"
+            <input type="text" name="category" x-model="search" @focus="open = true" @click.away="open = false"
                 placeholder="e.g. Cardiology, Dental..."
                 class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 transition-shadow text-slate-800">
             <!-- Autocomplete Dropdown -->
@@ -77,12 +76,9 @@
                 class="absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden"
                 style="display: none;">
                 <div class="p-2 space-y-1 text-sm text-slate-600">
-                    <button class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg">Cardiology
-                        (Heart Bypass)</button>
-                    <button class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg">Dental
-                        Implants</button>
-                    <button class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg">Orthopedics
-                        (Knee)</button>
+                    <button type="button" @click="search = 'Cardiology'; open = false" class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg">Cardiology</button>
+                    <button type="button" @click="search = 'Dental'; open = false" class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg">Dental Implants</button>
+                    <button type="button" @click="search = 'Orthopedics'; open = false" class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg">Orthopedics</button>
                 </div>
             </div>
         </div>
@@ -92,7 +88,7 @@
         <div class="flex-1 relative" x-data="{ open: false, search: '' }">
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Destination
                 Country</label>
-            <input type="text" x-model="search" @focus="open = true" @click.away="open = false"
+            <input type="text" name="country" x-model="search" @focus="open = true" @click.away="open = false"
                 placeholder="e.g. Turkey, India..."
                 class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 transition-shadow text-slate-800">
             <!-- Autocomplete Dropdown -->
@@ -100,15 +96,9 @@
                 class="absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden"
                 style="display: none;">
                 <div class="p-2 space-y-1 text-sm text-slate-600">
-                    <button
-                        class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg flex items-center gap-2"><span>🇹🇷</span>
-                        Turkey</button>
-                    <button
-                        class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg flex items-center gap-2"><span>🇮🇳</span>
-                        India</button>
-                    <button
-                        class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg flex items-center gap-2"><span>🇹🇭</span>
-                        Thailand</button>
+                    <button type="button" @click="search = 'Turkey'; open = false" class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg flex items-center gap-2"><span>🇹🇷</span> Turkey</button>
+                    <button type="button" @click="search = 'India'; open = false" class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg flex items-center gap-2"><span>🇮🇳</span> India</button>
+                    <button type="button" @click="search = 'Thailand'; open = false" class="w-full text-left px-3 py-2 hover:bg-sky-50 hover:text-sky-700 rounded-lg flex items-center gap-2"><span>🇹🇭</span> Thailand</button>
                 </div>
             </div>
         </div>
@@ -118,7 +108,7 @@
         <div class="flex-1">
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Budget Range
                 ($)</label>
-            <select
+            <select name="budget"
                 class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 transition-shadow text-slate-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1rem_center] bg-no-repeat cursor-pointer">
                 <option value="">Select range...</option>
                 <option value="1000-5000">$1,000 - $5,000</option>
@@ -131,12 +121,12 @@
 
         <!-- Submit Button -->
         <div class="flex-initial md:w-48 flex items-end">
-            <button
+            <button type="submit"
                 class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.4)] transition-all duration-300 transform hover:-translate-y-1">
                 Find Care
             </button>
         </div>
-    </div>
+    </form>
 </section>
 
 <!-- How It Works Section -->
@@ -296,17 +286,17 @@
         <div class="mb-6 md:mb-0">
             <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-4" style="font-family: 'Outfit', sans-serif;">
                 Top Accredited Hospitals</h2>
-            <p class="text-slate-500 text-lg">Partnering with {{ hospitals|length|default:"50+" }} JCI accredited
+            <p class="text-slate-500 text-lg">Partnering with {{ hospitals|length|default:"50+" }} accredited
                 facilities.</p>
         </div>
         <div>
-            <a href="#" class="text-sky-600 font-bold hover:text-sky-700 hover:underline">View All Hospitals →</a>
+            <a href="{% url 'treatments' %}" class="text-sky-600 font-bold hover:text-sky-700 hover:underline">View All Hospitals →</a>
         </div>
     </div>
 
     <!-- Interactive Filters Component -->
     <div class="px-4 mb-10 animate-fade-up">
-        <div
+        <form action="{% url 'treatments' %}" method="GET"
             class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-wrap gap-4 items-center w-full max-w-4xl">
             <div class="flex items-center border-r border-slate-100 pr-4">
                 <svg class="w-5 h-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,34 +308,33 @@
             </div>
 
             <div class="flex-1 min-w-[150px]">
-                <select
+                <select name="country" onchange="this.form.submit()"
                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-[right_1rem_center] bg-no-repeat cursor-pointer">
                     <option value="">Country</option>
-                    <option value="tr">Turkey</option>
-                    <option value="in">India</option>
-                    <option value="th">Thailand</option>
+                    {% for cnt in countries %}
+                    <option value="{{ cnt }}">{{ cnt }}</option>
+                    {% endfor %}
                 </select>
             </div>
 
             <div class="flex-1 min-w-[150px]">
-                <select
+                <select name="category" onchange="this.form.submit()"
                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-[right_1rem_center] bg-no-repeat cursor-pointer">
                     <option value="">Specialty</option>
-                    <option value="cardio">Cardiology</option>
-                    <option value="dental">Dental</option>
-                    <option value="ortho">Orthopedics</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
                 </select>
             </div>
 
             <div class="flex-1 min-w-[150px]">
-                <select
+                <select name="sort" onchange="this.form.submit()"
                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-[right_1rem_center] bg-no-repeat cursor-pointer">
                     <option value="">Rating</option>
-                    <option value="5">5 Stars only</option>
-                    <option value="4">4+ Stars</option>
+                    <option value="Rating: High to Low">Highest Rated</option>
                 </select>
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-8 px-4 stagger-grid perspective-1000">
@@ -355,9 +344,15 @@
             style="transform-style: preserve-3d;">
             <!-- Simulated hospital image header -->
             <div class="h-48 bg-slate-200 relative overflow-hidden">
+                {% if hospital.images.first %}
+                <img src="{{ hospital.images.first.image.url }}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    alt="{{ hospital.name }}">
+                {% else %}
                 <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=800&auto=format&fit=crop"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     alt="Hospital">
+                {% endif %}
                 <div
                     class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow shadow-sm flex items-center gap-1">
                     <svg class="w-3 h-3 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
@@ -365,11 +360,11 @@
                             d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
                         </path>
                     </svg>
-                    4.9
+                    {{ hospital.average_rating|default:"New"|floatformat:1 }}
                 </div>
                 <div
                     class="absolute top-4 right-4 bg-emerald-500 text-white px-2 py-1 rounded text-[10px] font-bold tracking-wider float-right uppercase shadow-sm">
-                    JCI Accredited</div>
+                    {{ hospital.get_accreditation_display|default:"Accredited" }}</div>
             </div>
 
             <div class="p-6 flex flex-col flex-1">
@@ -392,10 +387,14 @@
                 </p>
 
                 <div class="flex flex-wrap gap-2 mb-6 mt-auto">
-                    <span
-                        class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">Cardiology</span>
-                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">Oncology</span>
-                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">+5 more</span>
+                    {% for package in hospital.treatmentpackage_set.all|slice:":2" %}
+                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">{{ package.treatment.category }}</span>
+                    {% empty %}
+                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">General Medicine</span>
+                    {% endfor %}
+                    {% if hospital.treatmentpackage_set.count > 2 %}
+                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">+{{ hospital.treatmentpackage_set.count|add:"-2" }} more</span>
+                    {% endif %}
                 </div>
 
                 <a href="{% url 'hospital_detail' hospital.id %}"

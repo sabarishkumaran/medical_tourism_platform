@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+<div class="max-w-3xl mx-auto py-10 animate-fade-up">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-sky-900 to-indigo-900 rounded-[2rem] p-8 mb-8 text-white shadow-lg flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold mb-1" style="font-family: 'Outfit', sans-serif;">Upload Photos</h1>
+            <p class="text-sky-200">Showcase your hospital facilities to international patients.</p>
+        </div>
+        <div class="hidden sm:flex w-16 h-16 bg-white/10 rounded-2xl items-center justify-center backdrop-blur text-white border border-white/20">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-xl rounded-[2rem] p-8 border border-slate-100">
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="flex flex-col gap-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider group-focus-within:text-sky-600 transition-colors">Select Photos to Upload</label>
+                <input type="file" name="photos" multiple class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" accept="image/*" required>
+                <p class="text-xs text-slate-400">You can select multiple images at once. These will be added to your hospital's public portfolio.</p>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex gap-4 justify-end">
+                <a href="{% url 'hospital_dashboard' %}" class="bg-slate-100 text-slate-600 font-bold py-3 px-6 rounded-xl hover:bg-slate-200 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all hover:bg-sky-600 transform hover:-translate-y-0.5">
+                    Upload Photos
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+</div>
+{% endblock %}

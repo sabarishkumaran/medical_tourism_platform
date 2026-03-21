@@ -5,7 +5,7 @@ from .models import Doctor, Treatment, TreatmentPackage
 class DoctorForm(forms.ModelForm):
     class Meta:
         model = Doctor
-        fields = ['name', 'specialization', 'experience_years', 'success_rate', 'bio']
+        fields = ['name', 'specialization', 'experience_years', 'success_rate', 'bio', 'photo']
 
 class TreatmentPackageForm(forms.ModelForm):
     treatment_name = forms.CharField(max_length=200)
@@ -19,19 +19,14 @@ class TreatmentPackageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.hospital = kwargs.pop('hospital')  # pass the hospital
         super().__init__(*args, **kwargs)
+        # Filter doctor queryset to only those belonging to this hospital
+        self.fields['doctor'].queryset = Doctor.objects.filter(hospital=self.hospital)
 
     def save(self, commit=True):
         # Create Treatment if it doesn't exist
         name = self.cleaned_data['treatment_name']
         category = self.cleaned_data['treatment_category']
         description = self.cleaned_data['treatment_description']
-
-        doctor = forms.ModelChoiceField(
-            queryset=Doctor.objects.none(),  # Will set dynamically
-            required=False,
-            empty_label="No Doctor Available",
-            widget=forms.Select(attrs={"class": "w-full border rounded p-2"})
-        )
 
         treatment, created = Treatment.objects.get_or_create(
             name=name,

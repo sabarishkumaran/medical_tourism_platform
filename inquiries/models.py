@@ -66,3 +66,14 @@ class Quote(models.Model):
 
     def __str__(self):
         return f"Quote for Inquiry {self.inquiry.id}"
+
+class ContactMessage(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.first_name} {self.last_name}"

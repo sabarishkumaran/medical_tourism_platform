@@ -17,6 +17,8 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = [
+            "first_name",
+            "last_name",
             "username",
             "email",
             "role",
@@ -37,6 +39,15 @@ class RegisterForm(UserCreationForm):
     def clean(self):
         cleaned_data = super().clean()
         role = cleaned_data.get('role')
+        first_name = cleaned_data.get('first_name')
+        last_name = cleaned_data.get('last_name')
+
+        if role == 'PATIENT':
+            if not first_name:
+                self.add_error('first_name', 'First name is required for patient accounts.')
+            if not last_name:
+                self.add_error('last_name', 'Last name is required for patient accounts.')
+
         if role == 'HOSPITAL':
             if not cleaned_data.get('hospital_name'):
                 self.add_error('hospital_name', 'This field is required for hospitals.')
@@ -64,6 +75,13 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        if self.instance.role == 'HOSPITAL':
+            self.fields['first_name'].label = "Admin First Name"
+            self.fields['last_name'].label = "Admin Last Name"
+            self.fields['first_name'].required = False
+            self.fields['last_name'].required = False
+
 
         # If the user is a hospital, show hospital-specific fields
         if hasattr(self.instance, 'hospital'):

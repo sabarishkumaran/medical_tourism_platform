@@ -4,7 +4,14 @@ from inquiries.models import MedicalDocument
 from .forms import InquiryForm
 
 
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+
+@login_required
 def submit_inquiry(request):
+    if request.user.role != 'PATIENT':
+        return HttpResponse("Unauthorized", status=403)
+
 
     if request.method == "POST":
 
@@ -32,3 +39,29 @@ def submit_inquiry(request):
         form = InquiryForm()
 
     return render(request, "submit_inquiry.html", {"form": form})
+
+
+@login_required
+def contact_inbox(request):
+    if not request.user.is_superuser:
+        return HttpResponse("Unauthorized", status=403)
+
+    from .models import ContactMessage
+    from django.contrib import messages
+
+    if request.method == "POST":
+        message_id = request.POST.get('message_id')
+        try:
+            msg = ContactMessage.objects.get(id=message_id)
+            # Toggle the is_read status
+            msg.is_read = not msg.is_read
+            msg.save()
+            status_text = "Read" if msg.is_read else "Unread"
+            messages.success(request, f"Message marked as {status_text}.")
+        except ContactMessage.DoesNotExist:
+            messages.error(request, "Message not found.")
+        
+        return redirect('contact_inbox')
+
+    messages_list = ContactMessage.objects.all().order_by('-created_at')
+    return render(request, "contact_inbox.html", {"messages_list": messages_list})

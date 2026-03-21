@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 md:py-20 animate-fade-up">
+    <div class="max-w-4xl mx-auto">
+        <!-- Back Navigation -->
+        <a href="{% url 'hospital_detail' doctor.hospital.id %}" class="inline-flex items-center gap-2 text-sky-600 hover:text-sky-800 font-bold mb-8 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to {{ doctor.hospital.name }}
+        </a>
+
+        <!-- Doctor Profile Card -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 md:p-12 relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-sky-50 rounded-full blur-3xl -z-10"></div>
+            
+            <div class="flex flex-col md:flex-row gap-10 items-start">
+                
+                <!-- Avatar -->
+                <div class="w-40 h-40 md:w-56 md:h-56 rounded-3xl overflow-hidden shadow-lg border-4 border-white flex-shrink-0 bg-slate-100">
+                    {% if doctor.photo %}
+                        <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ doctor.name }}&background=e0f2fe&color=0369a1&size=250" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+
+                <!-- Bio / Information -->
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Verified Specialist
+                        </span>
+                    </div>
+                    
+                    <h1 class="text-3xl md:text-5xl font-black text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">{{ doctor.name }}</h1>
+                    <p class="text-xl text-sky-600 font-semibold mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        {{ doctor.specialization }}
+                    </p>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                            <div class="text-sm text-slate-500 font-medium uppercase tracking-wide mb-1">Experience</div>
+                            <div class="text-2xl font-black text-slate-800">{{ doctor.experience_years }}<span class="text-lg text-slate-400 font-medium">+ Years</span></div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                            <div class="text-sm text-slate-500 font-medium uppercase tracking-wide mb-1">Success Rate</div>
+                            <div class="text-2xl font-black text-emerald-600">{{ doctor.success_rate }}<span class="text-lg text-emerald-400 font-medium">%</span></div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl col-span-2">
+                            <div class="text-sm text-slate-500 font-medium uppercase tracking-wide mb-1">Primary Affiliation</div>
+                            <div class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                {{ doctor.hospital.name }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'submit_inquiry' %}" class="inline-block bg-slate-900 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.4)] transition-all duration-300 transform hover:-translate-y-1 w-full text-center">
+                        Request Consultation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
