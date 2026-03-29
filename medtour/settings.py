@@ -150,3 +150,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files (User uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Security: Session Timeouts
+# Auto logout users exactly 24 hours (86400 seconds) after login
+SESSION_COOKIE_AGE = 86400
+
+# Uncomment this if you want sessions to also expire the moment they close the browser tab
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
