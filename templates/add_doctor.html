@@ -21,6 +21,12 @@
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
 
+            {% if form.errors %}
+            <div class="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 text-rose-700 text-sm font-medium">
+                Please fix the errors below before saving.
+            </div>
+            {% endif %}
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="group md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Doctor Name</label>
@@ -40,6 +46,11 @@
                 <div class="group">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Success Rate (%)</label>
                     {% render_field form.success_rate class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 98" %}
+                </div>
+
+                <div class="group md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Bio <span class="text-slate-300 font-normal normal-case">(optional)</span></label>
+                    {% render_field form.bio class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="Brief doctor biography, qualifications and expertise..." rows="3" %}
                 </div>
                 
                 <div class="group md:col-span-2">
@@ -66,6 +77,7 @@
                 </button>
             </div>
         </form>
+
 
     </div>
 </div>

@@ -11,6 +11,7 @@ class Hospital(models.Model):
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
+        ('SUSPENDED', 'Suspended'),
     )
 
     ACCREDITATION_CHOICES = (
@@ -41,6 +42,7 @@ class Hospital(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING'
     )
+    suspension_reason = models.TextField(blank=True, default='')
 
     SUBSCRIPTION_PLAN_CHOICES = (
         ('BASIC', 'Basic (Free)'),
@@ -81,7 +83,7 @@ class Doctor(models.Model):
 
     success_rate = models.FloatField()
 
-    bio = models.TextField()
+    bio = models.TextField(blank=True, default='')
     photo = models.ImageField(upload_to='doctor_photos/', null=True, blank=True)
 
     def __str__(self):
@@ -100,4 +102,22 @@ class TreatmentPackage(models.Model):
 
 class HospitalImage(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='hospital_images/')
+    image = models.ImageField(upload_to='hospital_images/')
+
+
+class ReapprovalRequest(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending Review'),
+        ('REVIEWED', 'Reviewed'),
+    )
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='reapproval_requests')
+    comment = models.TextField()
+    document = models.FileField(upload_to='reapproval_docs/', blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"Reapproval: {self.hospital.name} ({self.submitted_at.strftime('%Y-%m-%d')})"

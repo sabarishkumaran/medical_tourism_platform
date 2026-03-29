@@ -1,0 +1,75 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
+    {% for patient in patients %}
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 relative group overflow-hidden flex flex-col h-full">
+        <!-- Colored Header Strip -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+        
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+                <span class="text-xl font-bold text-sky-600">{{ patient.first_name|default:patient.username|make_list|first|upper }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-xl font-extrabold text-slate-900 truncate pr-4" title="{{ patient.get_full_name|default:patient.username }}">
+                    {{ patient.get_full_name|default:patient.username }}
+                </h3>
+                <p class="text-sm font-medium text-slate-500 truncate" title="{{ patient.email }}">{{ patient.email }}</p>
+                <div class="flex items-center mt-2 gap-2 text-xs font-bold text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Joined {{ patient.date_joined|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Telemetry -->
+        <div class="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100/50 flex flex-col items-center justify-center transition-colors group-hover:bg-sky-50 duration-300">
+                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Total Inquiries</span>
+                <span class="text-xl font-black text-indigo-600 tabular-nums">{{ patient.inquiry_count }}</span>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100/50 flex flex-col items-center justify-center">
+                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Status</span>
+                {% if patient.is_active %}
+                <span class="text-xs font-bold px-3 py-1 bg-green-100 text-green-700 rounded-full flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active</span>
+                {% else %}
+                <span class="text-xs font-bold px-3 py-1 bg-rose-100 text-rose-700 rounded-full flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Suspended</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full bg-white rounded-3xl p-16 text-center border border-slate-200">
+        <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+        <h3 class="text-2xl font-bold text-slate-900 mb-2">No Patients Found</h3>
+        <p class="text-slate-500">There are currently no patients registered on the platform.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination Details -->
+{% if patients.has_other_pages %}
+<div class="mt-12 flex justify-center">
+    <div class="bg-white px-2 py-2 rounded-2xl shadow-sm border border-slate-200 inline-flex items-center gap-1 overflow-x-auto max-w-full">
+        {% if patients.has_previous %}
+        <button hx-get="?page={{ patients.previous_page_number }}" hx-target="#patient-grid" hx-push-url="true" class="h-10 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Prev
+        </button>
+        {% endif %}
+
+        {% for num in patients.paginator.page_range %}
+            {% if patients.number == num %}
+                <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white font-bold flex items-center justify-center flex-shrink-0 shadow-md">{{ num }}</span>
+            {% elif num > patients.number|add:'-3' and num < patients.number|add:'3' %}
+                <button hx-get="?page={{ num }}" hx-target="#patient-grid" hx-push-url="true" class="w-10 h-10 rounded-xl text-slate-600 font-bold hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">{{ num }}</button>
+            {% endif %}
+        {% endfor %}
+
+        {% if patients.has_next %}
+        <button hx-get="?page={{ patients.next_page_number }}" hx-target="#patient-grid" hx-push-url="true" class="h-10 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">
+            Next <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

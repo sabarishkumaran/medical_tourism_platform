@@ -21,7 +21,10 @@ def home(request):
 
 def treatment_list(request):
     from hospitals.models import TreatmentPackage
-    packages = TreatmentPackage.objects.select_related('treatment', 'hospital').all()
+    packages = TreatmentPackage.objects.select_related('treatment', 'hospital').filter(
+        hospital__status='APPROVED'
+    )
+
     
     category = request.GET.get('category')
     country = request.GET.get('country')

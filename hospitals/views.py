@@ -9,8 +9,9 @@ from accounts.decorators import hospital_required
 from appointments.models import Appointment
 from hospitals.forms import DoctorForm, TreatmentPackageForm
 from inquiries.models import Inquiry
-from .models import Hospital, Doctor, TreatmentPackage, HospitalImage
+from .models import Hospital, Doctor, TreatmentPackage, HospitalImage, ReapprovalRequest
 from django.contrib.auth.decorators import login_required
+
 
 
 def hospital_detail(request, id):
@@ -72,10 +73,12 @@ def review_hospital(request, hospital_id):
         return HttpResponse("Unauthorized")
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
+    reapproval_requests = hospital.reapproval_requests.all()
 
     return render(request, "review_hospital.html", {
         "hospital": hospital,
         "accreditation_choices": Hospital.ACCREDITATION_CHOICES,
+        "reapproval_requests": reapproval_requests,
     })
 
 @login_required
@@ -128,13 +131,59 @@ def reject_hospital(request, hospital_id):
 
     return redirect("pending_hospitals")
 
+
+@login_required
+def suspend_hospital(request, hospital_id):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        return HttpResponse("Unauthorized", status=403)
+
+    if request.method != "POST":
+        return redirect("review_hospital", hospital_id=hospital_id)
+
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    reason = request.POST.get('suspension_reason', '').strip()
+    hospital.status = 'SUSPENDED'
+    hospital.suspension_reason = reason
+    hospital.save()
+
+    messages.success(request, f'{hospital.name} has been suspended.')
+    return redirect('review_hospital', hospital_id=hospital_id)
+
+
+@hospital_required
+def submit_reapproval(request):
+    hospital = request.user.hospital
+    if hospital.status not in ('SUSPENDED', 'REJECTED'):
+        return redirect('hospital_dashboard')
+
+    if request.method == 'POST':
+        comment = request.POST.get('comment', '').strip()
+        document = request.FILES.get('document')
+        if comment:
+            ReapprovalRequest.objects.create(
+                hospital=hospital,
+                comment=comment,
+                document=document,
+            )
+            messages.success(request, 'Your reapproval request has been submitted. Our team will review it shortly.')
+        else:
+            messages.error(request, 'Please provide a comment explaining the changes you have made.')
+    return redirect('hospital_dashboard')
+
+
 @hospital_required
 def hospital_dashboard(request):
     hospital_user = request.user
-    hospital = hospital_user.hospital  # your logged-in hospital
-    
+    hospital = hospital_user.hospital
+
     if hospital.status != 'APPROVED':
-        return render(request, "hospital_pending_approval.html", {"hospital": hospital})
+        reapproval_requests = hospital.reapproval_requests.all()
+        has_pending_request = reapproval_requests.filter(status='PENDING').exists()
+        return render(request, "hospital_pending_approval.html", {
+            "hospital": hospital,
+            "reapproval_requests": reapproval_requests,
+            "has_pending_request": has_pending_request,
+        })
     doctors = Doctor.objects.filter(hospital=hospital)
     packages = TreatmentPackage.objects.filter(hospital=hospital)
 

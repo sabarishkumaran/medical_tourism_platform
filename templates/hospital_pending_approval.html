@@ -4,30 +4,70 @@
 <div class="container mx-auto px-4 md:px-8 py-10">
     <div class="h-[60vh] flex items-center justify-center p-4 animate-fade-up">
         
-        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 p-10 md:p-16 text-center max-w-2xl w-full">
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 p-8 md:p-12 text-center max-w-2xl w-full">
             
-            <div class="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-amber-100">
-                <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            
-            <h1 class="text-3xl font-extrabold text-slate-800 mb-4" style="font-family: 'Outfit', sans-serif;">Approval in Progress</h1>
-            <p class="text-slate-600 text-lg mb-8">
-                Your hospital application is currently under review by our administration team. This process ensures the highest quality standards for our platform. 
-                <br><br>
-                <strong>Please check after some time.</strong> We will notify you once your account is fully verified and activated.
-            </p>
-            
+            {% if hospital.status == 'PENDING' %}
+                <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-amber-100">
+                    <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-800 mb-4" style="font-family: 'Outfit', sans-serif;">Approval in Progress</h1>
+                <p class="text-slate-600 text-lg mb-8">
+                    Your hospital application is currently under review by our administration team. 
+                    <br><br>
+                    <strong>Please check after some time.</strong> We will notify you once your account is fully verified.
+                </p>
+            {% elif hospital.status == 'SUSPENDED' %}
+                <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-rose-100">
+                    <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">Account Suspended</h1>
+                <p class="text-rose-600 font-bold mb-4">Reason: {{ hospital.suspension_reason|default:"Policy Violation" }}</p>
+                
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-left mb-8">
+                    <h3 class="font-bold text-slate-700 mb-2">How to reinstate?</h3>
+                    <p class="text-sm text-slate-500 mb-4">Review the reason above and take necessary actions. You can submit a reapproval request below with comments and supporting documents.</p>
+                    
+                    {% if has_pending_request %}
+                        <div class="bg-emerald-50 border border-emerald-100 inline-flex items-center gap-2 px-4 py-2 rounded-full text-emerald-700 text-xs font-bold w-full justify-center">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Reapproval Request Pending Review
+                        </div>
+                    {% else %}
+                        <form action="{% url 'submit_reapproval' %}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            {% csrf_token %}
+                            <textarea name="comment" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all" rows="3" placeholder="Explain the actions taken for reapproval..."></textarea>
+                            <div class="flex items-center gap-3">
+                                <label class="flex-1 cursor-pointer bg-white border border-slate-200 border-dashed rounded-xl px-4 py-2 text-xs text-slate-500 hover:bg-slate-50 transition-colors">
+                                    <span class="font-bold">Attach Document</span> (Optional)
+                                    <input type="file" name="document" class="hidden">
+                                </label>
+                                <button type="submit" class="bg-sky-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-sky-700 transition-all shadow-lg hover:shadow-sky-500/30">
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            {% elif hospital.status == 'REJECTED' %}
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-slate-200 text-slate-400">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-800 mb-4" style="font-family: 'Outfit', sans-serif;">Application Rejected</h1>
+                <p class="text-slate-600 text-lg mb-8">Unfortunately, your application was not approved at this time. Please contact support if you believe this is an error.</p>
+            {% endif %}
+
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{% url 'profile' %}" class="bg-indigo-50 text-indigo-700 font-bold py-3 px-8 rounded-xl hover:bg-indigo-100 transition-colors">
-                    Update Profile Details
+                    Update Profile
                 </a>
                 <a href="{% url 'logout' %}" class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-sky-600 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] transition-colors">
                     Sign Out
                 </a>
             </div>
-            
         </div>
         
     </div>

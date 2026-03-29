@@ -207,3 +207,26 @@ def profile_view(request):
         form = ProfileForm(instance=user)
 
     return render(request, "profile.html", {"form": form})
+
+
+@login_required
+def admin_patients(request):
+    if not request.user.is_superuser and request.user.role not in ['ADMIN', 'COORDINATOR']:
+        raise PermissionDenied
+
+    from django.db.models import Count
+    from django.core.paginator import Paginator
+
+    # Get all users with PATIENT role and annotate them with total inquiries submitted
+    patients_list = User.objects.filter(role='PATIENT').annotate(
+        inquiry_count=Count('inquiry')
+    ).order_by('-date_joined')
+
+    paginator = Paginator(patients_list, 15)  # 15 patients per page
+    page_number = request.GET.get('page', 1)
+    patients = paginator.get_page(page_number)
+
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/patient_grid.html", {"patients": patients})
+
+    return render(request, "admin_patients.html", {"patients": patients})
