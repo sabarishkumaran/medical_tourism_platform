@@ -1,270 +1,422 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="min-h-screen bg-slate-50">
+<div x-data="{ tab: 'overview' }">
 
-<!-- Hospital Header Banner -->
-<div class="relative w-full h-[45vh] md:h-[55vh] overflow-hidden shadow-xl">
+  <!-- ====================================================
+       HERO BANNER
+       ==================================================== -->
+  <div class="relative w-full" style="height: 280px;" id="hospital-hero">
     {% if hospital.images.first %}
-        <img src="{{ hospital.images.first.image.url }}" class="w-full h-full object-cover" alt="{{ hospital.name }}">
+      <img src="{{ hospital.images.first.image.url }}"
+           alt="{{ hospital.name }}"
+           class="absolute inset-0 w-full h-full object-cover">
     {% else %}
-        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop" class="w-full h-full object-cover" alt="{{ hospital.name }}">
+      <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop"
+           alt="{{ hospital.name }}"
+           class="absolute inset-0 w-full h-full object-cover">
     {% endif %}
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/50 to-transparent"></div>
+    <!-- Dark overlay gradient -->
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.5) 60%, rgba(15,23,42,0.1) 100%);"></div>
 
-    <!-- Banner Content -->
-    <div class="absolute inset-0 flex flex-col justify-end p-5 md:p-12">
-        <!-- Badges -->
-        <div class="flex flex-wrap items-center gap-2 mb-3">
-            <span class="bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase backdrop-blur-md flex items-center gap-1.5">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                {% if hospital.accreditation %}{{ hospital.get_accreditation_display }}{% else %}Premium Care{% endif %}
-            </span>
-            <span class="bg-sky-500/25 text-sky-200 border border-sky-500/40 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase backdrop-blur-md">Top Rated</span>
+    <!-- Banner text content -->
+    <div class="absolute bottom-0 left-0 right-0 px-4 py-5 md:px-10 md:py-8">
+      <!-- Badges -->
+      <div class="flex flex-wrap gap-2 mb-2">
+        <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          {% if hospital.accreditation %}{{ hospital.get_accreditation_display }}{% else %}Verified Hospital{% endif %}
+        </span>
+        <span class="text-sky-200 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.35);">
+          Top Rated
+        </span>
+      </div>
+
+      <!-- Name + location row -->
+      <div class="flex items-end justify-between gap-3 flex-wrap">
+        <div style="min-width: 0; flex: 1 1 auto;">
+          <h1 class="text-white font-extrabold leading-tight" style="font-family:'Outfit',sans-serif; font-size: clamp(1.3rem, 5vw, 2.5rem); word-break: break-word;">
+            {{ hospital.name|title }}
+          </h1>
+          <p class="text-slate-300 text-sm mt-1 flex items-center gap-1.5">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            {{ hospital.city|title }}{% if hospital.user.country %}, {{ hospital.user.country|title }}{% endif %}
+          </p>
         </div>
-
-        <!-- Hospital Name & Location -->
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div class="text-white min-w-0">
-                <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight break-words" style="font-family: 'Outfit', sans-serif;">{{ hospital.name|title }}</h1>
-                <p class="text-sm sm:text-base text-slate-300 flex items-center gap-2 mt-2">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    {{ hospital.city|title }}, {{ hospital.user.country|default:"International"|title }}
-                </p>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-3 flex-shrink-0">
-                <button class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-center backdrop-blur-md transition-colors">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                </button>
-                <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-2.5 px-6 rounded-full shadow-lg transition-all duration-300 text-sm md:text-base flex items-center gap-2 whitespace-nowrap">
-                    Get Free Quote <span aria-hidden="true">→</span>
-                </a>
-            </div>
-        </div>
+        <!-- CTA button on banner -->
+        <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}"
+           class="flex-shrink-0 inline-flex items-center gap-2 font-bold text-white text-sm px-5 py-2.5 rounded-full shadow-lg transition-all"
+           style="background: linear-gradient(135deg, #38bdf8, #6366f1);">
+          Get Free Quote &rarr;
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+  <!-- END HERO -->
 
-<!-- Main Content -->
-<div class="container mx-auto px-4 md:px-6 py-8">
-    <div class="max-w-7xl mx-auto grid lg:grid-cols-3 gap-6 lg:gap-10" x-data="{ tab: 'overview' }">
 
-        <!-- Left Main Content Area -->
-        <div class="lg:col-span-2 order-2 lg:order-1">
-            <!-- Tabs Nav -->
-            <div class="bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100 flex overflow-x-auto hide-scrollbars mb-5 md:mb-8">
-                <button @click="tab = 'overview'" :class="{'bg-slate-900 text-white font-bold shadow-sm': tab === 'overview', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'overview'}" class="py-2.5 px-4 md:px-6 rounded-xl text-xs md:text-sm font-medium transition-colors whitespace-nowrap min-w-max">Overview</button>
-                <button @click="tab = 'doctors'" :class="{'bg-slate-900 text-white font-bold shadow-sm': tab === 'doctors', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'doctors'}" class="py-2.5 px-4 md:px-6 rounded-xl text-xs md:text-sm font-medium transition-colors whitespace-nowrap min-w-max">Doctors & Teams</button>
-                <button @click="tab = 'treatments'" :class="{'bg-slate-900 text-white font-bold shadow-sm': tab === 'treatments', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'treatments'}" class="py-2.5 px-4 md:px-6 rounded-xl text-xs md:text-sm font-medium transition-colors whitespace-nowrap min-w-max">Treatments & Pricing</button>
-                <button @click="tab = 'reviews'" :class="{'bg-slate-900 text-white font-bold shadow-sm': tab === 'reviews', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'reviews'}" class="py-2.5 px-4 md:px-6 rounded-xl text-xs md:text-sm font-medium transition-colors whitespace-nowrap min-w-max">Patient Reviews</button>
-            </div>
+  <!-- ====================================================
+       PAGE BODY
+       ==================================================== -->
+  <div class="bg-slate-50 pb-16">
+    <div class="max-w-6xl mx-auto px-4 md:px-6 pt-6 md:pt-10">
 
-            <!-- Tab Content -->
-            <div class="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-slate-100">
+      <!-- ------------------------------------------------
+           LAYOUT: main col + sidebar
+           On mobile: sidebar (CTA) comes first; tabs second
+           On desktop: tabs on left, sidebar on right
+           ------------------------------------------------ -->
+      <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start">
 
-                <!-- OVERVIEW TAB -->
-                <div x-show="tab === 'overview'" x-transition.opacity class="space-y-7">
-                    <!-- About -->
-                    <div>
-                        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-3" style="font-family: 'Outfit', sans-serif;">About {{ hospital.name|title }}</h2>
-                        <p class="text-slate-600 leading-relaxed text-sm md:text-base">{{ hospital.description|default:"A premier healthcare facility offering world-class treatments and specialized medical care. Dedicated to patient safety, comfort, and state-of-the-art medical technology." }}</p>
-                    </div>
+        <!-- ========================
+             RIGHT SIDEBAR (CTA)
+             order-1 on mobile, so it appears above tabs on phones
+             ======================== -->
+        <aside class="w-full lg:w-80 lg:flex-shrink-0" style="order: 1;" id="hospital-sidebar">
 
-                    <!-- Gallery -->
-                    {% if hospital.images.all|length > 1 %}
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 mb-3">Hospital Gallery</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {% for img in hospital.images.all %}
-                            <div class="h-28 md:h-32 rounded-xl overflow-hidden shadow-sm border border-slate-100 group">
-                                <img src="{{ img.image.url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Hospital Photo">
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
+          {% if user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
+          <!-- Admin panel -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm mb-4" style="border: 1px solid #fecaca;">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              Admin Moderation
+            </h3>
+            <p class="text-slate-500 text-xs mb-4">You can suspend this hospital's access to the platform.</p>
+            <form action="{% url 'reject_hospital' hospital.id %}" method="POST"
+                  onsubmit="return confirm('Suspend this hospital? This hides their profile immediately.');">
+              {% csrf_token %}
+              <button type="submit"
+                      class="w-full flex justify-center items-center gap-2 font-bold py-2.5 px-4 rounded-xl transition-all text-sm"
+                      style="background:#fff1f2; color:#e11d48; border:1px solid #fecaca;"
+                      onmouseover="this.style.background='#e11d48'; this.style.color='#fff';"
+                      onmouseout="this.style.background='#fff1f2'; this.style.color='#e11d48';">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+                Suspend / Revoke Approval
+              </button>
+            </form>
+          </div>
+          {% endif %}
 
-                    <!-- Stats Grid -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-sky-600 mb-1">{{ hospital.years_active }}+</div>
-                            <div class="text-xs text-slate-500 uppercase tracking-wide">Years Active</div>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-indigo-600 mb-1">{{ hospital.international_patients }}+</div>
-                            <div class="text-xs text-slate-500 uppercase tracking-wide">Intl Patients</div>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-emerald-600 mb-1">{{ hospital.beds_count }}+</div>
-                            <div class="text-xs text-slate-500 uppercase tracking-wide">Beds</div>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-amber-500 mb-1">{% if hospital.average_rating %}{{ hospital.average_rating|floatformat:1 }}{% else %}New{% endif %}</div>
-                            <div class="text-xs text-slate-500 uppercase tracking-wide">Rating</div>
-                        </div>
-                    </div>
+          <!-- CTA Card -->
+          <div class="rounded-2xl p-6 text-white shadow-xl"
+               style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);">
+            <h3 class="font-extrabold mb-1 text-xl" style="font-family:'Outfit',sans-serif;">Ready to travel?</h3>
+            <p class="text-indigo-200 text-sm mb-5">Get a personalised plan & cost estimate in 24 hours.</p>
 
-                    <!-- Certifications -->
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 mb-3">Certifications & Accreditations</h3>
-                        <div class="flex flex-wrap gap-3">
-                            {% if hospital.accreditation %}
-                            <div class="flex items-center gap-3 bg-white border border-slate-200 shadow-sm px-4 py-3 rounded-xl">
-                                <svg class="w-7 h-7 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/></svg>
-                                <div>
-                                    <h4 class="font-bold text-slate-800 text-sm">{{ hospital.get_accreditation_display }}</h4>
-                                    <p class="text-xs text-slate-500">Verified Medical Facility</p>
-                                </div>
-                            </div>
-                            {% else %}
-                            <p class="text-slate-500 text-sm">No specific certifications listed.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+            <ul class="space-y-3 mb-6 text-sm text-indigo-100">
+              {% for item in "abc" %}
+              <li class="flex items-center gap-3">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.08);">
+                  <svg class="w-3 h-3" style="color:#38bdf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </span>
+                {% if forloop.counter == 1 %}No Hidden Fees
+                {% elif forloop.counter == 2 %}Free Video Consultation
+                {% else %}Dedicated Concierge{% endif %}
+              </li>
+              {% endfor %}
+            </ul>
 
-                <!-- DOCTORS TAB -->
-                <div x-show="tab === 'doctors'" x-transition.opacity style="display: none;">
-                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-5" style="font-family: 'Outfit', sans-serif;">Medical Specialists</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {% for doctor in doctors %}
-                        <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-4 flex gap-4 hover:shadow-md transition-shadow">
-                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-200 flex-shrink-0 overflow-hidden">
-                                {% if doctor.photo %}
-                                    <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
-                                {% else %}
-                                    <img src="https://ui-avatars.com/api/?name={{ doctor.name }}&background=e0f2fe&color=0369a1&size=150" alt="{{ doctor.name }}" class="w-full h-full object-cover">
-                                {% endif %}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h3 class="font-bold text-slate-800 text-base leading-tight">
-                                    <a href="{% url 'doctor_detail' doctor.id %}" class="hover:text-sky-600 transition-colors">{{ doctor.name }}</a>
-                                </h3>
-                                <p class="text-sky-600 text-xs font-semibold mb-2 mt-0.5">{{ doctor.specialization }}</p>
-                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                                    <span class="flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                        {{ doctor.experience_years }}+ Yrs
-                                    </span>
-                                    <span class="flex items-center gap-1 text-emerald-600">
-                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                        {{ doctor.success_rate }}%
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <p class="text-slate-500 italic col-span-2 py-4">No doctors listed yet.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- TREATMENTS TAB -->
-                <div x-show="tab === 'treatments'" x-transition.opacity style="display: none;">
-                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-5" style="font-family: 'Outfit', sans-serif;">Treatment Packages & Pricing</h2>
-                    <div class="space-y-3">
-                        {% for t in treatments %}
-                        <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-4 md:p-5 hover:border-sky-200 transition-colors">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-slate-800 text-base">{{ t.treatment.name }}</h3>
-                                    <p class="text-slate-500 text-xs mt-1">Comprehensive package including consultations and post-op care.</p>
-                                </div>
-                                <div class="flex items-center justify-between sm:justify-end gap-4 sm:flex-shrink-0 sm:pl-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-3 sm:pt-0">
-                                    <div>
-                                        <span class="block text-xs text-slate-400 font-medium uppercase tracking-wide">Starting At</span>
-                                        <span class="text-xl md:text-2xl font-bold text-slate-800">${{ t.price }}</span>
-                                    </div>
-                                    <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}" class="text-sky-600 hover:text-sky-800 font-bold bg-sky-50 hover:bg-sky-100 px-4 py-2 rounded-lg transition-colors text-sm whitespace-nowrap">Select</a>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <p class="text-slate-500 italic py-4">No treatments listed yet.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- REVIEWS TAB -->
-                <div x-show="tab === 'reviews'" x-transition.opacity style="display: none;">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl md:text-2xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Patient Reviews</h2>
-                        <div class="text-right">
-                            <div class="text-2xl md:text-3xl font-bold text-slate-800">4.9<span class="text-base text-slate-400 font-normal">/5</span></div>
-                            <div class="text-xs text-slate-500">Based on 124 reviews</div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-5">
-                        <div class="bg-slate-50 p-5 rounded-2xl">
-                            <div class="flex text-amber-500 mb-3">
-                                {% for i in "12345" %}<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/></svg>{% endfor %}
-                            </div>
-                            <p class="text-slate-700 italic mb-4 text-sm">"The care I received here was exceptionally good. The facilities are modern and the international patient department handled everything perfectly."</p>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 font-bold text-sm">M</div>
-                                <div>
-                                    <div class="text-sm font-bold text-slate-800">Michael R.</div>
-                                    <div class="text-xs text-slate-500">Cardiology Patient</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Right Sidebar -->
-        <aside class="lg:col-span-1 order-1 lg:order-2">
-            {% if user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
-            <!-- Admin Moderation Panel -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-rose-100 mb-5">
-                <h3 class="text-base font-bold mb-2 text-slate-800 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    Admin Moderation
-                </h3>
-                <p class="text-slate-500 text-xs mb-4">Administrative privileges to moderate this hospital's platform access.</p>
-                <form action="{% url 'reject_hospital' hospital.id %}" method="POST" onsubmit="return confirm('Are you sure you want to suspend this hospital?');">
-                    {% csrf_token %}
-                    <button type="submit" class="w-full flex justify-center items-center gap-2 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white font-bold py-2.5 px-4 rounded-xl transition-colors border border-rose-200 text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                        Suspend / Revoke Approval
-                    </button>
-                </form>
-            </div>
-            {% endif %}
-
-            <!-- CTA Sidebar Card -->
-            <div class="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-2xl p-6 md:p-8 text-white shadow-xl">
-                <h3 class="text-xl md:text-2xl font-bold mb-2" style="font-family: 'Outfit', sans-serif;">Ready to travel?</h3>
-                <p class="text-indigo-200 text-sm mb-6">Get a personalized plan and cost estimate within 24 hours.</p>
-
-                <ul class="space-y-3 mb-6 text-sm">
-                    <li class="flex items-center gap-3">
-                        <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
-                        No Hidden Fees
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
-                        Free Video Consultation
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
-                        Dedicated Concierge
-                    </li>
-                </ul>
-
-                <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}" class="w-full block text-center bg-white text-indigo-900 font-bold py-3.5 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-0.5 mb-3">
-                    Request Free Quote
-                </a>
-                <p class="text-xs text-center text-indigo-300">Your medical data is 100% secure.</p>
-            </div>
+            <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}"
+               class="w-full block text-center font-bold py-3.5 rounded-xl transition-all mb-3"
+               style="background:#fff; color:#1e1b4b;">
+              Request Free Quote
+            </a>
+            <p class="text-xs text-center text-indigo-400">Your medical data is 100% secure.</p>
+          </div>
         </aside>
+        <!-- END SIDEBAR -->
+
+
+        <!-- ========================
+             MAIN CONTENT TABS
+             order-2 on mobile (below sidebar)
+             ======================== -->
+        <div class="flex-1 min-w-0" style="order: 2;">
+
+          <!-- Tab Navigation -->
+          <div class="bg-white rounded-2xl p-1.5 shadow-sm mb-5 overflow-x-auto"
+               style="border:1px solid #f1f5f9; -webkit-overflow-scrolling:touch; scrollbar-width:none; white-space:nowrap;">
+            <div class="inline-flex gap-1 min-w-full">
+              <button @click="tab='overview'"
+                      :class="tab==='overview' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
+                Overview
+              </button>
+              <button @click="tab='doctors'"
+                      :class="tab==='doctors' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
+                Doctors &amp; Team
+              </button>
+              <button @click="tab='treatments'"
+                      :class="tab==='treatments' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
+                Treatments &amp; Pricing
+              </button>
+              <button @click="tab='reviews'"
+                      :class="tab==='reviews' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
+                Patient Reviews
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Panels -->
+          <div class="bg-white rounded-2xl shadow-sm" style="border:1px solid #f1f5f9;">
+
+            <!-- ====== OVERVIEW ====== -->
+            <div x-show="tab==='overview'" x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 class="p-5 md:p-7 space-y-7">
+
+              <!-- About -->
+              <div>
+                <h2 class="font-bold text-slate-800 mb-3" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+                  About {{ hospital.name|title }}
+                </h2>
+                <p class="text-slate-600 text-sm leading-relaxed">
+                  {{ hospital.description|default:"A premier healthcare facility offering world-class treatments and specialized medical care. Dedicated to patient safety, comfort, and state-of-the-art medical technology." }}
+                </p>
+              </div>
+
+              <!-- Gallery -->
+              {% if hospital.images.all|length > 1 %}
+              <div>
+                <h3 class="font-bold text-slate-700 text-sm mb-3">Hospital Gallery</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {% for img in hospital.images.all %}
+                  <div class="rounded-xl overflow-hidden" style="height:100px;">
+                    <img src="{{ img.image.url }}" alt="Hospital photo"
+                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Stats -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                  <p class="font-extrabold text-sky-600" style="font-size:1.7rem;">{{ hospital.years_active }}+</p>
+                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Years Active</p>
+                </div>
+                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                  <p class="font-extrabold text-indigo-600" style="font-size:1.7rem;">{{ hospital.international_patients }}+</p>
+                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Intl Patients</p>
+                </div>
+                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                  <p class="font-extrabold text-emerald-600" style="font-size:1.7rem;">{{ hospital.beds_count }}+</p>
+                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Beds</p>
+                </div>
+                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                  <p class="font-extrabold text-amber-500" style="font-size:1.7rem;">
+                    {% if hospital.average_rating and hospital.average_rating > 0 %}{{ hospital.average_rating }}{% else %}New{% endif %}
+                  </p>
+                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Rating</p>
+                </div>
+              </div>
+
+              <!-- Certifications -->
+              <div>
+                <h3 class="font-bold text-slate-700 text-sm mb-3">Certifications &amp; Accreditations</h3>
+                {% if hospital.accreditation %}
+                <div class="inline-flex items-center gap-3 px-4 py-3 rounded-xl"
+                     style="background:#fff; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                  <svg class="w-7 h-7 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/>
+                  </svg>
+                  <div>
+                    <p class="font-bold text-slate-800 text-sm">{{ hospital.get_accreditation_display }}</p>
+                    <p class="text-slate-500 text-xs">Verified Medical Facility</p>
+                  </div>
+                </div>
+                {% else %}
+                <p class="text-slate-500 text-sm">No certifications listed yet.</p>
+                {% endif %}
+              </div>
+            </div>
+            <!-- END OVERVIEW -->
+
+
+            <!-- ====== DOCTORS & TEAM ====== -->
+            <div x-show="tab==='doctors'" style="display:none;"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 class="p-5 md:p-7">
+              <h2 class="font-bold text-slate-800 mb-5" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+                Medical Specialists
+              </h2>
+
+              {% if doctors %}
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% for doctor in doctors %}
+                <a href="{% url 'doctor_detail' doctor.id %}"
+                   class="flex items-center gap-4 p-4 rounded-2xl hover:shadow-md transition-all group"
+                   style="background:#fff; border:1px solid #e2e8f0;">
+                  <!-- Avatar -->
+                  <div class="w-14 h-14 rounded-full overflow-hidden flex-shrink-0" style="background:#e0f2fe;">
+                    {% if doctor.photo %}
+                      <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                      <img src="https://ui-avatars.com/api/?name={{ doctor.name|urlencode }}&background=e0f2fe&color=0369a1&size=120"
+                           alt="{{ doctor.name }}" class="w-full h-full object-cover">
+                    {% endif %}
+                  </div>
+                  <!-- Info -->
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-800 text-sm group-hover:text-sky-600 transition-colors truncate">
+                      {{ doctor.name|title }}
+                    </p>
+                    <p class="text-sky-600 text-xs font-semibold mt-0.5 truncate">{{ doctor.specialization }}</p>
+                    <div class="flex items-center gap-3 mt-1.5">
+                      <span class="text-slate-500 text-xs">{{ doctor.experience_years }}+ yrs</span>
+                      <span class="text-emerald-600 text-xs font-semibold">{{ doctor.success_rate }}% success</span>
+                    </div>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="py-12 text-center">
+                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <p class="text-slate-400 text-sm">No doctors listed yet.</p>
+              </div>
+              {% endif %}
+            </div>
+            <!-- END DOCTORS -->
+
+
+            <!-- ====== TREATMENTS & PRICING ====== -->
+            <div x-show="tab==='treatments'" style="display:none;"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 class="p-5 md:p-7">
+              <h2 class="font-bold text-slate-800 mb-5" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+                Treatment Packages &amp; Pricing
+              </h2>
+
+              {% if treatments %}
+              <div class="space-y-3">
+                {% for t in treatments %}
+                <div class="rounded-2xl p-4 md:p-5 transition-all hover:shadow-md"
+                     style="background:#fff; border:1px solid #e2e8f0;">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <!-- Treatment info -->
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-bold text-slate-800 text-sm">{{ t.treatment.name|title }}</h3>
+                      <p class="text-slate-500 text-xs mt-1">
+                        Includes {{ t.stay_days }} day stay &bull; {{ t.recovery_days }} day recovery
+                      </p>
+                      {% if t.doctor %}
+                      <p class="text-sky-600 text-xs mt-1 font-medium">Dr. {{ t.doctor.name }}</p>
+                      {% endif %}
+                    </div>
+                    <!-- Price + CTA -->
+                    <div class="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0
+                                border-t sm:border-t-0 sm:border-l border-slate-100 pt-3 sm:pt-0 sm:pl-5">
+                      <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wide font-medium">From</p>
+                        <p class="font-extrabold text-slate-900" style="font-size:1.3rem;">
+                          {{ t.currency }} {{ t.price }}
+                        </p>
+                      </div>
+                      <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}"
+                         class="text-sky-600 font-bold text-sm px-4 py-2 rounded-lg whitespace-nowrap transition-all"
+                         style="background:#eff6ff;"
+                         onmouseover="this.style.background='#dbeafe';"
+                         onmouseout="this.style.background='#eff6ff';">
+                        Select
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="py-12 text-center">
+                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <p class="text-slate-400 text-sm">No treatment packages listed yet.</p>
+              </div>
+              {% endif %}
+            </div>
+            <!-- END TREATMENTS -->
+
+
+            <!-- ====== PATIENT REVIEWS ====== -->
+            <div x-show="tab==='reviews'" style="display:none;"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 class="p-5 md:p-7">
+
+              <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <h2 class="font-bold text-slate-800" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+                  Patient Reviews
+                </h2>
+                <div class="text-right">
+                  <p class="font-extrabold text-slate-800 text-2xl">
+                    {% if hospital.average_rating and hospital.average_rating > 0 %}
+                      {{ hospital.average_rating }}<span class="text-base text-slate-400 font-normal">/5</span>
+                    {% else %}
+                      <span class="text-base text-slate-400 font-normal">No reviews yet</span>
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Placeholder review -->
+              <div class="space-y-4">
+                <div class="p-5 rounded-2xl" style="background:#f8fafc;">
+                  <div class="flex items-center gap-0.5 mb-3">
+                    {% for i in "12345" %}
+                    <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/>
+                    </svg>
+                    {% endfor %}
+                  </div>
+                  <p class="text-slate-700 text-sm italic mb-4">
+                    "The care I received here was exceptionally good. The facilities are modern and the international patient department handled everything perfectly."
+                  </p>
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
+                         style="background:#64748b;">M</div>
+                    <div>
+                      <p class="font-bold text-slate-800 text-sm">Michael R.</p>
+                      <p class="text-slate-500 text-xs">Cardiology Patient</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- END REVIEWS -->
+
+          </div>
+          <!-- END TAB PANELS -->
+
+        </div>
+        <!-- END MAIN CONTENT -->
+
+      </div>
+      <!-- END FLEX ROW -->
 
     </div>
-</div>
+  </div>
+  <!-- END PAGE BODY -->
 
 </div>
 {% endblock %}
