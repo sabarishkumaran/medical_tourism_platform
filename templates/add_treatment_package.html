@@ -46,8 +46,11 @@
 
                 <!-- Price & Currency -->
                 <div class="group">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Price</label>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Starting Price</label>
                     {% render_field form.price class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 5000" %}
+                    {% if form.price.help_text %}
+                    <p class="text-xs text-slate-400 mt-1">{{ form.price.help_text }}</p>
+                    {% endif %}
                 </div>
 
                 <div class="group">

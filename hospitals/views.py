@@ -242,7 +242,12 @@ def hospital_dashboard(request):
 def manage_doctors(request):
     hospital = request.user.hospital
     from django.core.paginator import Paginator
+    from django.db.models import Avg
     doctors_all = Doctor.objects.filter(hospital=hospital).order_by('name')
+    
+    total_staff = doctors_all.count()
+    specialties_count = doctors_all.values('specialization').distinct().count()
+    avg_success_rate = doctors_all.aggregate(avg=Avg('success_rate'))['avg'] or 0
     
     paginator = Paginator(doctors_all, 12)
     page_number = request.GET.get('page')
@@ -250,7 +255,11 @@ def manage_doctors(request):
     
     return render(request, "manage_doctors.html", {
         "hospital": hospital,
-        "doctors": doctors
+        "doctors": doctors,
+        "total_staff": total_staff,
+        "specialties_count": specialties_count,
+        "avg_success_rate": round(avg_success_rate, 1),
+        "avg_rating": hospital.average_rating
     })
 
 @hospital_required
@@ -332,6 +341,26 @@ def delete_treatment_package(request, package_id):
         if request.headers.get('HX-Request'):
             return HttpResponse("")  # HTMX will remove the target
     return redirect('hospital_dashboard')
+
+@hospital_required
+def manage_treatment_packages(request):
+    hospital = request.user.hospital
+    from django.core.paginator import Paginator
+    packages_all = TreatmentPackage.objects.filter(hospital=hospital).order_by('treatment__name')
+    
+    total_packages = packages_all.count()
+    active_packages = total_packages  # All packages are considered active for now
+    
+    paginator = Paginator(packages_all, 12)
+    page_number = request.GET.get('page')
+    packages = paginator.get_page(page_number)
+    
+    return render(request, "manage_treatment_packages.html", {
+        "hospital": hospital,
+        "packages": packages,
+        "total_packages": total_packages,
+        "active_packages": active_packages,
+    })
 
 def hospital_list(request):
     from django.db.models import Q

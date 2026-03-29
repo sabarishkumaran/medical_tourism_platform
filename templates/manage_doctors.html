@@ -23,19 +23,19 @@
         <!-- Team Stats -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 stagger-grid">
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 group hover:border-sky-200 transition-all">
-                <div class="text-3xl font-black text-slate-900 mb-1">{{ doctors.count }}</div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Staff</div>
+                <div class="text-3xl font-black text-slate-900 mb-1">{{ total_staff }}</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Doctors</div>
             </div>
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 group hover:border-emerald-200 transition-all">
-                <div class="text-3xl font-black text-emerald-600 mb-1">98%</div>
+                <div class="text-3xl font-black text-emerald-600 mb-1">{{ avg_success_rate }}%</div>
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg Success Rate</div>
             </div>
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 group hover:border-amber-200 transition-all">
-                <div class="text-3xl font-black text-slate-900 mb-1">12</div>
+                <div class="text-3xl font-black text-slate-900 mb-1">{{ specialties_count }}</div>
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Specialties</div>
             </div>
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 group hover:border-indigo-200 transition-all">
-                <div class="text-3xl font-black text-slate-900 mb-1">4.9/5</div>
+                <div class="text-3xl font-black text-slate-900 mb-1">{{ avg_rating|default:"0.0" }}/5</div>
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Patient Rating</div>
             </div>
         </div>

@@ -89,7 +89,7 @@
         <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors">Contact</a>
         {% elif user.role == 'HOSPITAL' %}
           <a href="{% url 'hospital_dashboard' %}" class="nav-link text-sky-600 hover:text-sky-700 transition-colors">Operations Dashboard</a>
-          <a href="{% url 'hospital_dashboard' %}#treatments" class="nav-link hover:text-slate-900 transition-colors">Active Treatments</a>
+          <a href="{% url 'manage_treatment_packages' %}" class="nav-link hover:text-slate-900 transition-colors">Active Treatments</a>
         <a href="{% url 'manage_doctors' %}" class="nav-link hover:text-slate-900 transition-colors">Medical Team</a>
           <a href="{% url 'hospital_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">Inquiries</a>
         {% elif user.role == 'PATIENT' %}
@@ -153,7 +153,7 @@
                     </div>
                 {% elif user.role == 'HOSPITAL' %}
                     <a href="{% url 'hospital_dashboard' %}" class="py-4 px-4 text-sky-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Operations Dashboard</a>
-                    <a href="{% url 'hospital_dashboard' %}#treatments" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Active Treatments</a>
+                    <a href="{% url 'manage_treatment_packages' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Active Treatments</a>
                     <a href="{% url 'manage_doctors' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Medical Team</a>
                     <a href="{% url 'hospital_dashboard' %}#inquiries" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Inquiries</a>
                 {% elif user.role == 'PATIENT' %}

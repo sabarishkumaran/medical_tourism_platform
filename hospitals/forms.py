@@ -21,6 +21,10 @@ class TreatmentPackageForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['doctor'].queryset = Doctor.objects.filter(hospital=self.hospital)
         
+        # Update price field to indicate it's a starting price
+        self.fields['price'].label = "Starting Price"
+        self.fields['price'].help_text = "This is the base price. Final price will be determined based on patient's medical condition during quote process."
+        
         # Style all fields
         for field in self.fields.values():
             field.widget.attrs.update({
