@@ -25,7 +25,20 @@ def treatment_list(request):
     
     category = request.GET.get('category')
     country = request.GET.get('country')
+    accreditation = request.GET.get('accreditation')
     sort = request.GET.get('sort')
+    query = request.GET.get('q', '').strip()
+
+    if query:
+        from django.db.models import Q
+        packages = packages.filter(
+            Q(treatment__name__icontains=query) | 
+            Q(hospital__name__icontains=query) |
+            Q(treatment__category__icontains=query)
+        )
+
+    if accreditation:
+        packages = packages.filter(hospital__accreditation__iexact=accreditation)
 
     if category:
         cat_lower = category.lower()
@@ -42,8 +55,22 @@ def treatment_list(request):
         
     from decimal import Decimal, InvalidOperation
     budget = request.GET.get('budget', '').strip()
-    if budget:
-        if "-" in budget:
+    min_budget = request.GET.get('min_budget', '').strip()
+    max_budget = request.GET.get('max_budget', '').strip()
+
+    if min_budget and max_budget:
+        try:
+            packages = packages.filter(price__gte=Decimal(min_budget), price__lte=Decimal(max_budget))
+        except (ValueError, InvalidOperation):
+            pass
+    elif budget:
+        if budget.isdigit():
+            try:
+                max_price = Decimal(budget)
+                packages = packages.filter(price__lte=max_price)
+            except (ValueError, InvalidOperation):
+                pass
+        elif "-" in budget:
             try:
                 min_b, max_b = budget.split("-")
                 packages = packages.filter(price__gte=Decimal(min_b), price__lte=Decimal(max_b))
@@ -78,8 +105,17 @@ def treatment_list(request):
         "current_category": category,
         "current_country": country,
         "current_budget": budget,
-        "current_sort": sort
+        "current_min_budget": min_budget or "1000",
+        "current_max_budget": max_budget or "50000",
+        "current_accreditation": accreditation,
+        "current_sort": sort,
+        "query": query,
+        "accreditation_options": Hospital.ACCREDITATION_CHOICES
     }
+    
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/package_list.html", context)
+        
     return render(request, "treatments.html", context)
 
 def concierge(request):
@@ -106,6 +142,10 @@ def contact(request):
             email=email,
             message=message
         )
+        
+        if request.headers.get('HX-Request'):
+            return render(request, "partials/contact_success.html")
+            
         messages.success(request, 'Message sent successfully! Our 24/7 team will get back to you shortly.')
         return redirect('contact')
     return render(request, "contact.html")

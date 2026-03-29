@@ -1,0 +1,56 @@
+<div id="staff-list-container">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50/50">
+                <tr>
+                    <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                    <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</th>
+                    <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Joined On</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for staff in staff_users %}
+                <tr class="hover:bg-slate-50/50 transition-colors group animate-fade-in">
+                    <td class="px-8 py-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm shadow-inner group-hover:scale-105 transition-transform">
+                                {% firstof staff.first_name|slice:":1" staff.username|slice:":1"|upper %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 group-hover:text-sky-600 transition-colors">{{ staff.get_full_name|default:staff.username }}</p>
+                                <p class="text-xs text-slate-400">{{ staff.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-5">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
+                            {% if staff.role == 'ADMIN' %}bg-rose-100 text-rose-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+                            {{ staff.get_role_display }}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-xs text-slate-500 font-medium">
+                        {{ staff.date_joined|date:"M d, Y" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if staff_users.has_other_pages %}
+    <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Page {{ staff_users.number }} of {{ staff_users.paginator.num_pages }}
+        </p>
+        <div class="flex items-center gap-2">
+            {% if staff_users.has_previous %}
+            <a hx-get="?page={{ staff_users.previous_page_number }}" hx-target="#staff-list-container" hx-push-url="true" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all cursor-pointer">Previous</a>
+            {% endif %}
+            
+            {% if staff_users.has_next %}
+            <a hx-get="?page={{ staff_users.next_page_number }}" hx-target="#staff-list-container" hx-push-url="true" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all cursor-pointer">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>

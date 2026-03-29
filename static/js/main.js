@@ -1,10 +1,11 @@
 // main.js - Global Animations and Interactions
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Lenis (Smooth Scrolling)
+    // 1. Initialize Lenis (Smooth Scrolling) - TEMPORARILY DISABLED FOR DEBUGGING
+    /*
     const lenis = new Lenis({
         duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         direction: 'vertical',
         gestureDirection: 'vertical',
         smooth: true,
@@ -19,8 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
+    */
 
-    // Sync GSAP ScrollTrigger with Lenis
+    // Sync GSAP ScrollTrigger with Lenis - DISABLED FOR DEBUGGING
+    /*
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
@@ -32,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gsap.ticker.lagSmoothing(0, 0);
     }
+    */
 
     // 2. Global GSAP Interactions
     // Fade Up Animation elements

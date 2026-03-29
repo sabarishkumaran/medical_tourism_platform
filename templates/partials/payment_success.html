@@ -1,0 +1,17 @@
+<div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-8 mb-8 text-center shadow-lg relative overflow-hidden animate-fade-unfold">
+    <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-200 rounded-full blur-3xl opacity-50 z-0"></div>
+    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-200 rounded-full blur-3xl opacity-50 z-0"></div>
+    
+    <div class="relative z-10 flex flex-col items-center justify-center">
+        <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-500/30 mb-5 animate-bounce-subtle">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-3xl font-extrabold text-emerald-800 mb-2" style="font-family: 'Outfit', sans-serif;">Payment Successful!</h2>
+        <p class="text-emerald-700 text-sm max-w-md mx-auto mb-6">Your payment has been processed securely. Your medical journey with {{ inquiry.hospital.name }} is fully booked and confirmed.</p>
+        
+        <div class="bg-white/60 backdrop-blur-sm border border-emerald-100 rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs shadow-inner">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid</span>
+            <span class="text-lg font-black text-emerald-700">${{ inquiry.package.price|floatformat:2 }}</span>
+        </div>
+    </div>
+</div>

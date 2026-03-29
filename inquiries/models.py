@@ -12,6 +12,7 @@ class Inquiry(models.Model):
         ("NEW", "New"),
         ("QUOTE_SENT", "Quote Sent"),
         ("CONFIRMED", "Confirmed"),
+        ("PAYMENT_LINK_SENT", "Payment Link Sent"),
         ("COMPLETED", "Completed"),
     ]
 
@@ -32,6 +33,16 @@ class Inquiry(models.Model):
         choices=STATUS_CHOICES,
         default="NEW"
     )
+
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True, blank=True)
+    package = models.ForeignKey('hospitals.TreatmentPackage', on_delete=models.SET_NULL, null=True, blank=True)
+
+    service_fees_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    needs_visa_assistance = models.BooleanField(default=False)
+    needs_travel_booking = models.BooleanField(default=False)
+    needs_concierge = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

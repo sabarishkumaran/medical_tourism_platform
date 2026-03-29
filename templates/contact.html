@@ -24,9 +24,9 @@
     <div class="bg-white rounded-3xl shadow-xl overflow-hidden animate-fade-up border border-slate-100 flex flex-col lg:flex-row">
         
         <!-- Form Side -->
-        <div class="p-8 md:p-12 lg:w-2/3">
+        <div class="p-8 md:p-12 lg:w-2/3" id="contact-form-container">
             <h2 class="text-3xl font-bold text-slate-900 mb-8" style="font-family: 'Outfit', sans-serif;">Send us a message</h2>
-            <form method="POST" action="{% url 'contact' %}" class="space-y-6">
+            <form hx-post="{% url 'contact' %}" hx-target="#contact-form-container" hx-swap="innerHTML" class="space-y-6">
                 {% csrf_token %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>

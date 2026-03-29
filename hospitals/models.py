@@ -42,6 +42,17 @@ class Hospital(models.Model):
         default='PENDING'
     )
 
+    SUBSCRIPTION_PLAN_CHOICES = (
+        ('BASIC', 'Basic (Free)'),
+        ('PREMIUM', 'Premium ($199/mo)'),
+        ('ELITE', 'Elite ($499/mo)'),
+    )
+    
+    subscription_plan = models.CharField(max_length=20, choices=SUBSCRIPTION_PLAN_CHOICES, default='BASIC')
+    subscription_end_date = models.DateField(null=True, blank=True)
+    wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    is_featured = models.BooleanField(default=False)
+
     beds_count = models.IntegerField(default=100)
     international_patients = models.IntegerField(default=1000)
 

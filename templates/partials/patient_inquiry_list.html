@@ -1,0 +1,76 @@
+<div id="patient-inquiry-container">
+    {% if inquiries %}
+    <div class="divide-y divide-slate-100">
+        {% for inquiry in inquiries %}
+        <div class="p-6 sm:px-8 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row justify-between sm:items-center gap-4 group animate-fade-in">
+            <div class="flex items-center gap-5">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">ID: #INQ-{{ inquiry.id|stringformat:"04d" }}</div>
+                    <h3 class="font-bold text-slate-800 text-lg">{{ inquiry.treatment.name|default:"General Inquiry" }}</h3>
+                    <p class="text-sm text-slate-500 mt-1 line-clamp-1">{{ inquiry.description|truncatechars:50 }}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6 justify-between sm:justify-end border-t border-slate-100 sm:border-0 pt-4 sm:pt-0">
+                <div class="text-right">
+                    {% if inquiry.status == 'new' or inquiry.status == 'NEW' %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            Reviewing
+                        </span>
+                    {% elif inquiry.status == 'quote_received' or inquiry.status == 'QUOTE_RECEIVED' %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            Quote Ready
+                        </span>
+                    {% elif inquiry.status == 'confirmed' or inquiry.status == 'CONFIRMED' %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Confirmed
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                            {{ inquiry.status|title }}
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <a href="{% url 'view_inquiry' inquiry.id %}" class="p-2 text-slate-400 hover:text-sky-600 transition-colors bg-white border border-slate-200 shadow-sm rounded-xl hover:shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if inquiries.has_other_pages %}
+    <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Page {{ inquiries.number }} of {{ inquiries.paginator.num_pages }}
+        </p>
+        <div class="flex items-center gap-2">
+            {% if inquiries.has_previous %}
+            <a hx-get="?page={{ inquiries.previous_page_number }}" hx-target="#patient-inquiry-container" hx-push-url="true" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all cursor-pointer">Previous</a>
+            {% endif %}
+            
+            {% if inquiries.has_next %}
+            <a hx-get="?page={{ inquiries.next_page_number }}" hx-target="#patient-inquiry-container" hx-push-url="true" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-bold hover:bg-sky-600 transition-all shadow-md cursor-pointer">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="p-16 text-center flex flex-col items-center">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">No active inquiries</h3>
+        <p class="text-slate-500 mb-6 max-w-md">You haven't requested any treatment quotes yet. Start your healthcare journey today.</p>
+        <a href="{% url 'submit_inquiry' %}" class="bg-slate-900 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all">Submit First Inquiry</a>
+    </div>
+    {% endif %}
+</div>

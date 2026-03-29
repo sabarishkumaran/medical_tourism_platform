@@ -35,9 +35,9 @@
                     </div>
                     
                     <div class="p-8">
-                        <form method="POST" class="space-y-5">
+                        <form hx-post="{% url 'manage_staff' %}" hx-target="#staff-list-container" hx-swap="innerHTML" hx-on::after-request="if(event.detail.successful) this.reset()" class="space-y-5">
                             {% csrf_token %}
-                            
+                            <!-- Form fields ... -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="group">
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">First Name</label>
@@ -64,15 +64,11 @@
                                 {% render_field form.role class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" %}
                             </div>
 
-                            <!-- Passwords are handled by UserCreationForm -->
                             {% for field in form %}
                                 {% if field.name == 'password1' or field.name == 'password2' %}
                                 <div class="group">
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">{{ field.label }}</label>
                                     {% render_field field class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" %}
-                                    {% if field.errors %}
-                                        <p class="text-[10px] text-rose-500 mt-1">{{ field.errors.0 }}</p>
-                                    {% endif %}
                                 </div>
                                 {% endif %}
                             {% endfor %}
@@ -90,63 +86,10 @@
                 <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                     <div class="p-8 border-b border-slate-50 flex justify-between items-center">
                         <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Existing Team</h2>
-                        <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Total: {{ staff_users.paginator.count }}</span>
+                        <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Team Portal</span>
                     </div>
                     
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50/50">
-                                <tr>
-                                    <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                                    <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</th>
-                                    <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Joined On</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                {% for staff in staff_users %}
-                                <tr class="hover:bg-slate-50/50 transition-colors group">
-                                    <td class="px-8 py-5">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm shadow-inner group-hover:scale-105 transition-transform">
-                                                {% firstof staff.first_name|slice:":1" staff.username|slice:":1"|upper %}
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-bold text-slate-800 group-hover:text-sky-600 transition-colors">{{ staff.get_full_name|default:staff.username }}</p>
-                                                <p class="text-xs text-slate-400">{{ staff.email }}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
-                                            {% if staff.role == 'ADMIN' %}bg-rose-100 text-rose-700{% else %}bg-amber-100 text-amber-700{% endif %}">
-                                            {{ staff.get_role_display }}
-                                        </span>
-                                    </td>
-                                    <td class="px-8 py-5 text-xs text-slate-500 font-medium">
-                                        {{ staff.date_joined|date:"M d, Y" }}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {% if staff_users.has_other_pages %}
-                    <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            Page {{ staff_users.number }} of {{ staff_users.paginator.num_pages }}
-                        </p>
-                        <div class="flex items-center gap-2">
-                            {% if staff_users.has_previous %}
-                            <a href="?page={{ staff_users.previous_page_number }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all">Previous</a>
-                            {% endif %}
-                            
-                            {% if staff_users.has_next %}
-                            <a href="?page={{ staff_users.next_page_number }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all">Next</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
+                    {% include "partials/staff_list.html" %}
                 </div>
             </div>
             

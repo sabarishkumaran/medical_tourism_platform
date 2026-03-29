@@ -36,7 +36,7 @@
                 <button class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-colors">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
                 </button>
-                <a href="{% url 'submit_inquiry' %}" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2">
+                <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2">
                     Get Free Quote <span aria-hidden="true">→</span>
                 </a>
             </div>
@@ -49,7 +49,7 @@
     <!-- Left Main Content Area -->
     <div class="lg:col-span-2">
         <!-- Tabs Nav -->
-        <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-100 flex overflow-x-auto hide-scrollbars mb-8 sticky top-24 z-20">
+        <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-100 flex overflow-x-auto hide-scrollbars mb-8 z-20">
             <button @click="tab = 'overview'" :class="{'bg-slate-100 text-sky-700 font-bold shadow-sm': tab === 'overview', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'overview'}" class="flex-1 py-3 px-6 rounded-xl text-sm font-medium transition-colors whitespace-nowrap">Overview</button>
             <button @click="tab = 'doctors'" :class="{'bg-slate-100 text-sky-700 font-bold shadow-sm': tab === 'doctors', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'doctors'}" class="flex-1 py-3 px-6 rounded-xl text-sm font-medium transition-colors whitespace-nowrap">Doctors & Teams</button>
             <button @click="tab = 'treatments'" :class="{'bg-slate-100 text-sky-700 font-bold shadow-sm': tab === 'treatments', 'text-slate-500 hover:text-slate-700 hover:bg-slate-50': tab !== 'treatments'}" class="flex-1 py-3 px-6 rounded-xl text-sm font-medium transition-colors whitespace-nowrap">Treatments Pricing</button>
@@ -203,7 +203,26 @@
 
     <!-- Right Sidebar -> Request Action -->
     <aside class="lg:col-span-1">
-        <div class="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-3xl p-8 text-white shadow-xl sticky top-28">
+        {% if user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
+        <!-- Admin Moderation Panel -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-rose-100 mb-6">
+            <h3 class="text-lg font-bold mb-2 text-slate-800 flex items-center gap-2">
+                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Admin Moderation
+            </h3>
+            <p class="text-slate-500 text-xs mb-4">You have administrative privileges to moderate this hospital's platform access.</p>
+            
+            <form action="{% url 'reject_hospital' hospital.id %}" method="POST" onsubmit="return confirm('Are you sure you want to suspend this hospital? This will hide their profile from patients immediately.');">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex justify-center items-center gap-2 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white font-bold py-3 px-4 rounded-xl transition-colors border border-rose-200 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                    Suspend / Revoke Approval
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-3xl p-8 text-white shadow-xl">
             <h3 class="text-2xl font-bold mb-2">Ready to travel?</h3>
             <p class="text-indigo-200 text-sm mb-6">Get a personalized treatment plan and cost estimate within 24 hours.</p>
             
@@ -213,7 +232,7 @@
                 <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div> Dedicated Concierge</li>
             </ul>
 
-            <a href="{% url 'submit_inquiry' %}" class="w-full block text-center bg-white text-indigo-900 font-bold py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 mb-4">
+            <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}" class="w-full block text-center bg-white text-indigo-900 font-bold py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 mb-4">
                 Request Free Quote
             </a>
             

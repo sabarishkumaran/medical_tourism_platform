@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="max-w-4xl mx-auto animate-fade-up">
+        <nav class="flex mb-8 text-sm font-medium text-slate-400" aria-label="Breadcrumb">
+            <a href="{% url 'hospital_dashboard' %}" class="hover:text-sky-600 transition-colors">Dashboard</a>
+            <svg class="w-5 h-5 mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 11 7.293 7.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+            <span class="text-slate-900">Review Inquiry</span>
+        </nav>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Left: Inquiry Details -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-900 mb-6" style="font-family: 'Outfit', sans-serif;">Patient Profile</h3>
+                    
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
+                            {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900">{{ inquiry.patient.get_full_name|default:"Valued Patient" }}</h4>
+                            <p class="text-xs text-slate-500">Inquiry #{{ inquiry.id }}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Requested Treatment</p>
+                            <p class="text-sm font-semibold text-slate-900">{{ inquiry.treatment.name }}</p>
+                        </div>
+                        {% if inquiry.preferred_country %}
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Preferred Destination</p>
+                            <p class="text-sm font-semibold text-slate-900">{{ inquiry.preferred_country }}</p>
+                        </div>
+                        {% endif %}
+                        {% if inquiry.budget %}
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Est. Budget</p>
+                            <p class="text-sm font-semibold text-emerald-600">${{ inquiry.budget }}</p>
+                        </div>
+                        {% endif %}
+                        {% if inquiry.travel_date %}
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Travel Date</p>
+                            <p class="text-sm font-semibold text-slate-900">{{ inquiry.travel_date|date:"M d, Y" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                    <h4 class="font-bold mb-2">Patient Notes</h4>
+                    <p class="text-sm text-indigo-100 leading-relaxed italic">"{{ inquiry.description }}"</p>
+                </div>
+            </div>
+
+            <!-- Right: Quote Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 md:p-10">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-slate-900" style="font-family: 'Outfit', sans-serif;">Prepare Treatment Proposal</h2>
+                            <p class="text-sm text-slate-500">Submit a detailed plan and fixed price to the patient.</p>
+                        </div>
+                    </div>
+
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div class="group">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Proposed Treatment Plan</label>
+                            {% render_field form.treatment_plan %}
+                            <p class="mt-2 text-[10px] text-slate-400">Be as detailed as possible to increase approval rates.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="group">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Fixed Price Quote ($)</label>
+                                {% render_field form.price placeholder="e.g. 4500" %}
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-between gap-4">
+                            <a href="{% url 'hospital_dashboard' %}" class="px-6 py-4 rounded-xl text-slate-500 font-bold hover:bg-slate-50 transition-colors">Cancel</a>
+                            <button type="submit" class="flex-1 bg-slate-900 hover:bg-sky-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-sky-500/25 transition-all duration-300 transform hover:-translate-y-1">
+                                Send Quote to Patient
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+<!-- Sorting Header -->
+<div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 animate-fade-up">
+    <p class="text-slate-500"><strong class="text-slate-900">{{ page_obj.paginator.count }}</strong> treatments found</p>
+    <div class="flex items-center gap-3">
+        <label class="text-sm text-slate-500 font-medium">Sort by:</label>
+        <select name="sort" 
+            hx-get="{% url 'treatments' %}"
+            hx-target="#treatment-results"
+            hx-trigger="change"
+            hx-include="[name='q'],[name='category'],[name='country'],[name='min_budget'],[name='max_budget'],[name='accreditation']"
+            class="bg-white border hover:border-sky-300 focus:border-sky-500 border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 shadow-sm transition-colors cursor-pointer outline-none">
+            <option value="">Recommended</option>
+            <option value="Price: Low to High" {% if current_sort == "Price: Low to High" %}selected{% endif %}>Price: Low to High</option>
+            <option value="Price: High to Low" {% if current_sort == "Price: High to Low" %}selected{% endif %}>Price: High to Low</option>
+            <option value="Rating: High to Low" {% if current_sort == "Rating: High to Low" %}selected{% endif %}>Rating: High to Low</option>
+        </select>
+    </div>
+</div>
+
+<!-- Treatments Grid -->
+<div class="grid md:grid-cols-2 gap-6 stagger-grid">
+    {% for package in page_obj %}
+    <article class="bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm hover:shadow-2xl rounded-3xl p-6 group transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between h-full">
+        <div>
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-14 h-14 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <div class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                    {{ package.treatment.category }}
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-sky-700 transition-colors" style="font-family: 'Outfit', sans-serif;">
+                {{ package.treatment.name }}
+            </h3>
+
+            <div class="flex items-center gap-2 mb-4 text-sm text-slate-500">
+                <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span>{{ package.hospital.name }}</span>
+            </div>
+        </div>
+
+        <div class="mt-6 border-t border-slate-100 pt-5 flex items-center justify-between gap-4">
+            <div class="flex-shrink-0">
+                <p class="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">Total Cost</p>
+                <p class="text-2xl font-black text-slate-800">${{ package.price|floatformat:0 }}</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{% url 'hospital_detail' package.hospital.id %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all duration-300 transform active:scale-95 text-sm">
+                    Details
+                </a>
+                <a href="{% url 'submit_inquiry' %}?package_id={{ package.id }}" class="bg-slate-900 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105 active:scale-95 text-sm">
+                    Book Now
+                </a>
+            </div>
+        </div>
+    </article>
+    {% empty %}
+    <div class="md:col-span-2 bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-500 shadow-sm">
+            <svg class="w-12 h-12 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <h3 class="text-xl font-semibold mb-2 text-slate-800">No Treatments Found</h3>
+            <p>Try adjusting your search filters.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="mt-12 flex items-center justify-between bg-white px-8 py-6 rounded-3xl border border-slate-100 shadow-sm">
+    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+    </p>
+    <div class="flex items-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_country %}&country={{ current_country }}{% endif %}{% if current_min_budget %}&min_budget={{ current_min_budget }}{% endif %}{% if current_max_budget %}&max_budget={{ current_max_budget }}{% endif %}{% if current_accreditation %}&accreditation={{ current_accreditation }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
+            hx-get="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_country %}&country={{ current_country }}{% endif %}{% if current_min_budget %}&min_budget={{ current_min_budget }}{% endif %}{% if current_max_budget %}&max_budget={{ current_max_budget }}{% endif %}{% if current_accreditation %}&accreditation={{ current_accreditation }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+            hx-target="#treatment-results"
+            hx-push-url="true"
+            class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all">Previous</a>
+        {% endif %}
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_country %}&country={{ current_country }}{% endif %}{% if current_min_budget %}&min_budget={{ current_min_budget }}{% endif %}{% if current_max_budget %}&max_budget={{ current_max_budget }}{% endif %}{% if current_accreditation %}&accreditation={{ current_accreditation }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
+            hx-get="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_country %}&country={{ current_country }}{% endif %}{% if current_min_budget %}&min_budget={{ current_min_budget }}{% endif %}{% if current_max_budget %}&max_budget={{ current_max_budget }}{% endif %}{% if current_accreditation %}&accreditation={{ current_accreditation }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+            hx-target="#treatment-results"
+            hx-push-url="true"
+            class="px-4 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-bold hover:bg-sky-600 transition-all shadow-md">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

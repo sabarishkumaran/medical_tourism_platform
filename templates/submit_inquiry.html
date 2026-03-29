@@ -42,27 +42,90 @@
             </div>
 
             <!-- Right Form Section -->
-            <div class="md:col-span-3 p-10">
-                <form method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ interacting: false }" @submit="interacting = true">
+            <div class="md:col-span-3 p-10" id="inquiry-form-container">
+                <form hx-post="{% url 'submit_inquiry' %}" hx-target="#inquiry-form-container" hx-encoding="multipart/form-data" hx-swap="innerHTML" class="space-y-6" x-data="{ interacting: false, hasHospital: {% if form.initial.hospital or form.package.value %}true{% else %}false{% endif %}, updateCountry(e) { const opt = e.target.options[e.target.selectedIndex]; if(opt && opt.dataset.country) { $refs.countryInput.value = opt.dataset.country; this.hasHospital = true; } else { this.hasHospital = false; } } }" @submit="interacting = true">
                     {% csrf_token %}
 
-                    <div class="grid grid-cols-2 gap-6">
-                        <!-- Treatment Needed -->
-                        <div class="col-span-2 group">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Treatment Needed</label>
-                            {% render_field form.treatment class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="Select or type treatment..." %}
+                    {% if form.package.value %}
+                        <div class="mb-6 bg-sky-50/50 border border-sky-100 rounded-2xl p-4 flex items-start gap-4">
+                            <div class="w-10 h-10 bg-sky-600 text-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Booking treatment for:</h4>
+                                <p class="text-sky-700 font-medium">{{ form.initial.treatment.name|default:"Selected Treatment" }}</p>
+                                <p class="text-xs text-slate-500 mt-1">Provider: {{ form.initial.hospital.name|default:"Selected Hospital" }}</p>
+                            </div>
                         </div>
+                        {{ form.package.as_hidden }}
+                        {{ form.hospital.as_hidden }}
+                        {{ form.treatment.as_hidden }}
+                    {% endif %}
+
+                    {% if not user.is_authenticated %}
+                    <div class="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                        <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            Your Contact Details
+                        </h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 sm:col-span-1 group">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">First Name</label>
+                                <input type="text" name="guest_first_name" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="John">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1 group">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Last Name</label>
+                                <input type="text" name="guest_last_name" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="Doe">
+                            </div>
+                            <div class="col-span-2 group">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+                                <input type="email" name="guest_email" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="john.doe@example.com">
+                                <p class="text-[10px] text-slate-400 mt-1">We'll automatically create an account to track your quotes.</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-2 gap-6">
+                        {% if not form.package.value and not form.initial.hospital %}
+                        <!-- Hospital Selection -->
+                        <div class="col-span-2 sm:col-span-1 group">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Preferred Hospital (Optional)</label>
+                            <select name="hospital" @change="updateCountry" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+                                <option value="">Any Top-Rated Hospital</option>
+                                {% for h in hospitals_list %}
+                                    <option value="{{ h.id }}" data-country="{{ h.user.country }}" {% if form.initial.hospital and form.initial.hospital.id == h.id %}selected{% endif %}>{{ h.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Treatment Needed -->
+                        <div class="col-span-2 sm:col-span-1 group">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Treatment Needed</label>
+                            {% render_field form.treatment class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="Select treatment..." %}
+                        </div>
+                        {% endif %}
 
                         <!-- Preferred Country -->
                         <div class="col-span-2 sm:col-span-1 group">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Destination</label>
-                            {% render_field form.preferred_country class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. Turkey" %}
+                            <input type="text" name="{{ form.preferred_country.name }}" id="{{ form.preferred_country.id_for_label }}" value="{{ form.preferred_country.value|default:'' }}" :readonly="hasHospital" :class="hasHospital ? 'w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed outline-none select-none' : 'w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none'" x-ref="countryInput" placeholder="e.g. Turkey">
                         </div>
 
-                        <!-- Budget -->
+                        <!-- Budget / Package Price -->
                         <div class="col-span-2 sm:col-span-1 group">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Budget ($)</label>
-                            {% render_field form.budget class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 5000" %}
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">
+                                {% if form.package.value %}Package Price ($){% else %}Your Budget ($){% endif %}
+                            </label>
+                            {% if form.package.value %}
+                                <input type="number" name="{{ form.budget.name }}" id="{{ form.budget.id_for_label }}" value="{{ form.budget.value|default:'' }}" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed outline-none select-none">
+                                <p class="text-[10px] text-amber-600 mt-1 font-medium flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Base estimate shown. Final price may vary based on medical review.
+                                </p>
+                            {% else %}
+                                {% render_field form.budget class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 5000" %}
+                            {% endif %}
                         </div>
 
                         <!-- Travel Date -->

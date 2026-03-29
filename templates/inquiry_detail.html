@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="{ showConfirmModal: false }">
+    <div class="container mx-auto px-4 md:px-8 py-10">
+        <div class="max-w-4xl mx-auto">
+            <!-- Back Link -->
+            <a href="{% url 'patient_dashboard' %}" class="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 mb-8 transition-colors group">
+                <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <span class="font-bold text-sm uppercase tracking-wider">Back to Dashboard</span>
+            </a>
+
+            <!-- Header Card -->
+            <div class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-slate-100 mb-8 relative overflow-hidden">
+                <!-- Decorative Background Element -->
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-sky-50 rounded-full blur-3xl opacity-50"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">
+                            Inquiry #INQ-{{ inquiry.id|stringformat:"04d" }}
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">
+                            {{ inquiry.treatment.name|default:"General Inquiry" }}
+                        </h1>
+                        <p class="text-slate-500 flex items-center gap-2 font-medium">
+                            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                            {{ inquiry.preferred_country|default:"Any Country" }}
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col items-end gap-3" id="inquiry-status-badge">
+                        {% if inquiry.status == 'NEW' or inquiry.status == 'new' %}
+                            <span class="px-6 py-2 rounded-2xl bg-amber-50 text-amber-600 font-bold text-sm border border-amber-100">Under Review</span>
+                        {% elif inquiry.status == 'QUOTE_SENT' %}
+                            <span class="px-6 py-2 rounded-2xl bg-indigo-50 text-indigo-600 font-bold text-sm border border-indigo-100">Quote Received</span>
+                        {% elif inquiry.status == 'CONFIRMED' %}
+                            <span class="px-6 py-2 rounded-2xl bg-emerald-50 text-emerald-600 font-bold text-sm border border-emerald-100">Case Confirmed</span>
+                        {% else %}
+                            <span class="px-6 py-2 rounded-2xl bg-slate-50 text-slate-600 font-bold text-sm border border-slate-100">{{ inquiry.status|title }}</span>
+                        {% endif %}
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Submitted {{ inquiry.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if inquiry.status == 'PAYMENT_LINK_SENT' %}
+            <!-- Payment Request State (Full Width) -->
+            <div id="payment-section" class="mb-8 animate-fade-unfold">
+                <div class="bg-gradient-to-br from-slate-900 to-indigo-900 border border-slate-800 rounded-3xl p-8 md:p-10 text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-20 z-0 pointer-events-none"></div>
+                    <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-sky-500 rounded-full blur-3xl opacity-20 z-0 pointer-events-none"></div>
+                    
+                    <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+                        <div class="flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 w-full lg:w-auto">
+                            <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex-shrink-0">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl md:text-4xl font-extrabold mb-2 text-white" style="font-family: 'Outfit', sans-serif;">Payment Required</h2>
+                                <p class="text-indigo-200 text-sm md:text-base max-w-xl mx-auto sm:mx-0">Your treatment plan has been confirmed! The hospital has requested payment to finalize your booking and secure your dates.</p>
+                            </div>
+                        </div>
+                        
+                        <form hx-post="{% url 'process_payment' inquiry.id %}" 
+                              hx-target="#payment-section" 
+                              hx-swap="outerHTML"
+                              x-data="{ 
+                                 basePrice: parseFloat('{{ inquiry.package.price }}') || 0,
+                                 visa: false, travel: false, concierge: false,
+                                 get total() { return this.basePrice + (this.visa ? 99 : 0) + (this.travel ? 49 : 0) + (this.concierge ? 199 : 0); }
+                              }"
+                              class="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 flex flex-col w-full lg:w-96 shrink-0 relative z-10">
+                            
+                            <h3 class="font-bold text-white mb-4 border-b border-indigo-400/30 pb-3 flex items-center justify-between">
+                                Premium Add-ons 
+                                <span class="bg-indigo-500 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest">Optional</span>
+                            </h3>
+                            
+                            <div class="space-y-4 mb-6">
+                                <label class="flex items-start gap-4 cursor-pointer group p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                                    <div class="relative flex items-center justify-center mt-0.5">
+                                        <input type="checkbox" name="visa" x-model="visa" class="peer appearance-none w-5 h-5 rounded border-2 border-indigo-300/50 checked:bg-emerald-400 checked:border-emerald-400 transition-all cursor-pointer">
+                                        <svg class="w-3 h-3 absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center mb-0.5">
+                                            <p class="text-sm font-bold text-white group-hover:text-indigo-100 transition-colors">Visa Assistance</p>
+                                            <p class="text-sm font-bold text-emerald-300">+$99</p>
+                                        </div>
+                                        <p class="text-[11px] text-indigo-300/70 leading-tight">Priority handling of your medical e-visa applications.</p>
+                                    </div>
+                                </label>
+                                
+                                <label class="flex items-start gap-4 cursor-pointer group p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                                    <div class="relative flex items-center justify-center mt-0.5">
+                                        <input type="checkbox" name="travel" x-model="travel" class="peer appearance-none w-5 h-5 rounded border-2 border-indigo-300/50 checked:bg-emerald-400 checked:border-emerald-400 transition-all cursor-pointer">
+                                        <svg class="w-3 h-3 absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center mb-0.5">
+                                            <p class="text-sm font-bold text-white group-hover:text-indigo-100 transition-colors">Travel Booking</p>
+                                            <p class="text-sm font-bold text-emerald-300">+$49</p>
+                                        </div>
+                                        <p class="text-[11px] text-indigo-300/70 leading-tight">We coordinate your optimum flights and local transfers.</p>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-start gap-4 cursor-pointer group p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                                    <div class="relative flex items-center justify-center mt-0.5">
+                                        <input type="checkbox" name="concierge" x-model="concierge" class="peer appearance-none w-5 h-5 rounded border-2 border-indigo-300/50 checked:bg-emerald-400 checked:border-emerald-400 transition-all cursor-pointer">
+                                        <svg class="w-3 h-3 absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center mb-0.5">
+                                            <p class="text-sm font-bold text-white group-hover:text-indigo-100 transition-colors">VIP Concierge</p>
+                                            <p class="text-sm font-bold text-emerald-300">+$199</p>
+                                        </div>
+                                        <p class="text-[11px] text-indigo-300/70 leading-tight">24/7 dedicated personal assistant and translation services.</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="flex flex-col items-center lg:items-end w-full border-t border-indigo-400/30 pt-6">
+                                <span class="text-xs md:text-sm font-bold text-indigo-300 uppercase tracking-widest mb-1">Total Due</span>
+                                <span class="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">$<span x-text="total.toFixed(2)"></span></span>
+                                
+                                <button type="submit" 
+                                    class="w-full relative group bg-white text-indigo-900 font-black py-4 px-10 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 whitespace-nowrap text-lg">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-100 to-teal-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <span class="relative z-10 transition-colors group-hover:text-teal-900">Pay Securely Now</span>
+                                    <svg class="w-6 h-6 relative z-10 text-emerald-500 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% elif inquiry.status == 'COMPLETED' %}
+            <!-- Payment Successful State (Full Width) -->
+            <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-8 mb-8 text-center shadow-lg relative overflow-hidden animate-fade-unfold">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-200 rounded-full blur-3xl opacity-50 z-0"></div>
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-200 rounded-full blur-3xl opacity-50 z-0"></div>
+                
+                <div class="relative z-10 flex flex-col items-center justify-center">
+                    <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-500/30 mb-5 animate-bounce-subtle">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-emerald-800 mb-2" style="font-family: 'Outfit', sans-serif;">Payment Successful!</h2>
+                    <p class="text-emerald-700 text-sm max-w-md mx-auto mb-6">Your payment has been processed securely. Your medical journey with {{ inquiry.hospital.name }} is fully booked and confirmed.</p>
+                    
+                    <div class="bg-white/60 backdrop-blur-sm border border-emerald-100 rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs shadow-inner">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid</span>
+                        <span class="text-lg font-black text-emerald-700">${{ inquiry.package.price|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Side: Details -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Description -->
+                    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Medical Inquiry Details
+                        </h3>
+                        <div class="prose prose-slate max-w-none text-slate-600 leading-relaxed font-medium">
+                            {{ inquiry.description|linebreaks }}
+                        </div>
+                    </div>
+
+                    <!-- Documents -->
+                    {% if inquiry.documents.all %}
+                    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                            Attached Records ({{ inquiry.documents.count }})
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for doc in inquiry.documents.all %}
+                            <a href="{{ doc.file.url }}" target="_blank" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-sky-300 hover:bg-white transition-all group">
+                                <div class="w-12 h-12 rounded-xl bg-white border border-slate-100 text-slate-400 flex items-center justify-center group-hover:text-sky-500 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-slate-700 truncate">Document {{ forloop.counter }}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Medical Record</p>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right Side: Quote / Hospital Info -->
+                <div class="space-y-8">
+                    {% if inquiry.status == 'CONFIRMED' or inquiry.status == 'COMPLETED' %}
+                        <div id="quote-card" class="bg-emerald-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-200 animate-fade-in">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-black text-2xl" style="font-family: 'Outfit', sans-serif;">Plan Confirmed</h3>
+                                    <p class="text-emerald-100 font-medium text-sm">Your journey is officially booked!</p>
+                                </div>
+                            </div>
+                            <p class="text-emerald-50 text-sm leading-relaxed mb-8 font-medium">Your treatment is confirmed with <strong>{{ inquiry.hospital.name }}</strong>. Our coordination team is now preparing for your arrival.</p>
+                            
+                            <div class="space-y-4">
+                                <a href="{% url 'edit_confirmation' inquiry.id %}" class="w-full py-4 bg-white text-emerald-600 font-black rounded-2xl hover:bg-emerald-50 transition-all shadow-lg flex items-center justify-center gap-2 group">
+                                    Edit Appointment
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+                                <div class="p-4 bg-white/10 rounded-2xl border border-white/20">
+                                    <p class="text-[10px] font-black uppercase tracking-widest mb-1 text-emerald-200">Next Step</p>
+                                    <p class="text-xs font-bold leading-tight">A care coordinator will call you within 24 hours to finalize travel details.</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif quote %}
+                    <div id="quote-card" class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl p-8 text-white shadow-xl shadow-indigo-200 relative overflow-hidden">
+                        <!-- Overlay Grain -->
+                        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] pointer-events-none"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-100 text-[10px] font-black uppercase tracking-widest mb-6 border border-indigo-400/30">
+                                Hospital Quote Received
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest mb-1">Estimated Cost</p>
+                                <h2 class="text-4xl font-black" style="font-family: 'Outfit', sans-serif;">${{ quote.price }}</h2>
+                            </div>
+
+                            <div class="space-y-4 mb-8">
+                                <h4 class="font-bold text-lg border-b border-indigo-400/30 pb-2">Proposed Plan</h4>
+                                <p class="text-sm text-indigo-100 leading-relaxed font-medium">
+                                    {{ quote.treatment_plan|truncatechars:200 }}
+                                </p>
+                            </div>
+
+                            <button 
+                                @click="showConfirmModal = true"
+                                class="w-full py-4 bg-white text-indigo-600 font-black rounded-2xl hover:bg-slate-50 transition-all shadow-lg shadow-indigo-900/20 flex items-center justify-center gap-2 group">
+                                Accept & Confirm
+                                <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% elif inquiry.status == 'CONFIRMED' %}
+                        <div class="bg-emerald-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-200">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <h3 class="font-bold text-xl">Plan Confirmed</h3>
+                            </div>
+                            <p class="text-emerald-50 text-sm leading-relaxed mb-6 font-medium">Your treatment is confirmed with {{ inquiry.hospital.name }}. Our team is now coordinating with the clinic for your arrival.</p>
+                            <div class="p-4 bg-white/10 rounded-2xl border border-white/20">
+                                <p class="text-[10px] font-black uppercase tracking-widest mb-1 text-emerald-200">Next Step</p>
+                                <p class="text-xs font-bold">Expect a travel orientation call within 24 hours.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Selection Summary Card -->
+                    <div class="bg-slate-900 rounded-3xl p-8 text-white">
+                        <h3 class="font-bold text-xl mb-6" style="font-family: 'Outfit', sans-serif;">Case Summary</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-sky-400 flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-7h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Target Hospital</p>
+                                    <p class="font-bold">{{ inquiry.hospital.name|default:"Auto-Matching" }}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Planned Budget</p>
+                                    <p class="font-bold">${{ inquiry.budget|default:"Not specified" }}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-400 flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Travel window</p>
+                                    <p class="font-bold">{{ inquiry.travel_date|default:"Flexible" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal: OUTSIDE content container for top-level z-index -->
+    <div x-show="showConfirmModal" 
+         x-cloak
+         class="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6"
+         style="display: none;">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
+             x-show="showConfirmModal"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             @click="showConfirmModal = false"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white opacity-100 rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200"
+             x-show="showConfirmModal"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-8"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             @click.away="showConfirmModal = false">
+            
+            <!-- Modal Header Decoration -->
+            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-600 to-indigo-800 z-0"></div>
+            
+            <div class="relative z-10 pt-12 pb-8 px-8 text-center">
+                <div class="w-24 h-24 bg-white rounded-3xl flex items-center justify-center text-indigo-600 mx-auto mb-6 shadow-xl relative z-20">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                
+                <h3 class="text-3xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Confirm Your Choice</h3>
+                <p class="text-slate-500 font-medium mb-8">Ready to begin your medical journey?</p>
+                
+                <!-- Details Card -->
+                <div class="bg-slate-50 rounded-2xl p-6 mb-10 text-left border border-slate-100">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Quote</p>
+                            <p class="text-2xl font-black text-indigo-600">${{ quote.price }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Travel window</p>
+                            <p class="text-sm font-bold text-slate-700">{{ inquiry.travel_date|default:"Flexible" }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-200">
+                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Provider</p>
+                        <p class="text-sm font-bold text-slate-700">{{ inquiry.hospital.name }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4" x-data="{ confirming: false }">
+                    <button @click="showConfirmModal = false" :disabled="confirming" class="flex-1 py-4 px-8 rounded-2xl bg-slate-100 text-slate-600 font-black hover:bg-slate-200 transition-colors disabled:opacity-50">
+                        Wait, go back
+                    </button>
+                    <button 
+                        hx-post="{% url 'accept_quote' inquiry.id %}"
+                        hx-vals='{"quote_id": "{{ quote.id }}"}'
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-target="#quote-card"
+                        hx-swap="outerHTML"
+                        @click="confirming = true"
+                        @htmx:after-request="confirming = false; showConfirmModal = false"
+                        :disabled="confirming"
+                        class="flex-1 py-4 px-8 rounded-2xl bg-indigo-600 text-white font-black hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed">
+                        <span x-show="!confirming">Confirm Plan</span>
+                        <span x-show="confirming" class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                                Processing...
+                        </span>
+                        <svg x-show="!confirming" class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

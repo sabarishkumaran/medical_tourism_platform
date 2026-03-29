@@ -25,11 +25,19 @@ def manage_staff(request):
         form = StaffCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            if request.headers.get('HX-Request'):
+                staff_users_all = User.objects.filter(role__in=['ADMIN', 'COORDINATOR']).order_by('-date_joined')
+                paginator = Paginator(staff_users_all, 10)
+                staff_users = paginator.get_page(1)
+                return render(request, "partials/staff_list.html", {"staff_users": staff_users})
             messages.success(request, f"Staff account for {user.username} created successfully.")
             return redirect('manage_staff')
     else:
         form = StaffCreationForm()
         
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/staff_list.html", {"staff_users": staff_users})
+
     return render(request, "manage_staff.html", {
         "staff_users": staff_users,
         "form": form
@@ -44,6 +52,24 @@ def admin_dashboard(request):
     from hospitals.models import Hospital
     from .models import User
     
+    from django.db.models import Sum
+    
+    # Revenue Stats
+    commission_revenue = Inquiry.objects.filter(status='COMPLETED').aggregate(total=Sum('commission_amount'))['total'] or 0.00
+    service_fees_revenue = Inquiry.objects.filter(status='COMPLETED').aggregate(total=Sum('service_fees_total'))['total'] or 0.00
+    
+    premium_subs = Hospital.objects.filter(subscription_plan='PREMIUM').count()
+    elite_subs = Hospital.objects.filter(subscription_plan='ELITE').count()
+    subscription_revenue = (premium_subs * 199) + (elite_subs * 499)
+    
+    processed_leads = Inquiry.objects.exclude(status='NEW').count()
+    lead_revenue = processed_leads * 50  # Flat $50 per qualified lead for calculation
+    
+    featured_hospitals = Hospital.objects.filter(is_featured=True).count()
+    featured_revenue = featured_hospitals * 299  # Flat $299 per featured listing
+    
+    total_revenue = float(commission_revenue) + float(service_fees_revenue) + subscription_revenue + lead_revenue + featured_revenue
+    
     # KPI Stats
     stats = {
         'total_hospitals': Hospital.objects.count(),
@@ -52,6 +78,14 @@ def admin_dashboard(request):
         'total_inquiries': Inquiry.objects.count(),
         'total_patients': User.objects.filter(role='PATIENT').count(),
         'unread_contacts': ContactMessage.objects.filter(is_read=False).count(),
+        'revenue': {
+            'total': total_revenue,
+            'commissions': commission_revenue,
+            'services': service_fees_revenue,
+            'subscriptions': subscription_revenue,
+            'leads': lead_revenue,
+            'featured': featured_revenue
+        }
     }
     
     # Recent Activity
@@ -70,12 +104,22 @@ def admin_dashboard(request):
 
 @login_required
 def patient_dashboard(request):
+    if request.user.role == 'HOSPITAL':
+        return redirect('hospital_dashboard')
+    elif request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser:
+        return redirect('admin_dashboard')
+
     from django.core.paginator import Paginator
     inquiries_all = Inquiry.objects.filter(patient=request.user).order_by('-created_at')
     
     paginator = Paginator(inquiries_all, 10)
     page_number = request.GET.get('page')
     inquiries = paginator.get_page(page_number)
+
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/patient_inquiry_list.html", {
+            "inquiries": inquiries
+        })
 
     return render(request, "patient_dashboard.html", {
         "inquiries": inquiries
