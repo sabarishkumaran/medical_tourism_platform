@@ -13,7 +13,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-widest {% if not msg.is_read %}text-sky-600{% else %}text-slate-400{% endif %}">
                     {% if not msg.is_read %}New Message{% else %}Processed{% endif %}
                 </span>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ msg.created_at|date:"M d, Y" }}</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ msg.created_at|date:"M d, Y" }}</p>
             </div>
 
             <div class="flex items-center gap-4 mb-6">
@@ -114,7 +114,7 @@
                     </td>
                     <td class="px-8 py-5 text-center whitespace-nowrap">
                         <p class="text-xs font-bold text-slate-700">{{ msg.created_at|date:"M d, Y" }}</p>
-                        <p class="text-[10px] text-slate-400 font-medium mt-1">{{ msg.created_at|timesince }} ago</p>
+                        <p class="text-[10px] text-slate-500 font-medium mt-1">{{ msg.created_at|timesince }} ago</p>
                     </td>
                     <td class="px-8 py-5 text-right whitespace-nowrap">
                         <form hx-post="{% url 'contact_messages_hub' %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" class="inline">

@@ -55,8 +55,18 @@
       transition: width 0.3s ease-in-out;
     }
 
-    .nav-link:hover::after {
+    .nav-link:hover::after,
+    .nav-link.active::after {
       width: 100%;
+    }
+
+    .nav-link.active {
+      color: #0ea5e9;
+    }
+
+    .mobile-nav-link.active {
+      color: #0f172a;
+      background-color: #f8fafc;
     }
   </style>
 
@@ -81,31 +91,33 @@
 
       <!-- Center: Navigation Menu (Desktop) -->
       <nav class="hidden md:flex space-x-6 items-center text-[14px] font-bold text-slate-600">
+        {% with current_url=request.resolver_match.url_name %}
         {% if not user.is_authenticated %}
-        <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors">Home</a>
-        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Treatments</a>
-        <a href="{% url 'blog' %}" class="nav-link hover:text-slate-900 transition-colors">Blog</a>
-        <a href="{% url 'about' %}" class="nav-link hover:text-slate-900 transition-colors">About</a>
-        <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors">Contact</a>
+        <a href="{% url 'home' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'home' %} active{% endif %}">Home</a>
+        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'treatments' %} active{% endif %}">Treatments</a>
+        <a href="{% url 'blog' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'blog' %} active{% endif %}">Blog</a>
+        <a href="{% url 'about' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'about' %} active{% endif %}">About</a>
+        <a href="{% url 'contact' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'contact' %} active{% endif %}">Contact</a>
         {% elif user.role == 'HOSPITAL' %}
-          <a href="{% url 'hospital_dashboard' %}" class="nav-link text-sky-600 hover:text-sky-700 transition-colors">Operations Dashboard</a>
-          <a href="{% url 'manage_treatment_packages' %}" class="nav-link hover:text-slate-900 transition-colors">Active Treatments</a>
-        <a href="{% url 'manage_doctors' %}" class="nav-link hover:text-slate-900 transition-colors">Medical Team</a>
-          <a href="{% url 'hospital_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">Inquiries</a>
+          <a href="{% url 'hospital_dashboard' %}" class="nav-link text-sky-600 hover:text-sky-700 transition-colors{% if current_url == 'hospital_dashboard' %} active{% endif %}">Operations Dashboard</a>
+          <a href="{% url 'manage_treatment_packages' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'manage_treatment_packages' %} active{% endif %}">Active Treatments</a>
+        <a href="{% url 'manage_doctors' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'manage_doctors' %} active{% endif %}">Medical Team</a>
+          <a href="{% url 'hospital_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'hospital_dashboard' %} active{% endif %}">Inquiries</a>
         {% elif user.role == 'PATIENT' %}
-          <a href="{% url 'patient_dashboard' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors">Care Dashboard</a>
-        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors">Find Care</a>
-          <a href="{% url 'patient_dashboard' %}#inquiries" class="nav-link hover:text-slate-900 transition-colors">My Inquiries</a>
+        <a href="{% url 'patient_dashboard' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors{% if current_url == 'patient_dashboard' %} active{% endif %}">Care Dashboard</a>
+        <a href="{% url 'treatments' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'treatments' %} active{% endif %}">Find Care</a>
+        <a href="{% url 'hospital_list' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'hospital_list' %} active{% endif %}">Hospitals</a>
+        <a href="{% url 'patient_inquiries' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'patient_inquiries' %} active{% endif %}">My Inquiries</a>
         {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
-        <a href="{% url 'admin_dashboard' %}" class="nav-link hover:text-slate-900 transition-colors">Admin Home</a>
-        <a href="{% url 'pending_hospitals' %}" class="nav-link text-amber-600 hover:text-amber-700 transition-colors">Approvals</a>
+        <a href="{% url 'admin_dashboard' %}" class="nav-link hover:text-slate-900 transition-colors{% if current_url == 'admin_dashboard' %} active{% endif %}">Admin Home</a>
+        <a href="{% url 'pending_hospitals' %}" class="nav-link text-amber-600 hover:text-amber-700 transition-colors{% if current_url == 'pending_hospitals' %} active{% endif %}">Hospitals</a>
         {% if user.role == 'ADMIN' or user.is_superuser %}
-        <a href="{% url 'manage_staff' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors">Manage Team</a>
+        <a href="{% url 'manage_staff' %}" class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors{% if current_url == 'manage_staff' %} active{% endif %}">Manage Team</a>
         {% endif %}
-        <a href="{% url 'inquiry_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1">
+        <a href="{% url 'inquiry_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1{% if current_url == 'inquiry_hub' %} active{% endif %}">
           Hospital Inquiry
         </a>
-        <a href="{% url 'contact_messages_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1">
+        <a href="{% url 'contact_messages_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1{% if current_url == 'contact_messages_hub' %} active{% endif %}">
           Inquiry Hub
           {% if unread_contact_count > 0 %}
           <span
@@ -115,6 +127,7 @@
           {% endif %}
         </a>
         {% endif %}
+        {% endwith %}
       </nav>
 
       <!-- Right: User Actions / Mobile Toggle -->
@@ -144,35 +157,37 @@
             
             <!-- Simplified Mobile Menu (Matches Desktop Only) -->
             <div class="flex flex-col py-4">
+                {% with current_url=request.resolver_match.url_name %}
                 {% if not user.is_authenticated %}
-                    <a href="{% url 'home' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Home</a>
-                    <a href="{% url 'treatments' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Treatments</a>
-                    <a href="{% url 'blog' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Blog</a>
-                    <a href="{% url 'about' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">About</a>
-                    <a href="{% url 'contact' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Contact</a>
+                    <a href="{% url 'home' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'home' %} active{% endif %}">Home</a>
+                    <a href="{% url 'treatments' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'treatments' %} active{% endif %}">Treatments</a>
+                    <a href="{% url 'blog' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'blog' %} active{% endif %}">Blog</a>
+                    <a href="{% url 'about' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'about' %} active{% endif %}">About</a>
+                    <a href="{% url 'contact' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'contact' %} active{% endif %}">Contact</a>
                     <div class="grid grid-cols-2 gap-3 p-4 mt-4">
                         <a href="{% url 'login' %}" class="py-3 px-4 text-center bg-slate-50 text-slate-700 font-bold rounded-xl border border-slate-100 transition-all">Log In</a>
                         <a href="{% url 'register' %}" class="py-3 px-4 text-center bg-slate-900 text-white font-bold rounded-xl shadow-lg shadow-slate-900/10 transition-all">Sign Up</a>
                     </div>
                 {% elif user.role == 'HOSPITAL' %}
-                    <a href="{% url 'hospital_dashboard' %}" class="py-4 px-4 text-sky-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Operations Dashboard</a>
-                    <a href="{% url 'manage_treatment_packages' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Active Treatments</a>
-                    <a href="{% url 'manage_doctors' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Medical Team</a>
-                    <a href="{% url 'hospital_dashboard' %}#inquiries" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Inquiries</a>
+                    <a href="{% url 'hospital_dashboard' %}" class="mobile-nav-link py-4 px-4 text-sky-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'hospital_dashboard' %} active{% endif %}">Operations Dashboard</a>
+                    <a href="{% url 'manage_treatment_packages' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'manage_treatment_packages' %} active{% endif %}">Active Treatments</a>
+                    <a href="{% url 'manage_doctors' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'manage_doctors' %} active{% endif %}">Medical Team</a>
+                    <a href="{% url 'hospital_dashboard' %}#inquiries" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'hospital_dashboard' %} active{% endif %}">Inquiries</a>
                 {% elif user.role == 'PATIENT' %}
-                    <a href="{% url 'patient_dashboard' %}" class="py-4 px-4 text-indigo-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Care Dashboard</a>
-                    <a href="{% url 'treatments' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Find Care</a>
-                    <a href="{% url 'patient_dashboard' %}#inquiries" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">My Inquiries</a>
+                    <a href="{% url 'patient_dashboard' %}" class="mobile-nav-link py-4 px-4 text-indigo-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'patient_dashboard' %} active{% endif %}">Care Dashboard</a>
+                    <a href="{% url 'treatments' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'treatments' %} active{% endif %}">Find Care</a>
+                    <a href="{% url 'hospital_list' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'hospital_list' %} active{% endif %}">Hospitals</a>
+                    <a href="{% url 'patient_inquiries' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'patient_inquiries' %} active{% endif %}">My Inquiries</a>
                 {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
-                    <a href="{% url 'admin_dashboard' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Admin Home</a>
-                    <a href="{% url 'pending_hospitals' %}" class="py-4 px-4 text-amber-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Approvals</a>
+                    <a href="{% url 'admin_dashboard' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'admin_dashboard' %} active{% endif %}">Admin Home</a>
+                    <a href="{% url 'pending_hospitals' %}" class="mobile-nav-link py-4 px-4 text-amber-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'pending_hospitals' %} active{% endif %}">Hospitals</a>
                     {% if user.role == 'ADMIN' or user.is_superuser %}
-                        <a href="{% url 'manage_staff' %}" class="py-4 px-4 text-indigo-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors">Manage Team</a>
+                        <a href="{% url 'manage_staff' %}" class="mobile-nav-link py-4 px-4 text-indigo-600 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'manage_staff' %} active{% endif %}">Manage Team</a>
                     {% endif %}
-                    <a href="{% url 'inquiry_hub' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                    <a href="{% url 'inquiry_hub' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'inquiry_hub' %} active{% endif %} flex items-center justify-between">
                         Hospital Inquiry
                     </a>
-                    <a href="{% url 'contact_messages_hub' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                    <a href="{% url 'contact_messages_hub' %}" class="mobile-nav-link py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors{% if current_url == 'contact_messages_hub' %} active{% endif %} flex items-center justify-between">
                         Inquiry Hub
                         {% if unread_contact_count > 0 %}
                         <span class="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full animate-pulse shadow-sm">
@@ -197,6 +212,7 @@
                     </form>
                 </div>
                 {% endif %}
+                {% endwith %}
             </div>
         </div>
 

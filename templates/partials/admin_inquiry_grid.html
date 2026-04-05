@@ -11,7 +11,7 @@
                     {% else %}bg-amber-100 text-amber-700{% endif %}">
                     {{ inquiry.get_status_display }}
                 </span>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ inquiry.created_at|date:"M d, Y" }}</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ inquiry.created_at|date:"M d, Y" }}</p>
             </div>
 
             <div class="mb-4">
@@ -51,7 +51,7 @@
                 <tr class="hover:bg-slate-50/50 transition-colors group">
                     <td class="px-8 py-5 whitespace-nowrap">
                         <p class="text-sm font-bold text-slate-800">#{{ inquiry.id }}</p>
-                        <p class="text-[10px] text-slate-400 font-medium mt-1">{{ inquiry.created_at|date:"M d, Y" }}</p>
+                        <p class="text-[10px] text-slate-500 font-medium mt-1">{{ inquiry.created_at|date:"M d, Y" }}</p>
                     </td>
                     <td class="px-8 py-5 whitespace-nowrap">
                         <div class="flex items-center gap-3">

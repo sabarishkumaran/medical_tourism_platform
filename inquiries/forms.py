@@ -48,6 +48,9 @@ class InquiryForm(forms.ModelForm):
                 "class": "w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
             })
 
+        if 'hospital' in self.fields:
+            self.fields['hospital'].required = True
+
 from .models import Quote
 
 class QuoteForm(forms.ModelForm):

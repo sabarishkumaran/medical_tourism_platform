@@ -116,7 +116,7 @@
                     {% for req in reapproval_requests %}
                     <div class="p-5 rounded-2xl border {% if req.status == 'PENDING' %}border-emerald-100 bg-emerald-50/30{% else %}border-slate-100 bg-slate-50{% endif %}">
                         <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest {% if req.status == 'PENDING' %}text-emerald-600{% else %}text-slate-400{% endif %}">
+                            <span class="text-[10px] font-bold uppercase tracking-widest {% if req.status == 'PENDING' %}text-emerald-600{% else %}text-slate-500{% endif %}">
                                 Submitted {{ req.submitted_at|date:"M d, Y" }}
                             </span>
                             {% if req.status == 'PENDING' %}

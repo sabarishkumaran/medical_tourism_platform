@@ -176,7 +176,7 @@
                                 </a>
                                 <p class="text-[11px] text-slate-400">
                                 {% if inquiry.hospital %}<span class="font-bold text-slate-500">To: {{ inquiry.hospital.name }}</span> • {% endif %}
-                                {{ inquiry.patient.get_full_name|default:inquiry.patient.username }} • {{ inquiry.created_at|timesince }} ago</p>
+                                {{ inquiry.patient.get_full_name|default:inquiry.patient.username }} • <span class="text-slate-500 font-medium">{{ inquiry.created_at|timesince }} ago</span></p>
                             </div>
                         </div>
                         <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider self-start sm:self-auto">
@@ -206,7 +206,7 @@
                                 <a href="{% if hospital.status == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="text-sm font-bold text-slate-800 hover:text-sky-600 transition-colors">
                                     {{ hospital.name }}
                                 </a>
-                                <p class="text-[11px] text-slate-400">{{ hospital.city }}, {{ hospital.user.country }} • Joined {{ hospital.user.date_joined|date:"M d" }}</p>
+                                <p class="text-[11px] text-slate-500 font-medium">{{ hospital.city }}, {{ hospital.user.country }} • Joined {{ hospital.user.date_joined|date:"M d" }}</p>
                             </div>
                         </div>
                         <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider

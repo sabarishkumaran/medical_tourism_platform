@@ -3,16 +3,16 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 stagger-grid">
         {% for hospital in hospitals %}
         <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col" id="hospital-card-{{ hospital.id }}">
-            <div class="\
-                {% if hospital.status == 'APPROVED' %}bg-gradient-to-r from-emerald-500 to-teal-500\
-                {% elif hospital.status == 'REJECTED' %}bg-gradient-to-r from-rose-500 to-red-600\
-                {% else %}bg-gradient-to-r from-amber-500 to-orange-500{% endif %} px-6 py-4 flex items-center justify-between">
+            <div class="px-6 py-4 flex items-center justify-between
+                {% if hospital.status == 'APPROVED' %}bg-gradient-to-r from-emerald-500 to-teal-500
+                {% elif hospital.status == 'REJECTED' %}bg-gradient-to-r from-rose-500 to-red-600
+                {% else %}bg-gradient-to-r from-amber-500 to-orange-500{% endif %}">
                 <span class="text-white font-bold text-sm uppercase tracking-wider">
                     {% if hospital.status == 'APPROVED' %}Verified Partner
                     {% elif hospital.status == 'REJECTED' %}Suspended
                     {% else %}Pending Review{% endif %}
                 </span>
-                <span class="text-white/70 text-xs">{{ hospital.created_at|date:"M d, Y" }}</span>
+                <span class="text-white font-medium text-xs">{{ hospital.created_at|date:"M d, Y" }}</span>
             </div>
             <div class="p-6 flex-1 flex flex-col">
                 <h3 class="text-xl font-bold text-slate-800 mb-1" style="font-family: 'Outfit', sans-serif;">{{ hospital.name }}</h3>
