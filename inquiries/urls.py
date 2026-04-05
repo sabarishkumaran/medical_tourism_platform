@@ -4,7 +4,9 @@ from . import views
 urlpatterns = [
 
     path('submit/', views.submit_inquiry, name="submit_inquiry"),
+    path('get-price/', views.get_treatment_price, name="get_treatment_price"),
     path('hub/', views.inquiry_hub, name="inquiry_hub"),
+    path('contact-messages/', views.contact_messages_hub, name="contact_messages_hub"),
     path('respond/<int:inquiry_id>/', views.respond_inquiry, name="respond_inquiry"),
     path('view/<int:inquiry_id>/', views.inquiry_detail, name="view_inquiry"),
     path('my-inquiries/', views.patient_inquiries, name="patient_inquiries"),

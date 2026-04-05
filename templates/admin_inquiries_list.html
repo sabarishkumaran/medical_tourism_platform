@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="max-w-7xl mx-auto animate-fade-up">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight" style="font-family: 'Outfit', sans-serif;">
+                    Inquiry Hub
+                </h1>
+                <p class="text-slate-500 mt-1 text-lg">
+                    Central management for all patient hospital-inquiries.
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-2 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+                 <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 text-slate-600 font-bold text-xs uppercase tracking-widest">
+                    <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Total Records: {{ page_obj.paginator.count }}
+                 </span>
+            </div>
+        </div>
+
+        <!-- Inquiries View -->
+        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            {% include "partials/admin_inquiry_grid.html" %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

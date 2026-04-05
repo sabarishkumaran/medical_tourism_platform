@@ -57,7 +57,7 @@
             </div>
 
             <!-- Unread Messages -->
-            <a href="{% url 'inquiry_hub' %}" class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-rose-200 transition-all group">
+            <a href="{% url 'contact_messages_hub' %}" class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-rose-200 transition-all group">
                 <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-colors mb-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
@@ -161,7 +161,7 @@
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-8 border-b border-slate-50 flex justify-between items-center">
                     <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Recent Inquiries</h2>
-                    <a href="#" class="text-sky-600 text-xs font-bold hover:underline">View All</a>
+                    <a href="{% url 'inquiry_hub' %}" class="text-sky-600 text-xs font-bold hover:underline">View All</a>
                 </div>
                 <div class="divide-y divide-slate-50">
                     {% for inquiry in recent_inquiries %}
@@ -171,8 +171,12 @@
                                 {{ inquiry.patient.username|slice:":2" }}
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-slate-800">{{ inquiry.treatment.name }}</p>
-                                <p class="text-[11px] text-slate-400">{{ inquiry.patient.get_full_name|default:inquiry.patient.username }} • {{ inquiry.created_at|timesince }} ago</p>
+                                <a href="{% url 'view_inquiry' inquiry.id %}" class="text-sm font-bold text-slate-800 hover:text-sky-600 transition-colors">
+                                    {{ inquiry.treatment.name }}
+                                </a>
+                                <p class="text-[11px] text-slate-400">
+                                {% if inquiry.hospital %}<span class="font-bold text-slate-500">To: {{ inquiry.hospital.name }}</span> • {% endif %}
+                                {{ inquiry.patient.get_full_name|default:inquiry.patient.username }} • {{ inquiry.created_at|timesince }} ago</p>
                             </div>
                         </div>
                         <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider self-start sm:self-auto">
@@ -199,7 +203,9 @@
                                 {{ hospital.name|slice:":1" }}
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-slate-800">{{ hospital.name }}</p>
+                                <a href="{% if hospital.status == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="text-sm font-bold text-slate-800 hover:text-sky-600 transition-colors">
+                                    {{ hospital.name }}
+                                </a>
                                 <p class="text-[11px] text-slate-400">{{ hospital.city }}, {{ hospital.user.country }} • Joined {{ hospital.user.date_joined|date:"M d" }}</p>
                             </div>
                         </div>
@@ -230,7 +236,7 @@
             </a>
             {% endif %}
             
-            <a href="{% url 'inquiry_hub' %}" class="flex items-center gap-4 p-5 bg-white rounded-3xl text-slate-800 border border-slate-100 hover:border-sky-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
+            <a href="{% url 'contact_messages_hub' %}" class="flex items-center gap-4 p-5 bg-white rounded-3xl text-slate-800 border border-slate-100 hover:border-sky-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
                 <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
                 </div>

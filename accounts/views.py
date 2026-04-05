@@ -1,6 +1,6 @@
 from hospitals.models import Hospital
 from inquiries.models import Inquiry
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import ProfileForm, RegisterForm, StaffCreationForm
@@ -175,6 +175,11 @@ def user_login(request):
 
             if user is not None:
                 login(request, user)
+                
+                next_url = request.POST.get('next') or request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+
                 if user.role == 'HOSPITAL':
                     return redirect("hospital_dashboard")
                 elif user.role in ['ADMIN', 'COORDINATOR']:
@@ -229,4 +234,22 @@ def admin_patients(request):
     if request.headers.get('HX-Request'):
         return render(request, "partials/patient_grid.html", {"patients": patients})
 
-    return render(request, "admin_patients.html", {"patients": patients})
+    return render(request, "admin_patients.html", {"patients": patients})
+
+@login_required
+def patient_detail(request, user_id):
+    if not request.user.is_superuser and request.user.role not in ['ADMIN', 'COORDINATOR']:
+        return HttpResponse("Unauthorized", status=403)
+
+    from .models import PatientProfile
+    from inquiries.models import Inquiry
+    
+    patient = get_object_or_404(User, id=user_id, role='PATIENT')
+    profile, created = PatientProfile.objects.get_or_create(user=patient)
+    inquiries = Inquiry.objects.filter(patient=patient).order_by('-created_at')
+    
+    return render(request, "partials/patient_detail_modal.html", {
+        "patient": patient,
+        "profile": profile,
+        "inquiries": inquiries
+    })

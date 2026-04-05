@@ -37,7 +37,7 @@
                     View Details
                 </button>
                 
-                <form hx-post="{% url 'inquiry_hub' %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" class="inline flex-1">
+                <form hx-post="{% url 'contact_messages_hub' %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" class="inline flex-1">
                     {% csrf_token %}
                     <input type="hidden" name="message_id" value="{{ msg.id }}">
                     <button type="submit" class="w-full bg-slate-50 text-slate-600 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
@@ -117,7 +117,7 @@
                         <p class="text-[10px] text-slate-400 font-medium mt-1">{{ msg.created_at|timesince }} ago</p>
                     </td>
                     <td class="px-8 py-5 text-right whitespace-nowrap">
-                        <form hx-post="{% url 'inquiry_hub' %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" class="inline">
+                        <form hx-post="{% url 'contact_messages_hub' %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" class="inline">
                             {% csrf_token %}
                             <input type="hidden" name="message_id" value="{{ msg.id }}">
                             <button type="submit" class="bg-white border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-sky-300 transition-all shadow-sm">

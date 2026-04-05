@@ -56,8 +56,11 @@
                 <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-slate-200 text-slate-400">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </div>
-                <h1 class="text-3xl font-extrabold text-slate-800 mb-4" style="font-family: 'Outfit', sans-serif;">Application Rejected</h1>
-                <p class="text-slate-600 text-lg mb-8">Unfortunately, your application was not approved at this time. Please contact support if you believe this is an error.</p>
+                <h1 class="text-3xl font-extrabold text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">Application Rejected</h1>
+                {% if hospital.suspension_reason %}
+                <p class="text-slate-600 font-bold mb-4">Reason: <span class="text-slate-800">{{ hospital.suspension_reason }}</span></p>
+                {% endif %}
+                <p class="text-slate-500 text-lg mb-8">Unfortunately, your application was not approved at this time. Please contact support if you believe this is an error and wish to appeal.</p>
             {% endif %}
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">

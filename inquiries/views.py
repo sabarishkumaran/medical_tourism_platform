@@ -36,10 +36,11 @@ def respond_inquiry(request, inquiry_id):
         "inquiry": inquiry
     })
 
-# Removed @login_required to allow guest submissions
+
+@login_required
 def submit_inquiry(request):
-    if request.user.is_authenticated and request.user.role != 'PATIENT':
-        return HttpResponse("Unauthorized", status=403)
+    if request.user.role != 'PATIENT':
+        return HttpResponse("Unauthorized: Only patients can submit inquiries.", status=403)
 
     from hospitals.models import Hospital
 
@@ -74,34 +75,7 @@ def submit_inquiry(request):
             
             if request.user.is_authenticated:
                 inquiry.patient = request.user
-            else:
-                # Ghost account creation for guest users
-                from accounts.models import User, PatientProfile
-                from django.contrib.auth import login
-                import secrets
-                
-                email = request.POST.get('guest_email')
-                first_name = request.POST.get('guest_first_name')
-                last_name = request.POST.get('guest_last_name')
-                
-                user = User.objects.filter(email=email).first()
-                if not user:
-                    user = User.objects.create_user(
-                        username=email.split('@')[0] + secrets.token_hex(2),
-                        email=email,
-                        first_name=first_name,
-                        last_name=last_name,
-                        role='PATIENT'
-                    )
-                    user.set_unusable_password()
-                    user.save()
-                    PatientProfile.objects.create(user=user)
-                
-                inquiry.patient = user
-                
-                # Optionally auto-login the guest so they can see their dashboard immediately
-                login(request, user)
-                
+            
             inquiry.save()
 
             files = request.FILES.getlist("documents")
@@ -118,10 +92,54 @@ def submit_inquiry(request):
     else:
         form = InquiryForm(initial=initial_data)
 
+    if request.headers.get('HX-Request') and request.method == "POST":
+        return render(request, "submit_inquiry.html", {"form": form, "hospitals_list": hospitals_list})
+
     return render(request, "submit_inquiry.html", {"form": form, "hospitals_list": hospitals_list})
 
 @login_required
+def get_treatment_price(request):
+    treatment_id = request.GET.get('treatment')
+    hospital_id = request.GET.get('hospital')
+
+    from django.http import JsonResponse
+
+    if not treatment_id:
+        return JsonResponse({"price": None})
+
+    price = None
+    from hospitals.models import TreatmentPackage
+    if treatment_id and hospital_id:
+        package = TreatmentPackage.objects.filter(treatment_id=treatment_id, hospital_id=hospital_id).first()
+        if package:
+            price = int(package.price)
+    
+    if not price and treatment_id:
+        # If no specific package exists or no hospital is selected, calculate the average price for the treatment
+        from django.db.models import Avg
+        avg_price = TreatmentPackage.objects.filter(treatment_id=treatment_id).aggregate(Avg('price'))['price__avg']
+        if avg_price:
+            price = int(avg_price)
+    
+    return JsonResponse({"price": price})
+
+@login_required
 def inquiry_hub(request):
+    if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
+        return HttpResponse("Unauthorized", status=403)
+        
+    inquiries_list = Inquiry.objects.all().order_by('-created_at')
+    paginator = Paginator(inquiries_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/admin_inquiry_grid.html", {"page_obj": page_obj})
+        
+    return render(request, "admin_inquiries_list.html", {"page_obj": page_obj})
+
+@login_required
+def contact_messages_hub(request):
     if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
         return HttpResponse("Unauthorized", status=403)
 
@@ -147,7 +165,7 @@ def inquiry_hub(request):
             page_obj = paginator.get_page(page_number)
             return render(request, "partials/inquiry_list.html", {"page_obj": page_obj})
         
-        return redirect('inquiry_hub')
+        return redirect('contact_messages_hub')
 
     paginator = Paginator(messages_all, 10) # 10 messages per page
     page_number = request.GET.get('page')

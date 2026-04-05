@@ -116,10 +116,19 @@ def reject_hospital(request, hospital_id):
     if request.method != "POST":
         return redirect("review_hospital", hospital_id=hospital_id)
 
+    password = request.POST.get('password', '')
+    if not request.user.check_password(password):
+        messages.error(request, 'Invalid password. Action aborted.')
+        return redirect('review_hospital', hospital_id=hospital_id)
+
     hospital = get_object_or_404(Hospital, id=hospital_id)
+    reason = request.POST.get('suspension_reason', '').strip()
 
     hospital.status = "REJECTED"
+    hospital.suspension_reason = reason
     hospital.save()
+
+    messages.success(request, f'{hospital.name} has been rejected.')
 
     if request.headers.get('HX-Request'):
         from django.core.paginator import Paginator
@@ -139,6 +148,11 @@ def suspend_hospital(request, hospital_id):
 
     if request.method != "POST":
         return redirect("review_hospital", hospital_id=hospital_id)
+
+    password = request.POST.get('password', '')
+    if not request.user.check_password(password):
+        messages.error(request, 'Invalid password. Action aborted.')
+        return redirect('review_hospital', hospital_id=hospital_id)
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
     reason = request.POST.get('suspension_reason', '').strip()

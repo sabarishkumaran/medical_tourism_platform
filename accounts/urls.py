@@ -13,6 +13,7 @@ urlpatterns = [
     path('staff/manage/', views.manage_staff, name="manage_staff"),
     path('admin/dashboard/', views.admin_dashboard, name="admin_dashboard"),
     path('admin/patients/', views.admin_patients, name="admin_patients"),
+    path('admin/patients/<int:user_id>/', views.patient_detail, name="patient_detail"),
 
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name="password_change.html"), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name='password_change_done'),

@@ -1,0 +1,129 @@
+<div id="admin-inquiry-grid-container">
+    {% if page_obj %}
+    <!-- Mobile Card View -->
+    <div class="md:hidden space-y-4 p-4">
+        {% for inquiry in page_obj %}
+        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest
+                    {% if inquiry.status == 'NEW' %}bg-sky-100 text-sky-700
+                    {% elif inquiry.status == 'COMPLETED' %}bg-emerald-100 text-emerald-700
+                    {% else %}bg-amber-100 text-amber-700{% endif %}">
+                    {{ inquiry.get_status_display }}
+                </span>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ inquiry.created_at|date:"M d, Y" }}</p>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="font-bold text-slate-800 text-lg">{{ inquiry.treatment.name }}</h3>
+                <p class="text-xs text-slate-500 mt-1">Patient: {{ inquiry.patient.get_full_name|default:inquiry.patient.username }}</p>
+            </div>
+            
+            <div class="mb-5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target Hospital</p>
+                <p class="text-sm font-semibold text-slate-700">{{ inquiry.hospital.name }}</p>
+            </div>
+
+            <a href="{% url 'view_inquiry' inquiry.id %}" class="w-full block text-center bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest transition-colors shadow-md">
+                Open Inquiry
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Desktop Table View -->
+    <div class="hidden md:block overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID / Date</th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Patient</th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Treatment</th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Hospital
+                    </th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for inquiry in page_obj %}
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <p class="text-sm font-bold text-slate-800">#{{ inquiry.id }}</p>
+                        <p class="text-[10px] text-slate-400 font-medium mt-1">{{ inquiry.created_at|date:"M d, Y" }}</p>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs shadow-inner uppercase">
+                                {{ inquiry.patient.username|slice:":1" }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">{{ inquiry.patient.get_full_name|default:inquiry.patient.username }}</p>
+                                <p class="text-[11px] text-slate-400">{{ inquiry.patient.patientprofile.country|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-5">
+                        <p class="text-sm font-bold text-slate-800">{{ inquiry.treatment.name }}</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5 truncate max-w-[200px]">{{ inquiry.description|default:"No details provided." }}</p>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        {% if inquiry.hospital %}
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-[10px] uppercase">
+                                    {{ inquiry.hospital.name|slice:":1" }}
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 truncate max-w-[150px]" title="{{ inquiry.hospital.name }}">{{ inquiry.hospital.name }}</p>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest
+                            {% if inquiry.status == 'NEW' %}bg-sky-100 text-sky-700 border border-sky-200
+                            {% elif inquiry.status == 'COMPLETED' %}bg-emerald-100 text-emerald-700 border border-emerald-200
+                            {% else %}bg-amber-100 text-amber-700 border border-amber-200{% endif %}">
+                            {{ inquiry.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-right whitespace-nowrap">
+                        <a href="{% url 'view_inquiry' inquiry.id %}" class="inline-flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-sky-300 transition-all shadow-sm">
+                            Review
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Desktop Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-between px-8 py-6 bg-slate-50/50">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+        </p>
+        <div class="flex items-center gap-3">
+            {% if page_obj.has_previous %}
+            <a hx-get="?page={{ page_obj.previous_page_number }}" hx-target="#admin-inquiry-grid-container" hx-swap="outerHTML" hx-push-url="true"
+               class="px-6 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 hover:text-sky-600 transition-all uppercase tracking-widest shadow-sm cursor-pointer">Previous</a>
+            {% endif %}
+            
+            {% if page_obj.has_next %}
+            <a hx-get="?page={{ page_obj.next_page_number }}" hx-target="#admin-inquiry-grid-container" hx-swap="outerHTML" hx-push-url="true"
+               class="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-[10px] font-bold hover:bg-sky-600 transition-all uppercase tracking-widest shadow-lg cursor-pointer">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <!-- Empty State -->
+    <div class="p-20 text-center flex flex-col items-center">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">No inquiries found</h2>
+        <p class="text-slate-500 text-sm">There are currently no inquiries in the system.</p>
+    </div>
+    {% endif %}
+</div>

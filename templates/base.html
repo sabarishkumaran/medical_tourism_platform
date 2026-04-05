@@ -104,6 +104,9 @@
         {% endif %}
         <a href="{% url 'inquiry_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1">
           Inquiry Hub
+        </a>
+        <a href="{% url 'contact_messages_hub' %}" class="nav-link hover:text-slate-900 transition-colors flex items-center gap-1">
+          Patient Messages
           {% if unread_contact_count > 0 %}
           <span
             class="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full animate-pulse shadow-sm">
@@ -168,6 +171,9 @@
                     {% endif %}
                     <a href="{% url 'inquiry_hub' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center justify-between">
                         Inquiry Hub
+                    </a>
+                    <a href="{% url 'contact_messages_hub' %}" class="py-4 px-4 text-slate-700 font-bold border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                        Patient Messages
                         {% if unread_contact_count > 0 %}
                         <span class="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full animate-pulse shadow-sm">
                             {{ unread_contact_count }}
