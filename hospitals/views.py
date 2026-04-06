@@ -70,7 +70,7 @@ def upload_hospital_photos(request):
 def review_hospital(request, hospital_id):
 
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
-        return HttpResponse("Unauthorized")
+        raise PermissionDenied("Unauthorized access.")
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
     reapproval_requests = hospital.reapproval_requests.all()
@@ -85,7 +85,7 @@ def review_hospital(request, hospital_id):
 def approve_hospital(request, hospital_id):
 
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
-        return HttpResponse("Unauthorized")
+        raise PermissionDenied("Unauthorized access.")
 
     if request.method != "POST":
         return redirect("review_hospital", hospital_id=hospital_id)
@@ -111,7 +111,7 @@ def approve_hospital(request, hospital_id):
 def reject_hospital(request, hospital_id):
 
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
-        return HttpResponse("Unauthorized")
+        raise PermissionDenied("Unauthorized access.")
 
     if request.method != "POST":
         return redirect("review_hospital", hospital_id=hospital_id)
@@ -144,7 +144,7 @@ def reject_hospital(request, hospital_id):
 @login_required
 def suspend_hospital(request, hospital_id):
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Administrative access required.")
 
     if request.method != "POST":
         return redirect("review_hospital", hospital_id=hospital_id)
@@ -304,7 +304,7 @@ def add_treatment_package(request):
 def edit_treatment_package(request, package_id):
     package = get_object_or_404(TreatmentPackage, id=package_id)
     if package.hospital != request.user.hospital:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
         
     if request.method == "POST":
         form = TreatmentPackageForm(request.POST, request.FILES, instance=package, hospital=request.user.hospital)
@@ -320,7 +320,7 @@ def edit_treatment_package(request, package_id):
 def edit_doctor(request, doctor_id):
     doctor = get_object_or_404(Doctor, id=doctor_id)
     if doctor.hospital != request.user.hospital:
-        return HttpResponse("Unauthorized")
+        raise PermissionDenied("Unauthorized access.")
     if request.method == "POST":
         form = DoctorForm(request.POST, request.FILES, instance=doctor)
         if form.is_valid():
@@ -334,7 +334,7 @@ def edit_doctor(request, doctor_id):
 def delete_doctor(request, doctor_id):
     doctor = get_object_or_404(Doctor, id=doctor_id)
     if doctor.hospital != request.user.hospital:
-        return HttpResponse("Unauthorized")
+        raise PermissionDenied("Unauthorized access.")
     if request.method == "POST":
         doctor.delete()
         if request.headers.get('HX-Request'):
@@ -350,7 +350,7 @@ def delete_treatment_package(request, package_id):
     if request.method == "POST":
         package = get_object_or_404(TreatmentPackage, id=package_id)
         if package.hospital != request.user.hospital:
-            return HttpResponse("Unauthorized")
+            raise PermissionDenied("Unauthorized access.")
         package.delete()
         if request.headers.get('HX-Request'):
             return HttpResponse("")  # HTMX will remove the target

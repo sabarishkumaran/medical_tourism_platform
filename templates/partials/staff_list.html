@@ -10,7 +10,7 @@
             </thead>
             <tbody class="divide-y divide-slate-50">
                 {% for staff in staff_users %}
-                <tr class="hover:bg-slate-50/50 transition-colors group animate-fade-in">
+                <tr class="hover:bg-slate-50/50 transition-colors group animate-fade-in cursor-pointer" onclick="showStaffDetails({{ staff.id }}, '{{ staff.get_full_name|default:staff.username }}', '{{ staff.email }}', '{{ staff.role }}', '{{ staff.date_joined|date:"M d, Y" }}', '{{ staff.phone|default:"Not provided" }}', '{{ staff.country|default:"Not provided" }}', '{{ staff.last_login|date:"M d, Y H:i"|default:"Never" }}')">
                     <td class="px-8 py-5">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm shadow-inner group-hover:scale-105 transition-transform">
@@ -53,4 +53,80 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- Staff Details Modal -->
+    <div id="staff-details-modal" class="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-slate-900/30 p-4 overflow-y-auto hidden animate-fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100 scale-100 animate-bounce-in">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-sky-500/20 rounded-full blur-2xl"></div>
+                <div class="absolute -left-10 -top-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl"></div>
+                <div class="flex justify-between items-center relative z-10">
+                    <h3 class="text-xl font-bold" style="font-family: 'Outfit', sans-serif;" id="staff-modal-name">Staff Details</h3>
+                    <button onclick="closeStaffDetailsModal()" class="text-slate-400 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-all duration-200 hover:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-100 to-indigo-200 flex items-center justify-center text-slate-700 font-bold text-xl shadow-lg border-2 border-white" id="staff-modal-avatar">
+                        A
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium" id="staff-modal-email">email@example.com</p>
+                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider mt-1 shadow-sm" id="staff-modal-role">
+                            Admin
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Joined On</p>
+                        <p class="text-sm font-semibold text-slate-800" id="staff-modal-joined">Jan 1, 2024</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Last Login</p>
+                        <p class="text-sm font-semibold text-slate-800" id="staff-modal-last-login">Never</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phone</p>
+                        <p class="text-sm font-semibold text-slate-800" id="staff-modal-phone">Not provided</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Country</p>
+                        <p class="text-sm font-semibold text-slate-800" id="staff-modal-country">Not provided</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+function showStaffDetails(id, name, email, role, joined, phone, country, lastLogin) {
+    document.getElementById('staff-modal-name').textContent = name;
+    document.getElementById('staff-modal-email').textContent = email;
+    document.getElementById('staff-modal-role').textContent = role === 'ADMIN' ? 'Admin' : 'Coordinator';
+    document.getElementById('staff-modal-role').className = `inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider mt-1 ${role === 'ADMIN' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`;
+    document.getElementById('staff-modal-joined').textContent = joined;
+    document.getElementById('staff-modal-phone').textContent = phone;
+    document.getElementById('staff-modal-country').textContent = country;
+    document.getElementById('staff-modal-last-login').textContent = lastLogin;
+    document.getElementById('staff-modal-avatar').textContent = name.charAt(0).toUpperCase();
+    
+    document.getElementById('staff-details-modal').classList.remove('hidden');
+    document.getElementById('staff-details-modal').classList.add('animate-fade-in');
+}
+
+function closeStaffDetailsModal() {
+    document.getElementById('staff-details-modal').classList.add('hidden');
+    document.getElementById('staff-details-modal').classList.remove('animate-fade-in');
+}
+</script>

@@ -3,7 +3,8 @@ from inquiries.models import MedicalDocument, Inquiry, Quote
 from .forms import InquiryForm, QuoteForm
 from accounts.decorators import hospital_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 
 @login_required
@@ -14,7 +15,7 @@ def respond_inquiry(request, inquiry_id):
 
     # Double check if this hospital should be responding
     if inquiry.hospital and inquiry.hospital != hospital:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("This inquiry belongs to a different hospital.")
 
     if request.method == "POST":
         form = QuoteForm(request.POST)
@@ -40,7 +41,7 @@ def respond_inquiry(request, inquiry_id):
 @login_required
 def submit_inquiry(request):
     if request.user.role != 'PATIENT':
-        return HttpResponse("Unauthorized: Only patients can submit inquiries.", status=403)
+        raise PermissionDenied("Only patients can submit inquiries.")
 
     from hospitals.models import Hospital
 
@@ -126,7 +127,7 @@ def get_treatment_price(request):
 @login_required
 def inquiry_hub(request):
     if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
         
     inquiries_list = Inquiry.objects.all().order_by('-created_at')
     paginator = Paginator(inquiries_list, 10)
@@ -141,7 +142,7 @@ def inquiry_hub(request):
 @login_required
 def contact_messages_hub(request):
     if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
 
     from .models import ContactMessage
     from django.contrib import messages
@@ -184,7 +185,7 @@ def inquiry_detail(request, inquiry_id):
     if inquiry.patient != request.user and request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
         # Also allow the assigned hospital to see it (though they have respond_inquiry)
         if not (request.user.role == 'HOSPITAL' and inquiry.hospital == request.user.hospital):
-            return HttpResponse("Unauthorized", status=403)
+            raise PermissionDenied("You do not have permission to view this inquiry.")
 
     quote = Quote.objects.filter(inquiry=inquiry).first()
     
@@ -196,7 +197,7 @@ def inquiry_detail(request, inquiry_id):
 @login_required
 def patient_inquiries(request):
     if request.user.role != 'PATIENT':
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
         
     inquiries_list = Inquiry.objects.filter(patient=request.user).order_by('-created_at')
     paginator = Paginator(inquiries_list, 10)
@@ -211,7 +212,7 @@ def patient_inquiries(request):
 @login_required
 def accept_quote(request, inquiry_id):
     if request.user.role != 'PATIENT':
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
         
     inquiry = get_object_or_404(Inquiry, id=inquiry_id, patient=request.user)
     
@@ -257,12 +258,12 @@ def edit_confirmation(request, inquiry_id):
 @login_required
 def send_payment_link(request, inquiry_id):
     if request.user.role not in ['HOSPITAL', 'ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
         
     inquiry = get_object_or_404(Inquiry, id=inquiry_id)
     
     if request.user.role == 'HOSPITAL' and inquiry.hospital != request.user.hospital:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("This inquiry belongs to a different hospital.")
         
     if request.method == "POST":
         inquiry.status = "PAYMENT_LINK_SENT"

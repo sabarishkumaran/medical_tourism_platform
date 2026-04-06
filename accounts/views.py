@@ -7,12 +7,13 @@ from .forms import ProfileForm, RegisterForm, StaffCreationForm
 from .models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.core.exceptions import PermissionDenied
 
 @login_required
 def manage_staff(request):
     if request.user.role != 'ADMIN' and not request.user.is_superuser:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Administrative access required.")
     
     from django.core.paginator import Paginator
     staff_users_all = User.objects.filter(role__in=['ADMIN', 'COORDINATOR']).order_by('-date_joined')
@@ -46,7 +47,7 @@ def manage_staff(request):
 @login_required
 def admin_dashboard(request):
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Administrative access required.")
     
     from inquiries.models import ContactMessage
     from hospitals.models import Hospital
@@ -239,7 +240,7 @@ def admin_patients(request):
 @login_required
 def patient_detail(request, user_id):
     if not request.user.is_superuser and request.user.role not in ['ADMIN', 'COORDINATOR']:
-        return HttpResponse("Unauthorized", status=403)
+        raise PermissionDenied("Unauthorized access.")
 
     from .models import PatientProfile
     from inquiries.models import Inquiry

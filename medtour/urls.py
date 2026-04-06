@@ -18,6 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import render
+def handler403(request, exception=None):
+    return render(request, '403.html', {'message': exception}, status=403)
+
+def handler404(request, exception=None):
+    return render(request, '404.html', status=404)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +32,16 @@ urlpatterns = [
     path('hospitals/', include('hospitals.urls')),
     path('inquiries/', include('inquiries.urls')),
     path('accounts/', include('accounts.urls')),
+    
+    # Error Page Previews
+    path('403/', handler403, name='preview_403'),
+    path('404/', handler404, name='preview_404'),
 ]
+
+# Note: Django looks for these specific variables in the ROOT_URLCONF
+# and uses them to render error pages when DEBUG=False.
+handler403 = handler403
+handler404 = handler404
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

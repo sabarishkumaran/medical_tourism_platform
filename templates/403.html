@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center p-6 mx-auto">
+    <div class="max-w-xl w-full text-center space-y-8 animate-fade-up">
+        
+        <!-- Animated Icon Container -->
+        <div class="relative inline-block">
+            <div class="absolute inset-0 bg-rose-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="relative w-32 h-32 md:w-40 md:h-40 bg-white rounded-[2.5rem] shadow-2xl flex items-center justify-center border border-rose-100 overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-br from-rose-50 to-white"></div>
+                
+                <!-- Pulsing Lock SVG -->
+                <svg class="w-16 h-16 md:w-20 md:h-20 text-rose-500 relative z-10 animate-bounce-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            </div>
+            
+            <!-- Floating Decorative Particles -->
+            <div class="absolute -top-4 -right-4 w-4 h-4 bg-rose-400 rounded-full animate-float"></div>
+            <div class="absolute -bottom-2 -left-6 w-3 h-3 bg-rose-300 rounded-full animate-float delay-700"></div>
+        </div>
+
+        <div class="space-y-4">
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight" style="font-family: 'Outfit', sans-serif;">Access Denied</h1>
+            <p class="text-lg text-slate-500 font-medium max-w-md mx-auto">
+                {% if message %}
+                    {{ message }}
+                {% else %}
+                    It looks like you don't have the required permissions to view this protected area.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="bg-rose-50/50 border border-rose-100 rounded-3xl p-6 flex items-start gap-4 text-left max-w-md mx-auto">
+            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-rose-500 shadow-sm shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-rose-800 text-sm">Security Policy</h4>
+                <p class="text-xs text-rose-600 font-medium mt-1 leading-relaxed">If you believe this is an error, please contact your administrator or try logging in with a higher-level account.</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <a href="{% url 'home' %}" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg hover:shadow-slate-500/30 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse-slow {
+        0%, 100% { opacity: 0.1; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(1.2); }
+    }
+    .animate-pulse-slow {
+        animation: pulse-slow 4s infinite ease-in-out;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+        animation: float 3s infinite ease-in-out;
+    }
+    .delay-700 {
+        animation-delay: 700ms;
+    }
+</style>
+{% endblock %}
