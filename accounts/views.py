@@ -149,11 +149,35 @@ def register(request):
                     certificate=request.FILES.get("hospital_certificate"),
                 )
 
+            # Return JSON for AJAX requests
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({'success': True, 'redirect': '/accounts/login/'})
+            
             return redirect("login")
 
-            # login(request, user)
-
-            # return redirect("patient_dashboard")
+        else:
+            # Return JSON with form errors for AJAX requests
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                
+                # Map field names to user-friendly labels
+                field_labels = {
+                    'password1': 'Password',
+                    'password2': 'Confirm Password',
+                    'hospital_name': 'Hospital Name',
+                    'hospital_city': 'City',
+                    'hospital_address': 'Complete Address',
+                    'hospital_description': 'Description / Specialities',
+                    'hospital_established_year': 'Est. Year',
+                    'hospital_certificate': 'Accreditation Certificate',
+                }
+                
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    label = field_labels.get(field, field.replace('_', ' ').title())
+                    errors[label] = list(field_errors)
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
 
     else:
         form = RegisterForm()

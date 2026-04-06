@@ -13,7 +13,7 @@
 </style>
 <!-- Use Alpine to handle the conditional logic elegantly without bleeding JS globally -->
 <div class="container mx-auto px-4 md:px-8 py-10">
-<div class="min-h-[85vh] -mt-10 mb-[-2.5rem] flex items-center justify-center p-4 animate-fade-up" x-data="{ role: '{{ form.data.role|default:'PATIENT'|escapejs }}' }">
+<div class="min-h-[85vh] -mt-10 mb-[-2.5rem] flex items-center justify-center p-4 animate-fade-up" x-data="{ role: '{{ form.data.role|default:'PATIENT'|escapejs }}', showErrorModal: {% if form.errors %}true{% else %}false{% endif %}, formErrors: {}, isSubmitting: false, async submitForm(e) { this.isSubmitting = true; const formElement = e.target; const formData = new FormData(formElement); try { const response = await fetch(formElement.action, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); const data = await response.json(); if (data.success) { window.location.href = data.redirect; } else { this.formErrors = data.errors || {}; this.showErrorModal = true; window.scrollTo({ top: 0, behavior: 'smooth' }); } } catch (error) { console.error('Form submission error:', error); this.showErrorModal = true; } finally { this.isSubmitting = false; } } }">
 
     <div class="w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
         
@@ -64,23 +64,8 @@
                     <p class="text-slate-500">Fill in your details below. Join our trusted network.</p>
                 </div>
 
-                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6" @submit.prevent="submitForm($event)" action="{% url 'register' %}">
                     {% csrf_token %}
-
-                    {% if form.errors %}
-                    <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                        {% if form.non_field_errors %}
-                            {% for error in form.non_field_errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        {% endif %}
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <p><strong>{{ field.label }}:</strong> {{ error }}</p>
-                            {% endfor %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
 
                     <!-- Core Auth Fields -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -169,10 +154,78 @@
                     </div>
 
                     <button type="submit" class="w-full mt-8 bg-slate-900 hover:bg-sky-600 text-white font-bold py-4 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
-                    :class="{'hover:bg-indigo-600': role === 'HOSPITAL'}">
-                        Create Account
+                    :class="{'hover:bg-indigo-600': role === 'HOSPITAL', 'opacity-50 cursor-not-allowed': isSubmitting}"
+                    :disabled="isSubmitting">
+                        <span x-show="!isSubmitting">Create Account</span>
+                        <span x-show="isSubmitting">Creating Account...</span>
                     </button>
                 </form>
+
+                <!-- Error Modal Popup -->
+                <div x-show="showErrorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @click.self="showErrorModal = false">
+                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-fade-up">
+                        <!-- Header with Icon and Close Button -->
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path>
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-slate-900">Registration Error</h2>
+                            </div>
+                            <button @click="showErrorModal = false" class="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0 p-1">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Error Messages -->
+                        <div class="mb-8 space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Display AJAX errors if present, otherwise show initial form errors -->
+                            <template x-if="Object.keys(formErrors).length > 0">
+                                <template x-for="(errors, label) in formErrors">
+                                    <template x-for="error in (Array.isArray(errors) ? errors : [errors])">
+                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
+                                            <p class="font-semibold text-slate-900 text-sm" x-text="label"></p>
+                                            <p class="text-slate-700 text-sm mt-1" x-text="error"></p>
+                                        </div>
+                                    </template>
+                                </template>
+                            </template>
+
+                            <!-- Fallback to initial form errors if no AJAX errors -->
+                            <template x-if="Object.keys(formErrors).length === 0">
+                                {% if form.non_field_errors %}
+                                    {% for error in form.non_field_errors %}
+                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
+                                            <p class="text-slate-700 text-sm">{{ error }}</p>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
+                                            <p class="font-semibold text-slate-900 text-sm">{{ field.label }}</p>
+                                            <p class="text-slate-700 text-sm mt-1">{{ error }}</p>
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </template>
+                        </div>
+
+                        <!-- Action Buttons
+                        <div class="flex gap-4">
+                            <button @click="showErrorModal = false" class="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-lg transition-colors">
+                                Cancel
+                            </button>
+                            <button @click="showErrorModal = false; document.querySelector('form').scrollIntoView({ behavior: 'smooth' })" class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
+                                Fix Errors
+                            </button>
+                        </div> -->
+                    </div>
+                </div>
 
                 <div class="mt-8 text-center">
                     <p class="text-sm text-slate-500">
