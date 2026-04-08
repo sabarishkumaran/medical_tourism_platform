@@ -155,5 +155,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Auto logout users exactly 24 hours (86400 seconds) after login
 SESSION_COOKIE_AGE = 86400
 
-# Uncomment this if you want sessions to also expire the moment they close the browser tab
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# Email Configuration for Production/Real Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ootyalbum2023@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'tqbeppenzcxfbirn' # Replace with your Gmail App Password
+

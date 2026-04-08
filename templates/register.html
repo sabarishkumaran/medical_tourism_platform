@@ -186,45 +186,48 @@
                         <div class="mb-8 space-y-3 max-h-96 overflow-y-auto">
                             <!-- Display AJAX errors if present, otherwise show initial form errors -->
                             <template x-if="Object.keys(formErrors).length > 0">
-                                <template x-for="(errors, label) in formErrors">
-                                    <template x-for="error in (Array.isArray(errors) ? errors : [errors])">
-                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
-                                            <p class="font-semibold text-slate-900 text-sm" x-text="label"></p>
-                                            <p class="text-slate-700 text-sm mt-1" x-text="error"></p>
+                                <div>
+                                    <template x-for="[label, errors_list] in Object.entries(formErrors)">
+                                        <div>
+                                            <template x-for="error in errors_list">
+                                                <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                    <p class="font-semibold text-slate-900 text-sm" x-text="label"></p>
+                                                    <p class="text-slate-700 text-sm mt-1" x-text="error"></p>
+                                                </div>
+                                            </template>
                                         </div>
                                     </template>
-                                </template>
+                                </div>
                             </template>
 
                             <!-- Fallback to initial form errors if no AJAX errors -->
                             <template x-if="Object.keys(formErrors).length === 0">
-                                {% if form.non_field_errors %}
-                                    {% for error in form.non_field_errors %}
-                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
-                                            <p class="text-slate-700 text-sm">{{ error }}</p>
-                                        </div>
+                                <div>
+                                    {% if form.non_field_errors %}
+                                        {% for error in form.non_field_errors %}
+                                            <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                <p class="text-slate-700 text-sm">{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                <p class="font-semibold text-slate-900 text-sm">{{ field.label }}</p>
+                                                <p class="text-slate-700 text-sm mt-1">{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
                                     {% endfor %}
-                                {% endif %}
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
-                                            <p class="font-semibold text-slate-900 text-sm">{{ field.label }}</p>
-                                            <p class="text-slate-700 text-sm mt-1">{{ error }}</p>
-                                        </div>
-                                    {% endfor %}
-                                {% endfor %}
+                                </div>
                             </template>
                         </div>
 
-                        <!-- Action Buttons
+                        <!-- Action Buttons -->
                         <div class="flex gap-4">
-                            <button @click="showErrorModal = false" class="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-lg transition-colors">
-                                Cancel
+                            <button @click="showErrorModal = false; document.querySelector('form').scrollIntoView({ behavior: 'smooth' })" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer">
+                                Close
                             </button>
-                            <button @click="showErrorModal = false; document.querySelector('form').scrollIntoView({ behavior: 'smooth' })" class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
-                                Fix Errors
-                            </button>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
 
