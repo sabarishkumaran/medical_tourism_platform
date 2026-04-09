@@ -32,6 +32,7 @@ urlpatterns = [
     path('hospitals/', include('hospitals.urls')),
     path('inquiries/', include('inquiries.urls')),
     path('accounts/', include('accounts.urls')),
+    path('blog/', include('blog.urls')),
     
     # Error Page Previews
     path('403/', handler403, name='preview_403'),

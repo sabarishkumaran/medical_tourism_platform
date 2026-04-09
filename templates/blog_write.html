@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-10 md:py-16">
+    <div class="container mx-auto px-4 max-w-4xl">
+        
+        <div class="mb-10 animate-fade-up">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">Write an Article</h1>
+            <p class="text-slate-500 text-lg">Share your medical journey or expertise with our global community. Plase note that all submissions require administrator approval before publishing.</p>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-xl p-8 md:p-12 animate-fade-up border border-slate-100" style="animation-delay: 100ms;">
+            
+            {% if form.errors %}
+            <div class="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-xl text-sm font-semibold mb-8">
+                Please correct the errors in the form before submitting.
+                {% for field in form %}
+                    {% if field.errors %}
+                        <p class="mt-1 text-xs">{{ field.label }}: {{ field.errors|striptags }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Title -->
+                    <div>
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-bold text-slate-700 mb-2">Article Title</label>
+                        {{ form.title }}
+                        <p class="text-xs text-slate-400 mt-2">Make it catchy and descriptive.</p>
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                        {{ form.category }}
+                        <p class="text-xs text-slate-400 mt-2">Select the most relevant category for your article.</p>
+                    </div>
+
+                    <!-- Cover Image -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-300">
+                        <label for="{{ form.image.id_for_label }}" class="block text-sm font-bold text-slate-700 mb-3">Cover Image (Optional)</label>
+                        {{ form.image }}
+                        <p class="text-xs text-slate-400 mt-2">Upload a high quality cover photo for your article (JPG/PNG).</p>
+                    </div>
+                </div>
+
+                <!-- Excerpt -->
+                <div>
+                    <label for="{{ form.excerpt.id_for_label }}" class="block text-sm font-bold text-slate-700 mb-2">Short Hook / Excerpt</label>
+                    {{ form.excerpt }}
+                    <p class="text-xs text-slate-400 mt-2">This displays on the public blog list to grab readers' attention.</p>
+                </div>
+
+                <!-- Content -->
+                <div>
+                    <label for="{{ form.content.id_for_label }}" class="block text-sm font-bold text-slate-700 mb-2">Full Article Content</label>
+                    {{ form.content }}
+                    <p class="text-xs text-slate-400 mt-2">You can write plain text or HTML/Markdown structures for bolding and lists.</p>
+                </div>
+                
+                <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                    <a href="{% url 'blog_list' %}" class="px-6 py-3 text-slate-500 font-bold hover:text-slate-800 transition-colors">Cancel</a>
+                    <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                        Submit for Review
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

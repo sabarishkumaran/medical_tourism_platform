@@ -9,6 +9,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
+from blog.models import BlogPost
 
 @login_required
 def manage_staff(request):
@@ -79,6 +80,7 @@ def admin_dashboard(request):
         'total_inquiries': Inquiry.objects.count(),
         'total_patients': User.objects.filter(role='PATIENT').count(),
         'unread_contacts': ContactMessage.objects.filter(is_read=False).count(),
+        'pending_blogs': BlogPost.objects.filter(status='Draft').count(),
         'revenue': {
             'total': total_revenue,
             'commissions': commission_revenue,

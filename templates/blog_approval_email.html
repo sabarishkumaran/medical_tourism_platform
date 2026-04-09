@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f8fafc; padding: 40px 0; }
+        .content { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .header { background-color: #0f172a; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .body { padding: 40px 40px 30px; color: #334155; }
+        .body p { font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; color: #475569; }
+        .body h2 { font-size: 20px; font-weight: 600; color: #0f172a; margin: 0 0 20px 0; }
+        .article-card { background-color: #f1f5f9; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #0ea5e9; }
+        .article-card h3 { margin: 0 0 10px 0; color: #0f172a; font-size: 18px; }
+        .article-card p { margin: 0; font-size: 14px; color: #64748b; }
+        .button-wrapper { text-align: center; margin: 35px 0; }
+        .button { display: inline-block; padding: 14px 32px; background-color: #0ea5e9; color: #ffffff !important; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.4); }
+        .footer { background-color: #f1f5f9; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer p { font-size: 13px; color: #64748b; margin: 0 0 10px 0; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="content">
+            <div class="header">
+                <h1>MedTour.</h1>
+            </div>
+            
+            <div class="body">
+                <h2>Congratulations, {{ author.first_name|default:author.username }}!</h2>
+                <p>Great news! Your article has been reviewed and approved by our editorial team.</p>
+                <p>It is now live on the MedTour Health Blog for our global community to read and learn from.</p>
+                
+                <div class="article-card">
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.excerpt|truncatewords:20 }}</p>
+                </div>
+                
+                <div class="button-wrapper">
+                    <a href="{{ absolute_url }}" class="button">View Live Article</a>
+                </div>
+                
+                <p>Thank you for contributing to our platform and helping travelers make informed healthcare decisions.</p>
+            </div>
+            
+            <div class="footer">
+                <p>This is an automated notification from MedTour. Please do not reply to this email.</p>
+                <p>&copy; 2026 Medical Tourism Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
