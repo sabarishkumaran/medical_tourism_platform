@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from .models import BlogPost
 from .forms import BlogPostForm
+from django.db.models import Q
 
 def send_blog_approval_email(request, post):
     """
@@ -40,8 +41,26 @@ def send_blog_approval_email(request, post):
         print(f"Failed to send blog approval email: {e}")
 
 def blog_list(request):
+    query = request.GET.get('q')
+    category = request.GET.get('category')
+    
     posts = BlogPost.objects.filter(status='Published')
-    return render(request, 'blog_list.html', {'posts': posts})
+    
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) | 
+            Q(content__icontains=query) |
+            Q(excerpt__icontains=query)
+        )
+        
+    if category:
+        posts = posts.filter(category=category)
+        
+    return render(request, 'blog_list.html', {
+        'posts': posts,
+        'current_category': category,
+        'search_query': query
+    })
 
 def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug, status='Published')

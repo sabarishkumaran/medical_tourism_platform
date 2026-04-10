@@ -6,7 +6,7 @@
 
     <!-- Header Section -->
     <header class="border-b border-slate-100 bg-white pt-16 pb-12">
-        <div class="container mx-auto px-4 md:px-8 max-w-6xl">
+        <div class="container mx-auto px-4 md:px-8 max-w-[1440px]">
             <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4"
                 style="font-family: 'Outfit', sans-serif;">
                 Medical Tourism Insights.
@@ -18,41 +18,45 @@
     </header>
 
     <!-- Main Content Container (Two Column Layout) -->
-    <div class="container mx-auto px-4 md:px-8 max-w-6xl py-10 flex flex-col lg:flex-row gap-10">
+    <div class="container mx-auto px-4 md:px-8 max-w-[1440px] py-10 flex flex-col lg:flex-row gap-10">
 
         <!-- Left Column: Blog Feed -->
         <div class="flex-1 w-full lg:w-auto">
 
-            <!-- Filter & Search Bar - Ensure they wrap nicely -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 w-full mb-12">
-                <div class="flex flex-wrap gap-2 items-center">
-                    <button
-                        class="px-5 py-2.5 rounded-full bg-sky-500 text-white font-bold text-sm tracking-wide shadow hover:bg-sky-600 transition-colors">
+            <!-- Search & Filter Toolbar -->
+            <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm p-3 mb-10 flex flex-col md:flex-row items-center gap-4 animate-fade-up">
+                
+                <!-- Category Tabs -->
+                <div class="flex flex-wrap gap-2 items-center flex-1">
+                    <a href="?{% if search_query %}q={{ search_query }}{% endif %}" 
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if not current_category %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
                         All Posts
-                    </button>
-                    <button
-                        class="px-5 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 font-bold text-sm tracking-wide hover:bg-slate-50 transition-colors">
+                    </a>
+                    <a href="?category=Treatments{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Treatments' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
                         Treatments
-                    </button>
-                    <button
-                        class="px-5 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 font-bold text-sm tracking-wide hover:bg-slate-50 transition-colors">
+                    </a>
+                    <a href="?category=Country Guides{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Country Guides' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
                         Country Guides
-                    </button>
-                    <button
-                        class="px-5 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 font-bold text-sm tracking-wide hover:bg-slate-50 transition-colors">
+                    </a>
+                    <a href="?category=Health Tips{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Health Tips' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
                         Health Tips
-                    </button>
+                    </a>
                 </div>
 
-                <div class="relative w-full md:w-auto min-w-[250px]">
-                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <!-- Integrated Search Form -->
+                <form method="GET" class="relative w-full md:w-auto min-w-[280px]">
+                    {% if current_category %}
+                        <input type="hidden" name="category" value="{{ current_category }}">
+                    {% endif %}
+                    <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <input type="text" placeholder="Search articles..."
-                        class="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 placeholder-slate-400">
-                </div>
+                    <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search articles..." 
+                           class="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-sm focus:outline-none focus:bg-white focus:border-sky-500 placeholder-slate-400 transition-all font-medium">
+                </form>
             </div>
 
             <!-- Blog Grid -->
@@ -62,7 +66,7 @@
                 <article
                     class="group bg-white rounded-3xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border border-slate-100">
 
-                    <!-- Cover Image Container - fixed height to prevent collapsing -->
+                    <!-- Cover Image Container -->
                     <a href="{{ post.get_absolute_url }}"
                         class="relative h-60 w-full overflow-hidden bg-slate-100 border-b border-slate-100 block">
                         {% if post.image %}
@@ -83,7 +87,7 @@
                         <div
                             class="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-100 z-10">
                             <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#2f5c76]">
-                                {{ post.category|upper }}
+                                {{ post.category }}
                             </span>
                         </div>
                     </a>
@@ -93,8 +97,7 @@
 
                         <div
                             class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
-                            <time datetime="{{ post.created_at|date:'Y-m-d' }}">{{ post.created_at|date:"M d, Y"
-                                }}</time>
+                            <time datetime="{{ post.created_at|date:'Y-m-d' }}">{{ post.created_at|date:"M d, Y" }}</time>
                             <span class="w-1 h-1 rounded-full bg-slate-300"></span>
                             <span>{% widthratio post.content|wordcount|default:1 200 1 %} MIN READ</span>
                         </div>
@@ -107,8 +110,7 @@
                         </h3>
 
                         <p class="text-slate-500 text-sm leading-relaxed mb-4 font-medium line-clamp-3">
-                            {% if post.excerpt %}{{ post.excerpt }}{% else %}{{ post.content|striptags|truncatewords:20
-                            }}{% endif %}
+                            {% if post.excerpt %}{{ post.excerpt }}{% else %}{{ post.content|striptags|truncatewords:20 }}{% endif %}
                         </p>
                     </div>
                 </article>
@@ -225,8 +227,7 @@
                             <h4
                                 class="font-bold text-sm text-slate-800 line-clamp-2 leading-tight group-hover:text-sky-600 transition-colors">
                                 {{ p.title }}</h4>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">{{ p.category
-                                }}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">{{ p.category }}</p>
                         </div>
                     </a>
                     {% empty %}
