@@ -12,8 +12,8 @@
     <div class="rounded-3xl p-8 mb-8 text-white shadow-lg relative overflow-hidden bg-slate-900">
         <!-- Dynamic Aura Background (Instagram Style) -->
         <div class="absolute inset-0 z-0 overflow-hidden">
-            <template x-if="!photoPreview && !removed && '{{ user.avatar|default:'' }}'">
-                <img src="{{ user.avatar.url }}" class="w-full h-full object-cover blur-[80px] opacity-40 scale-150 transition-all duration-700">
+            <template x-if="!photoPreview && !removed && '{% if user.avatar %}{{ user.avatar }}{% endif %}'">
+                <img src="{% if user.avatar %}{{ user.avatar.url }}{% endif %}" class="w-full h-full object-cover blur-[80px] opacity-40 scale-150 transition-all duration-700">
             </template>
             <template x-if="photoPreview && !removed">
                 <img :src="photoPreview" class="w-full h-full object-cover blur-[80px] opacity-40 scale-150 transition-all duration-700">
@@ -33,7 +33,7 @@
                     class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white/40 overflow-hidden shadow-2xl relative bg-white/20 backdrop-blur-md flex items-center justify-center cursor-zoom-in group/avatar z-10 p-0 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all">
                     
                     <template x-if="!photoPreview && !removed">
-                        {% if user.avatar and user.avatar.url %}
+                        {% if user.avatar %}
                             <img src="{{ user.avatar.url }}" alt="Account" class="w-full h-full object-cover transition-transform group-hover/avatar:scale-110">
                         {% else %}
                             <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner">
@@ -278,7 +278,7 @@
         x-cloak>
         
         <div class="relative max-w-sm w-full aspect-square rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.7)] border-[12px] border-white z-[10000]">
-            <img :src="photoPreview || '{{ user.avatar.url|default:'' }}'" class="w-full h-full object-cover">
+            <img :src="photoPreview || '{% if user.avatar %}{{ user.avatar.url }}{% endif %}'" class="w-full h-full object-cover">
             
             <button type="button" @click="modalOpen = false" class="absolute top-4 right-4 w-10 h-10 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white rounded-full flex items-center justify-center transition-all duration-300 z-[10001]">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
