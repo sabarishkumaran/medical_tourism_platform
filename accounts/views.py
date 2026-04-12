@@ -234,6 +234,23 @@ def user_logout(request):
 @login_required
 def profile_view(request):
     user = request.user
+    
+    # Lazy profile creation to ensure "Medical Info" tab always displays
+    if user.role == 'PATIENT':
+        from .models import PatientProfile
+        PatientProfile.objects.get_or_create(user=user)
+    elif user.role == 'HOSPITAL':
+        from hospitals.models import Hospital
+        # Check if hospital exists, if not create with defaults
+        if not Hospital.objects.filter(user=user).exists():
+            Hospital.objects.create(
+                user=user,
+                name=f"{user.username}'s Hospital",
+                established_year=2024,
+                city="Not Set",
+                address="Not Set",
+                description="Please update your hospital description."
+            )
 
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
