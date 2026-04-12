@@ -227,13 +227,11 @@
         <div class="relative inline-block" x-data="{ open: false }">
           <button @click="open = !open"
             class="flex items-center gap-2 rounded-full p-1 pr-3 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all focus:outline-none group">
-            {% if user.role == "PATIENT" and user.patientprofile.avatar %}
-            <img src="{{ user.patientprofile.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
-            {% elif user.role == "HOSPITAL" and user.hospital.avatar %}
-            <img src="{{ user.hospital.avatar.url }}" alt="avatar" class="w-8 h-8 rounded-full">
+            {% if user.avatar and user.avatar.url %}
+            <img src="{{ user.avatar.url }}" alt="Account" class="w-8 h-8 rounded-full object-cover border border-slate-100 shadow-sm">
             {% else %}
             <div
-              class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-xs">
+              class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-xs shadow-inner">
               {{ user.first_name|default:user.username|slice:":1"|upper }}
             </div>
             {% endif %}

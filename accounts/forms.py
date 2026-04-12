@@ -93,12 +93,11 @@ class StaffCreationForm(UserCreationForm):
 
 
 class ProfileForm(forms.ModelForm):
-    # Optional avatar field (if you add it later)
-    # avatar = forms.ImageField(required=False)
+    remove_avatar = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone', 'country']
+        fields = ['first_name', 'last_name', 'email', 'phone', 'country', 'avatar']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -137,3 +136,24 @@ class ProfileForm(forms.ModelForm):
                 required=False,
                 widget=forms.Textarea
             )
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if self.cleaned_data.get('remove_avatar'):
+            user.avatar = None
+            if commit:
+                user.save()
+                
+        if hasattr(user, 'hospital'):
+            hospital = user.hospital
+            hospital.name = self.cleaned_data.get('hospital_name')
+            hospital.address = self.cleaned_data.get('hospital_address')
+            hospital.city = self.cleaned_data.get('hospital_city')
+            hospital.description = self.cleaned_data.get('hospital_description')
+            hospital.save()
+        elif hasattr(user, 'patientprofile'):
+            profile = user.patientprofile
+            profile.date_of_birth = self.cleaned_data.get('date_of_birth')
+            profile.medical_history = self.cleaned_data.get('medical_history')
+            profile.save()
+        return user

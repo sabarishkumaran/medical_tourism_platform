@@ -8,8 +8,12 @@
     <aside class="w-full md:w-64 flex-shrink-0">
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sticky top-28">
             <div class="flex items-center gap-4 mb-8">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
-                    {{ user.first_name|default:"U"|slice:":1" }}
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        {{ user.first_name|default:"U"|slice:":1" }}
+                    {% endif %}
                 </div>
                 <div>
                     <h3 class="font-bold text-slate-800">{{ user.first_name|default:user.username }}</h3>

@@ -286,3 +286,24 @@ def patient_detail(request, user_id):
         "profile": profile,
         "inquiries": inquiries
     })
+
+@login_required
+def delete_account(request):
+    if request.method == "POST":
+        password = request.POST.get('confirm_password')
+        user = request.user
+        
+        if not password:
+            messages.error(request, "Please enter your password to confirm deletion.")
+            return redirect('profile')
+            
+        if user.check_password(password):
+            logout(request)
+            user.delete()
+            messages.success(request, "Your account has been permanently deleted.")
+            return redirect('home')
+        else:
+            messages.error(request, "Incorrect password. Account deletion cancelled.")
+            return redirect('profile')
+            
+    return redirect('profile')
