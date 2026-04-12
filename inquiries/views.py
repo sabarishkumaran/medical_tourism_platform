@@ -200,14 +200,31 @@ def patient_inquiries(request):
         raise PermissionDenied("Unauthorized access.")
         
     inquiries_list = Inquiry.objects.filter(patient=request.user).order_by('-created_at')
+    
+    status_filter = request.GET.get('status')
+    filter_display = "All Inquiries"
+    
+    if status_filter == 'active':
+        inquiries_list = inquiries_list.filter(status__in=['QUOTE_SENT', 'PAYMENT_LINK_SENT'])
+        filter_display = "Active Quotes"
+    elif status_filter == 'confirmed':
+        inquiries_list = inquiries_list.filter(status__in=['CONFIRMED', 'COMPLETED'])
+        filter_display = "Confirmed Inquiries"
+
     paginator = Paginator(inquiries_list, 10)
     page_number = request.GET.get('page')
     inquiries = paginator.get_page(page_number)
     
+    context = {
+        "inquiries": inquiries,
+        "filter_display": filter_display,
+        "current_status": status_filter
+    }
+    
     if request.headers.get('HX-Request'):
-        return render(request, "partials/patient_inquiry_list.html", {"inquiries": inquiries})
+        return render(request, "partials/patient_inquiry_list.html", context)
         
-    return render(request, "patient_inquiries.html", {"inquiries": inquiries})
+    return render(request, "patient_inquiries.html", context)
 
 @login_required
 def accept_quote(request, inquiry_id):

@@ -56,14 +56,25 @@ def blog_list(request):
     if category:
         posts = posts.filter(category=category)
         
+    trending_posts = BlogPost.objects.filter(status='Published').order_by('-views_count')[:5]
+        
     return render(request, 'blog_list.html', {
         'posts': posts,
+        'trending_posts': trending_posts,
         'current_category': category,
         'search_query': query
     })
 
+from django.db.models import Q, F
+
+# ... (rest of imports)
+
 def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug, status='Published')
+    
+    # Increment view count safely
+    BlogPost.objects.filter(pk=post.pk).update(views_count=F('views_count') + 1)
+    post.refresh_from_db()
     
     # Get previous and next posts for navigation
     # Fetching them from the same 'Published' query

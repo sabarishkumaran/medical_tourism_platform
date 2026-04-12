@@ -12,8 +12,8 @@
 
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
             <div>
-                <h1 class="text-3xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">All Inquiries</h1>
-                <p class="text-slate-500 font-medium">Manage and track all your medical requests in one place.</p>
+                <h1 class="text-3xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">{{ filter_display }}</h1>
+                <p class="text-slate-500 font-medium">Manage and track your medical requests in one place.</p>
             </div>
             <a href="{% url 'submit_inquiry' %}" class="bg-slate-900 text-white font-bold px-6 py-3 rounded-2xl hover:bg-sky-600 transition-all shadow-lg shadow-slate-200 flex items-center gap-2 group">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>

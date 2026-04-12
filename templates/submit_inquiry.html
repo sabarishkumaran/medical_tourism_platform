@@ -138,7 +138,8 @@
                                         class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Full
                                         Name</label>
                                     <div
-                                        class="px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-slate-600 font-medium text-sm">
+                                        title="{{ request.user.get_full_name }}"
+                                        class="px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-slate-600 font-medium text-sm truncate">
                                         {{ request.user.get_full_name }}
                                     </div>
                                 </div>
@@ -147,7 +148,8 @@
                                         class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email
                                         Address</label>
                                     <div
-                                        class="px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-slate-600 font-medium text-sm">
+                                        title="{{ request.user.email }}"
+                                        class="px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-slate-600 font-medium text-sm truncate">
                                         {{ request.user.email }}
                                     </div>
                                 </div>

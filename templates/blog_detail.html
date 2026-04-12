@@ -2,125 +2,183 @@
 {% load static %}
 
 {% block content %}
-<article class="bg-white min-h-screen pb-20">
+<article class="bg-white min-h-screen pb-20 overflow-x-hidden">
     
-    <!-- Large Hero Image Header -->
-    <header class="relative w-full h-[50vh] min-h-[400px] max-h-[600px] bg-slate-900 overflow-hidden">
+    <!-- Immersive Header -->
+    <header class="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center text-center px-4 overflow-hidden bg-slate-900">
         {% if post.image %}
-        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60">
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 transition-transform duration-1000">
         {% else %}
-        <div class="absolute inset-0 bg-gradient-to-r from-sky-900 to-indigo-900"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-sky-900 to-indigo-900"></div>
         {% endif %}
         
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+        <!-- Overlays -->
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-transparent to-slate-900/80"></div>
         
-        <div class="absolute bottom-0 left-0 w-full p-8 md:p-16">
-            <div class="container mx-auto max-w-4xl">
-                <div class="flex items-center gap-3 text-sm font-semibold text-sky-300 mb-4 uppercase tracking-widest animate-fade-up">
-                    <time datetime="{{ post.created_at|date:'Y-m-d' }}">{{ post.created_at|date:"F d, Y" }}</time>
-                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-                    <span>By {{ post.author.first_name|default:post.author.username }}</span>
+        <div class="relative z-10 max-w-5xl mx-auto space-y-8 text-center">
+            <!-- Decorative Back-Title (Subtle Watermark) -->
+            <div class="absolute -top-32 left-0 w-full flex justify-center pointer-events-none opacity-[0.05] select-none">
+                <span class="text-[20rem] font-black text-white whitespace-nowrap leading-none tracking-tighter" style="font-family: 'Outfit', sans-serif;">
+                    {{ post.category|slice:":1" }}
+                </span>
+            </div>
+
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sky-300 text-xs font-black uppercase tracking-[0.3em] backdrop-blur-xl animate-fade-in shadow-2xl">
+                <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                {{ post.category }}
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-[6.5rem] font-black leading-[1] text-white tracking-tight animate-fade-up" 
+                style="font-family: 'Outfit', sans-serif; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                {{ post.title }}
+            </h1>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-4 animate-fade-up delay-200">
+                <div class="flex items-center gap-4 group">
+                    <div class="w-12 h-12 rounded-2xl border border-white/20 p-1 bg-white/5 backdrop-blur-md">
+                        <div class="w-full h-full rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center font-black text-white shadow-lg">
+                            {{ post.author.first_name|default:"U"|slice:":1" }}
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-white font-bold">{{ post.author.first_name|default:post.author.username }}</span>
+                        <div class="flex items-center gap-2 text-slate-300 text-xs font-medium uppercase tracking-widest">
+                            <span>{{ post.created_at|date:"M d, Y" }}</span>
+                            <span class="w-1 h-1 rounded-full bg-sky-500/50"></span>
+                            <span>{% widthratio post.content|wordcount|default:1 200 1 %} min read</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <h1 class="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight animate-fade-up" style="font-family: 'Outfit', sans-serif; animation-delay: 100ms;">
-                    {{ post.title }}
-                </h1>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 md:px-8 py-12 md:py-20 lg:py-24">
-        
-        <!-- Quick Nav & Back Button -->
-        <div class="max-w-3xl mx-auto mb-10">
-            <a href="{% url 'blog_list' %}" class="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-sky-600 transition-colors group">
-                <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Back to all articles
-            </a>
+    <!-- Content Area -->
+    <div class="container mx-auto px-4 md:px-8 -mt-20 relative z-20">
+        <div class="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-16 mb-12 border border-slate-100">
+            
+            <!-- Intro Excerpt if exists -->
+            {% if post.excerpt %}
+            <div class="mb-12 text-xl md:text-2xl font-semibold text-slate-700 leading-relaxed italic border-l-4 border-sky-500 pl-8">
+                {{ post.excerpt }}
+            </div>
+            {% endif %}
+
+            <div class="prose-article">
+                <style>
+                    .prose-article {
+                        color: #1e293b; 
+                        line-height: 2;
+                        font-size: 1.125rem;
+                        font-family: 'Inter', sans-serif;
+                    }
+                    .prose-article p { margin-bottom: 2em; }
+                    .prose-article h2, .prose-article h3 {
+                        color: #0f172a;
+                        font-weight: 800;
+                        margin-top: 2.5em;
+                        margin-bottom: 1em;
+                        font-family: 'Outfit', sans-serif;
+                        letter-spacing: -0.02em;
+                    }
+                    .prose-article h2 { font-size: 2.25rem; line-height: 1.2; }
+                    .prose-article h3 { font-size: 1.75rem; }
+                    .prose-article strong { color: #0f172a; font-weight: 700; }
+                    .prose-article blockquote {
+                        border-left: 0;
+                        background: linear-gradient(to right, #f8fafc, #f1f5f9);
+                        padding: 3rem;
+                        margin: 3rem 0;
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                        color: #334155;
+                        border-radius: 2rem;
+                        position: relative;
+                        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+                    }
+                    .prose-article blockquote::before {
+                        content: '"';
+                        position: absolute;
+                        top: 2rem;
+                        left: 1.5rem;
+                        font-size: 5rem;
+                        color: #cbd5e1;
+                        line-height: 1;
+                        font-family: serif;
+                    }
+                    .prose-article a {
+                        color: #0ea5e9;
+                        text-decoration: none;
+                        background-image: linear-gradient(#0ea5e9, #0ea5e9);
+                        background-position: 0% 100%;
+                        background-repeat: no-repeat;
+                        background-size: 100% 2px;
+                        transition: background-size .3s;
+                        font-weight: 600;
+                    }
+                    .prose-article a:hover { background-size: 0% 2px; color: #0284c7; }
+                    .prose-article img { 
+                        width: 100%; 
+                        border-radius: 2rem; 
+                        margin: 3rem 0; 
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); 
+                    }
+                    .prose-article ul, .prose-article ol { padding-left: 1.5rem; margin-bottom: 2rem; }
+                    .prose-article li { margin-bottom: 0.75rem; position: relative; }
+                </style>
+                
+                {{ post.content|safe }}
+            </div>
+
+            <!-- Footer Meta -->
+            <div class="mt-20 pt-10 border-t border-slate-100 flex flex-wrap items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Share this story:</span>
+                    <!-- Twitter Share -->
+                    <button onclick="window.open('https://twitter.com/intent/tweet?text={{ post.title|urlencode }}&url=' + encodeURIComponent(window.location.href), '_blank')" 
+                            class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-all">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                    </button>
+                    <!-- Facebook Share -->
+                    <button onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank')"
+                            class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-all">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.493v-8.774h-2.953v-3.425h2.953v-2.527c0-2.924 1.786-4.516 4.398-4.516 1.251 0 2.327.094 2.641.135v3.061h-1.811c-1.42 0-1.694.675-1.694 1.666v2.181h3.39l-.441 3.425h-2.949v8.774h6.101c.732 0 1.325-.593 1.325-1.324v-21.351c0-.732-.593-1.325-1.325-1.325z"/></svg>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ post.views_count|default:0 }} Views</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Typography / Content -->
-        <!-- We use custom tailored typography classes since @tailwindcss/typography might not be active -->
-        <div class="max-w-3xl mx-auto prose-article">
-            <style>
-                .prose-article {
-                    color: #334155; 
-                    line-height: 1.8;
-                    font-size: 1.125rem; /* text-lg */
-                }
-                .prose-article p { margin-bottom: 1.5em; }
-                .prose-article h1, .prose-article h2, .prose-article h3 {
-                    color: #0f172a;
-                    font-weight: 700;
-                    margin-top: 2em;
-                    margin-bottom: 1em;
-                    font-family: 'Outfit', sans-serif;
-                }
-                .prose-article h2 { font-size: 1.875rem; letter-spacing: -0.025em; }
-                .prose-article h3 { font-size: 1.5rem; }
-                .prose-article ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1.5em; }
-                .prose-article ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1.5em; }
-                .prose-article li { margin-bottom: 0.5em; }
-                .prose-article strong { color: #0f172a; font-weight: 700; }
-                .prose-article blockquote {
-                    border-left: 4px solid #0ea5e9;
-                    background-color: #f8fafc;
-                    padding: 1.5em 2em;
-                    margin: 2em 0;
-                    font-style: italic;
-                    color: #475569;
-                    border-radius: 0 1rem 1rem 0;
-                }
-                .prose-article a {
-                    color: #0ea5e9;
-                    text-decoration: underline;
-                    text-decoration-thickness: 2px;
-                    text-underline-offset: 4px;
-                    font-weight: 600;
-                }
-                .prose-article a:hover { color: #0369a1; }
-                .prose-article img { max-width: 100%; height: auto; border-radius: 1rem; margin: 2em 0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-            </style>
-            
-            <!-- Use |safe only if inputs are trusted inside Admin, else use linebreaks -->
-            {{ post.content|safe }}
-        </div>
-        
-    </main>
-    
-    <!-- Next & Previous Footer Nav -->
-    <div class="bg-slate-50 border-t border-slate-100 py-12">
-        <div class="container mx-auto px-4 md:px-8 max-w-4xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- Single Navigation Action -->
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-6">
+            <a href="{% url 'blog_list' %}" class="flex-1 group bg-slate-900 p-8 rounded-[2rem] text-white overflow-hidden relative hover:shadow-2xl transition-all duration-500">
+                <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div class="relative z-10 flex flex-col items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-sky-500 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-white/50 uppercase tracking-[0.2em] mb-1">Return to Blog</span>
+                        <span class="block text-xl font-bold">Explore more Insights</span>
+                    </div>
+                </div>
+            </a>
             
             {% if previous_post %}
-            <a href="{{ previous_post.get_absolute_url }}" class="group flex-1 w-full flex text-left p-6 rounded-2xl border border-slate-200 bg-white hover:border-sky-300 hover:shadow-lg transition-all items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </div>
-                <div>
-                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-sky-600">Previous</span>
-                    <span class="block text-sm font-semibold text-slate-900 line-clamp-1">{{ previous_post.title }}</span>
-                </div>
-            </a>
-            {% else %}
-            <div class="flex-1 w-full p-6 border border-transparent"></div>
-            {% endif %}
-            
-            {% if next_post %}
-            <a href="{{ next_post.get_absolute_url }}" class="group flex-1 w-full flex text-right justify-end p-6 rounded-2xl border border-slate-200 bg-white hover:border-sky-300 hover:shadow-lg transition-all items-center gap-4">
-                <div>
-                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-sky-600">Next Article</span>
-                    <span class="block text-sm font-semibold text-slate-900 line-clamp-1">{{ next_post.title }}</span>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <a href="{{ previous_post.get_absolute_url }}" class="flex-1 group bg-white p-8 rounded-[2rem] text-slate-900 border border-slate-100 hover:border-sky-300 hover:shadow-2xl transition-all duration-500">
+                <div class="flex flex-col items-end text-right gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Previous Article</span>
+                        <span class="block text-xl font-bold line-clamp-1 group-hover:text-sky-600 transition-colors">{{ previous_post.title }}</span>
+                    </div>
                 </div>
             </a>
-            {% else %}
-            <div class="flex-1 w-full p-6 border border-transparent"></div>
             {% endif %}
-
         </div>
     </div>
 </article>

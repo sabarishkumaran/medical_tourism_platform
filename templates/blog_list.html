@@ -63,12 +63,11 @@
             {% if posts %}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
                 {% for post in posts %}
-                <article
-                    class="group bg-white rounded-3xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border border-slate-100">
+                <a href="{{ post.get_absolute_url }}"
+                    class="group bg-white rounded-3xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border border-slate-100 block">
 
                     <!-- Cover Image Container -->
-                    <a href="{{ post.get_absolute_url }}"
-                        class="relative h-60 w-full overflow-hidden bg-slate-100 border-b border-slate-100 block">
+                    <div class="relative h-60 w-full overflow-hidden bg-slate-100 border-b border-slate-100">
                         {% if post.image %}
                         <img src="{{ post.image.url }}" alt="{{ post.title }}"
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
@@ -90,7 +89,7 @@
                                 {{ post.category }}
                             </span>
                         </div>
-                    </a>
+                    </div>
 
                     <!-- Text Content -->
                     <div class="p-6 flex flex-col flex-1 bg-white">
@@ -104,16 +103,14 @@
 
                         <h3 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-3 group-hover:text-sky-600 transition-colors leading-tight"
                             style="font-family: 'Outfit', sans-serif;">
-                            <a href="{{ post.get_absolute_url }}">
-                                {{ post.title }}
-                            </a>
+                            {{ post.title }}
                         </h3>
 
                         <p class="text-slate-500 text-sm leading-relaxed mb-4 font-medium line-clamp-3">
                             {% if post.excerpt %}{{ post.excerpt }}{% else %}{{ post.content|striptags|truncatewords:20 }}{% endif %}
                         </p>
                     </div>
-                </article>
+                </a>
                 {% endfor %}
             </div>
             {% else %}
@@ -207,7 +204,7 @@
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    {% for p in posts|slice:":3" %}
+                    {% for p in trending_posts %}
                     <a href="{{ p.get_absolute_url }}"
                         class="group flex gap-4 items-center hover:bg-white p-2 -m-2 rounded-xl transition-colors">
                         <div class="w-16 h-16 rounded-lg bg-slate-200 flex-shrink-0 overflow-hidden relative">

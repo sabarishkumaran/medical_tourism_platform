@@ -43,24 +43,24 @@
 
         <!-- Metric Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 stagger-grid">
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center">
-                <div class="text-3xl font-black text-slate-800 mb-1">{{ inquiries.paginator.count }}</div>
+            <a href="{% url 'patient_inquiries' %}" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center hover:shadow-md hover:border-slate-200 transition-all group">
+                <div class="text-3xl font-black text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">{{ inquiries.paginator.count }}</div>
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Inquiries</div>
-            </div>
-            <div class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 shadow-sm border border-indigo-100 flex flex-col justify-center">
-                <div class="text-3xl font-black text-indigo-600 mb-1">0</div>
+            </a>
+            <a href="{% url 'patient_inquiries' %}?status=active" class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 shadow-sm border border-indigo-100 flex flex-col justify-center hover:shadow-md hover:border-indigo-200 transition-all group">
+                <div class="text-3xl font-black text-indigo-600 mb-1">{{ active_count }}</div>
                 <div class="text-xs font-bold text-indigo-400 uppercase tracking-wide">Active Quotes</div>
-            </div>
-            <div class="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-6 shadow-sm border border-emerald-100 flex flex-col justify-center">
-                <div class="text-3xl font-black text-emerald-600 mb-1">0</div>
+            </a>
+            <a href="{% url 'patient_inquiries' %}?status=confirmed" class="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-6 shadow-sm border border-emerald-100 flex flex-col justify-center hover:shadow-md hover:border-emerald-200 transition-all group">
+                <div class="text-3xl font-black text-emerald-600 mb-1">{{ confirmed_count }}</div>
                 <div class="text-xs font-bold text-emerald-400 uppercase tracking-wide">Confirmed</div>
-            </div>
-            <div class="bg-gradient-to-br from-sky-50 to-white rounded-2xl p-6 shadow-sm border border-sky-100 flex flex-col justify-center">
-                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-2">
+            </a>
+            <a href="{% url 'submit_inquiry' %}" class="bg-gradient-to-br from-sky-50 to-white rounded-2xl p-6 shadow-sm border border-sky-100 flex flex-col justify-center hover:shadow-md hover:border-sky-200 transition-all group">
+                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-2 group-hover:bg-sky-500 group-hover:text-white transition-all duration-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 </div>
-                <a href="{% url 'submit_inquiry' %}" class="text-sm font-bold text-sky-700 hover:text-sky-800">New Inquiry</a>
-            </div>
+                <div class="text-sm font-bold text-sky-700 group-hover:text-sky-900 transition-colors">New Inquiry</div>
+            </a>
         </div>
 
         <!-- Inquiries Table/List -->

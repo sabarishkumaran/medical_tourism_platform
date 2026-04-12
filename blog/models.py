@@ -24,6 +24,7 @@ class BlogPost(models.Model):
     excerpt = models.TextField(blank=True, help_text="A short summary of the article")
     content = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Draft')
+    views_count = models.PositiveIntegerField(default=0)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

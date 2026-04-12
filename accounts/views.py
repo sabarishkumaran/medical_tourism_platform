@@ -115,6 +115,10 @@ def patient_dashboard(request):
     from django.core.paginator import Paginator
     inquiries_all = Inquiry.objects.filter(patient=request.user).order_by('-created_at')
     
+    # Calculate metrics
+    active_count = inquiries_all.filter(status__in=['QUOTE_SENT', 'PAYMENT_LINK_SENT']).count()
+    confirmed_count = inquiries_all.filter(status__in=['CONFIRMED', 'COMPLETED']).count()
+    
     paginator = Paginator(inquiries_all, 10)
     page_number = request.GET.get('page')
     inquiries = paginator.get_page(page_number)
@@ -125,7 +129,9 @@ def patient_dashboard(request):
         })
 
     return render(request, "patient_dashboard.html", {
-        "inquiries": inquiries
+        "inquiries": inquiries,
+        "active_count": active_count,
+        "confirmed_count": confirmed_count
     })
 
 def register(request):
