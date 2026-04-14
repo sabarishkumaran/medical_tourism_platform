@@ -76,7 +76,7 @@
                             
                             <!-- Reject Modal via Teleport to avoid overflow clipping -->
                             <template x-teleport="body">
-                                <div x-show="showGridReject" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in text-left">
+                                <div x-show="showGridReject" style="display: none;" class="fixed inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in text-left" style="z-index: 99999;">
                                     <div @click.away="showGridReject = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
                                         <div class="bg-rose-50 border-b border-rose-100 p-6 flex justify-between items-center">
                                             <h3 class="text-xl font-bold text-rose-800 flex items-center gap-2" style="font-family: 'Outfit', sans-serif;">

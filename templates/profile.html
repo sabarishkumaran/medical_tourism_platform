@@ -326,7 +326,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-md"
+        class="fixed inset-0 flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-md" style="z-index: 99999;"
         @click.self="modalOpen = false"
         @keydown.escape.window="modalOpen = false"
         x-cloak>
@@ -370,7 +370,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-md"
+        class="fixed inset-0 flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-md" style="z-index: 99999;"
         x-cloak>
         
         <div class="relative max-w-md w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-rose-100" @click.away="deleteModalOpen = false">
@@ -415,7 +415,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="fixed inset-0 z-[11000] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
+        class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm" style="z-index: 99999;"
         x-cloak>
         <div class="relative max-w-3xl w-full bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-white/10" @click.away="cropModalOpen = false">
             
