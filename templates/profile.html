@@ -30,13 +30,13 @@
                 <!-- Main Clickable Avatar Area (Using a real button for maximum reliability) -->
                 <button type="button" 
                     @click="if(!removed && (photoPreview || {% if user.avatar %}true{% else %}false{% endif %})) modalOpen = true" 
-                    class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white/40 overflow-hidden shadow-2xl relative bg-white/20 backdrop-blur-md flex items-center justify-center cursor-zoom-in group/avatar z-10 p-0 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all">
+                    class="w-24 h-24 md:w-32 md:h-32 aspect-square flex-shrink-0 rounded-full border-4 border-white/40 overflow-hidden shadow-2xl relative bg-white/20 backdrop-blur-md flex items-center justify-center cursor-zoom-in group/avatar z-10 p-0 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all">
                     
                     <template x-if="!photoPreview && !removed">
                         {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="Account" class="w-full h-full object-cover transition-transform group-hover/avatar:scale-110">
+                            <img src="{{ user.avatar.url }}" alt="Account" class="w-full h-full object-cover rounded-full transition-transform group-hover/avatar:scale-110">
                         {% else %}
-                            <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner">
+                            <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner rounded-full">
                                 {% if user.role == 'HOSPITAL' and user.hospital %}
                                     {{ user.hospital.name|slice:":1"|upper }}
                                 {% else %}
@@ -47,18 +47,18 @@
                     </template>
 
                     <template x-if="photoPreview && !removed">
-                        <img :src="photoPreview" class="w-full h-full object-cover transition-transform group-hover/avatar:scale-110">
+                        <img :src="photoPreview" class="w-full h-full object-cover rounded-full transition-transform group-hover/avatar:scale-110">
                     </template>
 
                     <template x-if="removed">
-                        <div class="w-full h-full bg-slate-800 text-slate-500 flex items-center justify-center font-bold text-4xl shadow-inner italic">
+                        <div class="w-full h-full bg-slate-800 text-slate-500 flex items-center justify-center font-bold text-4xl shadow-inner italic rounded-full">
                             ?
                         </div>
                     </template>
 
                     <!-- Hover Zoom Icon -->
                     <div x-show="!removed && (photoPreview || {% if user.avatar %}true{% else %}false{% endif %})" 
-                        class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity pointer-events-none">
+                        class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity pointer-events-none rounded-full">
                         <svg class="w-8 h-8 text-white scale-0 group-hover/avatar:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
                         </svg>
