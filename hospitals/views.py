@@ -109,6 +109,7 @@ def approve_hospital(request, hospital_id):
 
 @login_required
 def reject_hospital(request, hospital_id):
+    from django.http import JsonResponse
 
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
         raise PermissionDenied("Unauthorized access.")
@@ -117,18 +118,29 @@ def reject_hospital(request, hospital_id):
         return redirect("review_hospital", hospital_id=hospital_id)
 
     password = request.POST.get('password', '')
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.headers.get('Accept', '') == 'application/json'
+
     if not request.user.check_password(password):
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Invalid administrator password.'})
         messages.error(request, 'Invalid password. Action aborted.')
         return redirect('review_hospital', hospital_id=hospital_id)
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
     reason = request.POST.get('suspension_reason', '').strip()
 
+    if len(reason) < 250:
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Reason must be at least 250 characters.'})
+        messages.error(request, 'Reason must be at least 250 characters.')
+        return redirect('review_hospital', hospital_id=hospital_id)
+
     hospital.status = "REJECTED"
     hospital.suspension_reason = reason
     hospital.save()
 
     messages.success(request, f'{hospital.name} has been rejected.')
+
+    if is_ajax:
+        return JsonResponse({'success': True})
 
     if request.headers.get('HX-Request'):
         from django.core.paginator import Paginator
@@ -143,6 +155,8 @@ def reject_hospital(request, hospital_id):
 
 @login_required
 def suspend_hospital(request, hospital_id):
+    from django.http import JsonResponse
+
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
         raise PermissionDenied("Administrative access required.")
 
@@ -150,17 +164,30 @@ def suspend_hospital(request, hospital_id):
         return redirect("review_hospital", hospital_id=hospital_id)
 
     password = request.POST.get('password', '')
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.headers.get('Accept', '') == 'application/json'
+
     if not request.user.check_password(password):
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Invalid administrator password.'})
         messages.error(request, 'Invalid password. Action aborted.')
         return redirect('review_hospital', hospital_id=hospital_id)
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
     reason = request.POST.get('suspension_reason', '').strip()
+    
+    if len(reason) < 250:
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Suspension reason must be at least 250 characters.'})
+        messages.error(request, 'Suspension reason must be at least 250 characters.')
+        return redirect('review_hospital', hospital_id=hospital_id)
+
     hospital.status = 'SUSPENDED'
     hospital.suspension_reason = reason
     hospital.save()
 
     messages.success(request, f'{hospital.name} has been suspended.')
+    
+    if is_ajax:
+        return JsonResponse({'success': True})
+        
     return redirect('review_hospital', hospital_id=hospital_id)
 
 

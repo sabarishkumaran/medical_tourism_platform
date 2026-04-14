@@ -2,7 +2,53 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="container mx-auto px-4 md:px-8 py-10" x-data="{ activeTab: 'personal', photoPreview: null, removed: false, modalOpen: false, deleteModalOpen: false, deletePassword: '' }">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<div class="container mx-auto px-4 md:px-8 py-10" x-data="{ 
+    activeTab: 'personal', 
+    photoPreview: null, 
+    removed: false, 
+    modalOpen: false, 
+    deleteModalOpen: false, 
+    deletePassword: '', 
+    hasAvatar: {% if user.avatar and user.avatar.name %}true{% else %}false{% endif %},
+    cropModalOpen: false,
+    cropImageSource: null,
+    cropperInstance: null,
+    initCropper() {
+        if(this.cropperInstance) this.cropperInstance.destroy();
+        const image = document.getElementById('cropper-image');
+        this.cropperInstance = new Cropper(image, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false
+        });
+    },
+    saveCrop() {
+        if(!this.cropperInstance) return;
+        const canvas = this.cropperInstance.getCroppedCanvas({
+            width: 512,
+            height: 512,
+        });
+        
+        // Update live UI preview
+        this.photoPreview = canvas.toDataURL('image/jpeg', 0.9);
+        
+        // Convert canvas strictly back to a File payload to fake standard HTTP upload
+        canvas.toBlob((blob) => {
+            const file = new File([blob], 'avatar_cropped.jpg', {type: 'image/jpeg'});
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            document.getElementById('id_avatar').files = dataTransfer.files;
+        }, 'image/jpeg', 0.9);
+        
+        this.cropModalOpen = false;
+        this.cropImageSource = null;
+        this.removed = false;
+    }
+}">
 <div class="max-w-5xl mx-auto animate-fade-up">
 
     <form method="POST" enctype="multipart/form-data" class="space-y-8">
@@ -25,28 +71,33 @@
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
         
         <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
-            <!-- Avatar Section -->
-            <div class="relative group">
-                <!-- Main Clickable Avatar Area (Force-Square Inline Styles) -->
+            <!-- Avatar Section (Fixed Box for Absolute Positioning) -->
+            <div class="relative group" style="width: 128px; height: 128px;">
+                <!-- Main Clickable Avatar Area (Force-Square) -->
                 <button type="button" 
-                    @click="if(!removed && (photoPreview || {% if user.avatar %}true{% else %}false{% endif %})) modalOpen = true" 
-                    style="width: 128px !important; height: 128px !important; aspect-ratio: 1/1 !important; flex-shrink: 0 !important;"
+                    @click="if(!removed && (photoPreview || hasAvatar)) modalOpen = true" 
+                    style="width: 128px !important; height: 128px !important; aspect-ratio: 1/1 !important;"
                     class="rounded-full border-4 border-white/40 overflow-hidden shadow-2xl relative bg-white/20 backdrop-blur-md flex items-center justify-center cursor-zoom-in group/avatar z-10 p-0 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all">
                     
                     <template x-if="!photoPreview && !removed">
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="Account" 
-                                style="width: 100% !important; height: 100% !important; object-fit: cover !important;"
-                                class="rounded-full transition-transform group-hover/avatar:scale-110">
-                        {% else %}
-                            <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner rounded-full">
-                                {% if user.role == 'HOSPITAL' and user.hospital %}
-                                    {{ user.hospital.name|slice:":1"|upper }}
-                                {% else %}
-                                    {{ user.first_name|default:user.username|slice:":1"|upper }}
-                                {% endif %}
-                            </div>
-                        {% endif %}
+                        <div class="w-full h-full relative">
+                            <template x-if="hasAvatar">
+                                <img src="{% if user.avatar %}{{ user.avatar.url }}{% endif %}" alt="Account" 
+                                    style="width: 100% !important; height: 100% !important; object-fit: cover !important;"
+                                    class="rounded-full transition-transform group-hover/avatar:scale-110">
+                            </template>
+                            <template x-if="!hasAvatar">
+                                <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner rounded-full absolute inset-0" style="width: 100% !important; height: 100% !important;">
+                                    {% if user.role == 'HOSPITAL' and user.hospital %}
+                                        {{ user.hospital.name|slice:":1"|upper }}
+                                    {% elif user.first_name %}
+                                        {{ user.first_name|slice:":1"|upper }}
+                                    {% else %}
+                                        {{ user.username|slice:":1"|upper }}
+                                    {% endif %}
+                                </div>
+                            </template>
+                        </div>
                     </template>
 
                     <template x-if="photoPreview && !removed">
@@ -54,13 +105,19 @@
                     </template>
 
                     <template x-if="removed">
-                        <div class="w-full h-full bg-slate-800 text-slate-500 flex items-center justify-center font-bold text-4xl shadow-inner italic rounded-full">
-                            ?
+                        <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner rounded-full" style="width: 100% !important; height: 100% !important;">
+                            {% if user.role == 'HOSPITAL' and user.hospital %}
+                                {{ user.hospital.name|slice:":1"|upper }}
+                            {% elif user.first_name %}
+                                {{ user.first_name|slice:":1"|upper }}
+                            {% else %}
+                                {{ user.username|slice:":1"|upper }}
+                            {% endif %}
                         </div>
                     </template>
 
                     <!-- Hover Zoom Icon -->
-                    <div x-show="!removed && (photoPreview || {% if user.avatar %}true{% else %}false{% endif %})" 
+                    <div x-show="!removed && (photoPreview || hasAvatar)" 
                         class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity pointer-events-none rounded-full">
                         <svg class="w-8 h-8 text-white scale-0 group-hover/avatar:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
@@ -68,26 +125,18 @@
                     </div>
                 </button>
                 
-                <!-- Action Buttons: corner placement outside the main button's focus if needed -->
-                <div class="absolute inset-0 z-20 pointer-events-none">
-                    <button type="button" 
-                        @click="removed = !removed; photoPreview = null;" 
-                        x-show="removed || photoPreview || '{{ user.avatar|default:'' }}'"
-                        :class="removed ? 'bg-emerald-500/90 hover:bg-emerald-500' : 'bg-rose-500/90 hover:bg-rose-500'" 
-                        class="absolute -top-1 -right-1 w-8 h-8 rounded-full border-2 border-white/50 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:scale-110 pointer-events-auto backdrop-blur-sm"
-                        :title="removed ? 'Restore Photo' : 'Remove Photo'">
-                        <svg x-show="!removed" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        <svg x-show="removed" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
-                    </button>
-                    
+                <!-- Action Buttons: Enforced Overlays -->
+                <div class="absolute inset-0 z-50 pointer-events-none">
+
+                    <!-- Edit Button -->
                     <label for="id_avatar" 
-                        class="absolute -bottom-1 -right-1 w-10 h-10 bg-white/90 hover:bg-white text-indigo-600 rounded-full border-2 border-white/50 flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl hover:scale-110 pointer-events-auto backdrop-blur-sm group/edit">
-                        <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        class="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 w-12 h-12 bg-white text-indigo-600 rounded-full border-[3px] border-indigo-50 shadow-2xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 hover:bg-slate-50 pointer-events-auto z-[60] group/edit">
+                        <svg class="w-6 h-6 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </label>
                 </div>
 
                 <div class="hidden">
-                    {% render_field form.avatar @change="removed = false; const file = $event.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (e) => { photoPreview = e.target.result; }; reader.readAsDataURL(file); }" %}
+                    {% render_field form.avatar @change="const file = $event.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (e) => { cropImageSource = e.target.result; cropModalOpen = true; setTimeout(() => initCropper(), 50); }; reader.readAsDataURL(file); }" %}
                     {% render_field form.remove_avatar x-model="removed" %}
                 </div>
             </div>
@@ -114,9 +163,11 @@
             <button type="button" @click="activeTab = 'personal'" :class="activeTab === 'personal' ? 'bg-white text-slate-900 shadow-xl scale-105' : 'bg-white/10 text-white hover:bg-white/20'" class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300">
                 Personal Info
             </button>
+            {% if user.role == 'PATIENT' %}
             <button type="button" @click="activeTab = 'details'" :class="activeTab === 'details' ? 'bg-white text-slate-900 shadow-xl scale-105' : 'bg-white/10 text-white hover:bg-white/20'" class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300">
-                {% if user.role == 'HOSPITAL' %}Hospital Records{% else %}Medical Profile{% endif %}
+                Medical Profile
             </button>
+            {% endif %}
             <button type="button" @click="activeTab = 'security'" :class="activeTab === 'security' ? 'bg-white text-slate-900 shadow-xl scale-105' : 'bg-white/10 text-white hover:bg-white/20'" class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300">
                 Security
             </button>
@@ -154,41 +205,41 @@
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Country of Residence</label>
             {% render_field form.country class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
           </div>
+          
+          {% if user.role == 'HOSPITAL' %}
+          <div class="md:col-span-2 mt-8 pt-8 border-t border-slate-100">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Hospital Information</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="group md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Official Hospital Name</label>
+                    {% render_field form.hospital_name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" %}
+                </div>
+                <div class="group">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">City</label>
+                    {% render_field form.hospital_city class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" %}
+                </div>
+                <div class="group md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Complete Address</label>
+                    {% render_field form.hospital_address rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none resize-none" %}
+                </div>
+                <div class="group md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Public Description</label>
+                    {% render_field form.hospital_description rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none resize-none" %}
+                </div>
+              </div>
+          </div>
+          {% endif %}
         </div>
       </div>
 
-      <!-- DETAILS TAB (DYNAMIC) -->
+      <!-- DETAILS TAB (PATIENT ONLY) -->
+      {% if user.role == 'PATIENT' %}
       <div x-show="activeTab === 'details'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="min-h-[400px]">
-        {% if user.hospital %}
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 h-full">
-            <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-100">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                </div>
-                <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Hospital Details</h2>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="group md:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Hospital Name</label>
-                {% render_field form.hospital_name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" %}
-            </div>
-            <div class="group">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">City</label>
-                {% render_field form.hospital_city class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" %}
-            </div>
-            <div class="group md:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Complete Address</label>
-                {% render_field form.hospital_address rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none resize-none" %}
-            </div>
-            <div class="group md:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Hospital Description</label>
-                {% render_field form.hospital_description rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none resize-none" %}
-            </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if user.patientprofile %}
         <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 h-full">
             <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-100">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -207,8 +258,8 @@
             </div>
             </div>
         </div>
-        {% endif %}
       </div>
+      {% endif %}
 
       <!-- SECURITY TAB -->
       <div x-show="activeTab === 'security'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8 min-h-[400px]">
@@ -280,12 +331,32 @@
         @keydown.escape.window="modalOpen = false"
         x-cloak>
         
-        <div class="relative max-w-sm w-full aspect-square rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.7)] border-[12px] border-white z-[10000]">
-            <img :src="photoPreview || '{% if user.avatar %}{{ user.avatar.url }}{% endif %}'" class="w-full h-full object-cover">
+        <div class="relative max-w-2xl w-full bg-slate-900 rounded-3xl overflow-hidden shadow-2xl z-[10000] flex flex-col border border-white/10" @click.away="modalOpen = false">
+            <!-- Close Header -->
+            <div class="absolute top-4 right-4 z-[10001]">
+                <button type="button" @click="modalOpen = false" class="w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Image Area -->
+            <div class="w-full max-h-[70vh] min-h-[300px] flex items-center justify-center p-4 bg-slate-900/50">
+                <img :src="photoPreview || '{% if user.avatar %}{{ user.avatar.url }}{% endif %}'" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl">
+            </div>
             
-            <button type="button" @click="modalOpen = false" class="absolute top-4 right-4 w-10 h-10 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white rounded-full flex items-center justify-center transition-all duration-300 z-[10001]">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
+            <!-- Action Bar Footer -->
+            <div class="p-5 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-200" x-show="!removed">
+                <div>
+                     <h3 class="font-bold text-slate-800 text-lg" style="font-family: 'Outfit', sans-serif;">Profile Photo</h3>
+                     <p class="text-xs text-slate-500 font-medium mt-0.5">Viewable across the MedTour platform.</p>
+                </div>
+                <button type="button" 
+                    @click="removed = true; photoPreview = null; modalOpen = false;" 
+                    class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm py-2.5 px-6 rounded-xl transition-all border border-rose-200 flex items-center justify-center gap-2 active:scale-95 shadow-sm whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Delete Photo
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -331,6 +402,50 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</template>
+
+<!-- Image Cropping Modal -->
+<template x-teleport="body">
+    <div x-show="cropModalOpen" 
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        class="fixed inset-0 z-[11000] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
+        x-cloak>
+        <div class="relative max-w-3xl w-full bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-white/10" @click.away="cropModalOpen = false">
+            
+            <div class="p-6 bg-white border-b border-slate-200 flex justify-between items-center z-10">
+                <div class="space-y-1">
+                    <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Crop Profile Picture</h3>
+                    <p class="text-xs text-slate-500 font-medium">Drag the frame to select the perfect crop</p>
+                </div>
+                <button type="button" @click="cropModalOpen = false; document.getElementById('id_avatar').value = ''" class="text-slate-400 hover:text-slate-600 transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Cropper Area -->
+            <div class="w-full h-[50vh] sm:h-[60vh] bg-slate-950 flex items-center justify-center p-0">
+                <div class="w-full h-full max-w-full max-h-full">
+                    <img id="cropper-image" :src="cropImageSource" class="block max-w-full" style="max-height: 100%;">
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="p-5 bg-white flex justify-end gap-3 border-t border-slate-200 z-10">
+                <button type="button" @click="cropModalOpen = false; document.getElementById('id_avatar').value = ''" class="px-6 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" @click="saveCrop()" class="px-8 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Crop & Save
+                </button>
+            </div>
         </div>
     </div>
 </template>

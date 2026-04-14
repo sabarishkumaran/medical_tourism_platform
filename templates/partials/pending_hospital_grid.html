@@ -47,7 +47,29 @@
                         {% endif %}
                         
                         {% if hospital.status != 'REJECTED' %}
-                        <div x-data="{ showGridReject: false }" class="flex-1">
+                        <div x-data="{ 
+                            showGridReject: false,
+                            reason: '', 
+                            showError: false, 
+                            serverError: '',
+                            loading: false,
+                            get charCount() { return this.reason.trim().length; },
+                            async submitForm(e) {
+                                if(this.charCount < 250) { this.showError = true; return; }
+                                this.loading = true;
+                                this.serverError = '';
+                                const form = e.target;
+                                try {
+                                    const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: {'Accept': 'application/json'} });
+                                    const data = await res.json();
+                                    this.loading = false;
+                                    if(data.success) { window.location.reload(); } else { this.serverError = data.error || 'API Error'; }
+                                } catch(err) {
+                                    this.loading = false;
+                                    this.serverError = 'Network error. Please try again.';
+                                }
+                            }
+                        }" class="flex-1">
                             <button @click="showGridReject = true" type="button" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl shadow-md transition-all text-xs uppercase tracking-widest">
                                 {% if hospital.status == 'APPROVED' %}Suspend{% else %}Reject{% endif %}
                             </button>
@@ -66,24 +88,37 @@
                                             </button>
                                         </div>
                                         
-                                        <!-- Using standard POST instead of HTMX to prevent layout corruption on password failure redirects -->
-                                        <form action="{% url 'suspend_hospital' hospital.id %}" method="POST" class="p-6 space-y-6 text-slate-800">
+                                        <form action="{% if hospital.status == 'APPROVED' %}{% url 'suspend_hospital' hospital.id %}{% else %}{% url 'reject_hospital' hospital.id %}{% endif %}" method="POST" class="p-6 space-y-6 text-slate-800" @submit.prevent="submitForm($event)">
                                             {% csrf_token %}
+                                            
+                                            <div x-show="showError && charCount < 250" x-cloak style="display: none;" class="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-sm flex items-start gap-3 shadow-sm">
+                                                <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                <span><strong>Action Required:</strong> The reason must be at least 250 characters. You currently have <span x-text="charCount"></span> characters.</span>
+                                            </div>
+                                            <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
+                                                <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <span x-text="serverError"></span>
+                                            </div>
+
                                             <div>
-                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Reason</label>
-                                                <textarea name="suspension_reason" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700" rows="3" placeholder="Explain the decision..."></textarea>
+                                                <div class="flex justify-between items-end mb-2">
+                                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reason for decision</label>
+                                                    <span class="text-[10px] font-bold transition-colors" :class="charCount < 250 ? 'text-rose-500' : 'text-emerald-500'" x-text="charCount + ' / 250 min chars'"></span>
+                                                </div>
+                                                <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700" rows="5" placeholder="Explain the decision in detail (minimum 250 characters)..."></textarea>
                                             </div>
                                             <div>
                                                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Admin Password</label>
-                                                <input type="password" name="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all text-slate-700" placeholder="Enter your password">
+                                                <input type="password" name="password" @input="serverError = ''" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all text-slate-700" placeholder="Enter your password">
                                             </div>
                                             
                                             <div class="pt-4 flex gap-3">
                                                 <button type="button" @click="showGridReject = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all text-sm">
                                                     Cancel
                                                 </button>
-                                                <button type="submit" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-md">
-                                                    Confirm Action
+                                                <button type="submit" :disabled="loading" :class="loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-rose-700 hover:-translate-y-0.5'" class="flex-1 bg-rose-600 text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-2">
+                                                    <svg x-show="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    <span x-text="loading ? 'Processing...' : 'Confirm Action'"></span>
                                                 </button>
                                             </div>
                                         </form>
