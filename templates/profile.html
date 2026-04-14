@@ -27,14 +27,17 @@
         <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
             <!-- Avatar Section -->
             <div class="relative group">
-                <!-- Main Clickable Avatar Area (Using a real button for maximum reliability) -->
+                <!-- Main Clickable Avatar Area (Force-Square Inline Styles) -->
                 <button type="button" 
                     @click="if(!removed && (photoPreview || {% if user.avatar %}true{% else %}false{% endif %})) modalOpen = true" 
-                    class="w-24 h-24 md:w-32 md:h-32 aspect-square flex-shrink-0 rounded-full border-4 border-white/40 overflow-hidden shadow-2xl relative bg-white/20 backdrop-blur-md flex items-center justify-center cursor-zoom-in group/avatar z-10 p-0 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all">
+                    style="width: 128px !important; height: 128px !important; aspect-ratio: 1/1 !important; flex-shrink: 0 !important;"
+                    class="rounded-full border-4 border-white/40 overflow-hidden shadow-2xl relative bg-white/20 backdrop-blur-md flex items-center justify-center cursor-zoom-in group/avatar z-10 p-0 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all">
                     
                     <template x-if="!photoPreview && !removed">
                         {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="Account" class="w-full h-full object-cover rounded-full transition-transform group-hover/avatar:scale-110">
+                            <img src="{{ user.avatar.url }}" alt="Account" 
+                                style="width: 100% !important; height: 100% !important; object-fit: cover !important;"
+                                class="rounded-full transition-transform group-hover/avatar:scale-110">
                         {% else %}
                             <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-4xl shadow-inner rounded-full">
                                 {% if user.role == 'HOSPITAL' and user.hospital %}
