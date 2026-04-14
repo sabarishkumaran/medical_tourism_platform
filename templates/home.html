@@ -66,13 +66,18 @@
 
 <!-- Smart Search Section (Overlapping Hero) -->
 <section class="max-w-6xl mx-auto -mt-20 md:-mt-30 relative z-30 px-4 mb-24 animate-fade-up">
-    <form action="{% url 'treatments' %}" method="GET"
+    <form action="{% url 'treatments' %}" method="GET" autocomplete="off"
         class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-4">
+        
+        <!-- Dummy input to bait Chrome Autofill -->
+        <input type="text" style="display:none" aria-hidden="true">
+
         <!-- Treatment / Specialty -->
         <div class="flex-1 relative" x-data="{ open: false, search: '' }">
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Treatment /
                 Specialty</label>
             <input type="text" name="category" x-model="search" @focus="open = true" @click.away="open = false"
+                autocomplete="one-time-code"
                 placeholder="e.g. Cardiology, Dental..."
                 class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 transition-shadow text-slate-800">
             <!-- Autocomplete Dropdown -->
@@ -96,6 +101,7 @@
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Destination
                 Country</label>
             <input type="text" name="country" x-model="search" @focus="open = true" @click.away="open = false"
+                autocomplete="one-time-code"
                 placeholder="e.g. Turkey, India..."
                 class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 transition-shadow text-slate-800">
             <!-- Autocomplete Dropdown -->
@@ -164,8 +170,7 @@
                 </svg>
             </div>
             <h3 class="text-xl font-bold text-slate-900 mb-3">1. Submit Inquiry</h3>
-            <p class="text-slate-500">Share your medical needs securely. Our system instantly matches you with capable
-                handlers.</p>
+            <p class="text-slate-500">Submit your medical needs securely, and our system will instantly connect you with qualified professionals.</p>
         </div>
         <!-- Step 2 -->
         <div
@@ -191,8 +196,7 @@
                 </svg>
             </div>
             <h3 class="text-xl font-bold text-slate-900 mb-3">3. Confirm & Travel</h3>
-            <p class="text-slate-500">Book your package. We handle the logistics, concierge, visas, and aftercare
-                tracking.</p>
+            <p class="text-slate-500">Book your package, and we will take care of the logistics, concierge support, and aftercare tracking.</p>
         </div>
     </div>
 </section>
@@ -214,14 +218,14 @@
                 </p>
                 <div class="space-y-6">
                     <!-- 1. AI -->
-                    <div class="flex items-center gap-4 text-white hover:translate-x-2 transition-transform">
+                    <!-- <div class="flex items-center gap-4 text-white hover:translate-x-2 transition-transform">
                         <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm diff-icon"><svg
                                 class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                             </svg></div>
                         <span class="text-xl font-semibold">AI Matching Engine</span>
-                    </div>
+                    </div> -->
                     <!-- 2. Transparent Pricing -->
                     <div class="flex items-center gap-4 text-white hover:translate-x-2 transition-transform">
                         <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm diff-icon"><svg
@@ -251,7 +255,7 @@
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                                 </path>
                             </svg></div>
-                        <span class="text-xl font-semibold">Verified Doctors & JCI Hospitals</span>
+                        <span class="text-xl font-semibold">Certified doctors and Joint Commission International (JCI)-accredited hospitals</span>
                     </div>
                     <!-- 5. 24/7 Support -->
                     <div class="flex items-center gap-4 text-white hover:translate-x-2 transition-transform">
@@ -262,7 +266,7 @@
                                 </path>
                             </svg>
                         </div>
-                        <span class="text-xl font-semibold">24/7 Medical Support</span>
+                        <span class="text-xl font-semibold">24/7 Customer Support</span>
                     </div>
                 </div>
             </div>

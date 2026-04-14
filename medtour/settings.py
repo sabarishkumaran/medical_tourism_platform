@@ -80,6 +80,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'inquiries.context_processors.unread_contact_count',
                 'medtour.context_processors.pending_hospitals_alerts',
+                'medtour.context_processors.global_destinations',
             ],
         },
     },
