@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10" x-data="{ 
+    depositModalOpen: false, 
+    depositAmount: 100, 
+    upgradeModalOpen: false, 
+    selectedPlan: '', 
+    cancelModalOpen: false, 
+    autoRenew: {{ request.user.hospital.auto_renew|yesno:'true,false' }} 
+}">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="mb-10 text-center animate-fade-up">
+            <h1 class="text-4xl font-extrabold text-slate-800 mb-3" style="font-family: 'Outfit', sans-serif;">Billing & Subscription</h1>
+            <p class="text-lg text-slate-500 max-w-2xl mx-auto">Manage your hospital's platform visibility, upgrade your plan, and top up your lead wallet from one central location.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            
+            <!-- Left Side: Lead Wallet & Current Plan Summary -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Wallet Detail -->
+                <div class="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden group animate-fade-up" style="animation-delay: 0.1s;">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500 rounded-full blur-3xl opacity-30 pointer-events-none"></div>
+                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-sky-500 rounded-full blur-3xl opacity-30 pointer-events-none"></div>
+                    
+                    <div class="relative z-10 flex flex-col h-full justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-indigo-200 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Lead Wallet
+                                </h3>
+                                <span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-black uppercase">Active</span>
+                            </div>
+                            <h2 class="text-5xl font-black mb-1" style="font-family: 'Outfit', sans-serif;">${{ request.user.hospital.wallet_balance|floatformat:2 }}</h2>
+                            <p class="text-xs text-indigo-300 font-medium">Used to securely fund dynamic lead generation fees.</p>
+                        </div>
+                        
+                        <div class="mt-8 pt-6 border-t border-white/10">
+                            <button @click="depositModalOpen = true" class="w-full bg-white text-indigo-900 hover:bg-slate-50 font-bold py-3 px-6 rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Add Funds Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Plan Status -->
+                <div class="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm animate-fade-up" style="animation-delay: 0.2s;">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Account Status</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Current Plan</span>
+                            <span class="bg-sky-50 border border-sky-100 text-sky-700 px-3 py-1 rounded-lg text-xs font-bold">{{ request.user.hospital.get_subscription_plan_display }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Renewal Date</span>
+                            <span class="text-slate-800 font-bold text-sm">
+                                {% if request.user.hospital.subscription_end_date %}{{ request.user.hospital.subscription_end_date|date:"N j, Y" }}{% else %}N/A{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Auto-renew</span>
+                            <span class="text-slate-800 font-bold text-sm">
+                                {% if request.user.hospital.auto_renew %}Enabled{% else %}Disabled{% endif %}
+                            </span>
+                        </div>
+                        
+                        {% if request.user.hospital.subscription_plan != 'BASIC' %}
+                        <div class="pt-4 border-t border-slate-100 flex justify-center">
+                            <button @click="cancelModalOpen = true" class="text-xs font-bold text-red-500 hover:text-red-600 hover:underline transition-colors flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                Cancel Subscription
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side: Plan Upgrade Selection -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex items-center justify-between bg-emerald-50 border border-emerald-100 text-emerald-800 p-4 rounded-2xl animate-fade-up" style="animation-delay: 0.3s;">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-100 p-2 rounded-xl text-emerald-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Boost Your Hospital's Visibility!</p>
+                            <p class="text-xs opacity-80">Upgrading to Elite grants you priority ranking algorithm points, landing you 300% more international inquiries.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-up" style="animation-delay: 0.4s;">
+                    
+                    <!-- PREMIUM Card -->
+                    <div class="bg-white rounded-[2rem] border-2 {% if request.user.hospital.subscription_plan == 'PREMIUM' %}border-sky-500 shadow-xl{% else %}border-slate-100 hover:border-slate-300 shadow-sm{% endif %} p-8 relative flex flex-col transition-all">
+                        {% if request.user.hospital.subscription_plan == 'PREMIUM' %}
+                        <div class="absolute top-4 right-4 bg-sky-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                            Active Plan
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Premium Tier</h3>
+                            <div class="mt-2 flex items-baseline gap-1">
+                                <span class="text-4xl font-black text-slate-900">$199</span>
+                                <span class="text-sm font-bold text-slate-400">/mo</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 space-y-4 mb-8">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-slate-600 font-medium">Expanded profile visibility across all searches</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-slate-600 font-medium">Up to 25 Active Treatment Packages</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-slate-600 font-medium">Dedicated account coordinator access</span>
+                            </div>
+                        </div>
+                        
+                        <button {% if request.user.hospital.subscription_plan != 'PREMIUM' %}@click="selectedPlan = 'PREMIUM'; upgradeModalOpen = true"{% endif %} class="w-full text-center font-bold py-3.5 px-6 rounded-xl transition-all outline-none {% if request.user.hospital.subscription_plan == 'PREMIUM' %}bg-sky-50 text-sky-600 border border-sky-100 cursor-default pointer-events-none{% else %}bg-slate-900 text-white hover:bg-slate-800 shadow-md hover:shadow-xl{% endif %}">
+                            {% if request.user.hospital.subscription_plan == 'PREMIUM' %}Current Selection{% else %}Upgrade to Premium{% endif %}
+                        </button>
+                    </div>
+
+                    <!-- ELITE Card -->
+                    <div class="bg-slate-900 rounded-[2rem] border-2 {% if request.user.hospital.subscription_plan == 'ELITE' %}border-amber-400 shadow-xl{% else %}border-indigo-800 shadow-xl{% endif %} p-8 relative flex flex-col transition-all text-white">
+                        {% if request.user.hospital.subscription_plan == 'ELITE' %}
+                        <div class="absolute top-4 right-4 bg-amber-400 text-amber-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+                            Active Plan
+                        </div>
+                        {% else %}
+                        <div class="absolute top-4 right-4 bg-amber-400 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg border border-amber-300">
+                            Most Popular
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-amber-300" style="font-family: 'Outfit', sans-serif;">Elite Executive</h3>
+                            <div class="mt-2 flex items-baseline gap-1">
+                                <span class="text-4xl font-black text-white">$499</span>
+                                <span class="text-sm font-bold text-indigo-300">/mo</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 space-y-4 mb-8">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-indigo-100 font-medium"><span class="text-amber-300 font-bold">Featured Priority</span> ranking on homepage</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-indigo-100 font-medium"><span class="text-white font-bold">Unlimited</span> Treatment Packages</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-indigo-100 font-medium">Automatic review dispute resolution</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-sm text-indigo-100 font-medium">0% commission on the first 5 leads/mo</span>
+                            </div>
+                        </div>
+                        
+                        <button {% if request.user.hospital.subscription_plan != 'ELITE' %}@click="selectedPlan = 'ELITE'; upgradeModalOpen = true"{% endif %} class="w-full text-center font-bold py-3.5 px-6 rounded-xl transition-all outline-none {% if request.user.hospital.subscription_plan == 'ELITE' %}bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none{% else %}bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 hover:from-amber-300 hover:to-orange-300 shadow-[0_4px_15px_rgba(251,191,36,0.3)] hover:shadow-[0_6px_25px_rgba(251,191,36,0.5)]{% endif %}">
+                            {% if request.user.hospital.subscription_plan == 'ELITE' %}Current Selection{% else %}Upgrade to Elite{% endif %}
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Deposit Modal -->
+    <template x-teleport="body">
+        <div x-show="depositModalOpen" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm" style="z-index: 99999;"
+            x-cloak>
+            
+            <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-white/10" @click.away="depositModalOpen = false">
+                <form action="{% url 'deposit_wallet' %}" method="POST" class="flex flex-col">
+                    {% csrf_token %}
+                    
+                    <div class="p-6 sm:p-8 bg-slate-50 border-b border-slate-200">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Deposit Lead Funds</h3>
+                        <p class="text-sm text-slate-500 mt-1">Top up your wallet to continue uninterrupted lead generation.</p>
+                    </div>
+                    
+                    <div class="p-6 sm:p-8 space-y-6">
+                        <!-- Quick Select Buttons (Native Radios) -->
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="border rounded-xl py-3 font-bold text-sm transition-all flex justify-center items-center gap-2 cursor-pointer shadow-sm"
+                                :class="depositAmount === 50 ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+                                <input type="radio" value="50" x-model.number="depositAmount" class="w-4 h-4 text-sky-600 border-slate-300 focus:ring-sky-500 cursor-pointer">
+                                $50
+                            </label>
+                            <label class="border rounded-xl py-3 font-bold text-sm transition-all flex justify-center items-center gap-2 cursor-pointer shadow-sm"
+                                :class="depositAmount === 100 ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+                                <input type="radio" value="100" x-model.number="depositAmount" class="w-4 h-4 text-sky-600 border-slate-300 focus:ring-sky-500 cursor-pointer">
+                                $100
+                            </label>
+                            <label class="border rounded-xl py-3 font-bold text-sm transition-all flex justify-center items-center gap-2 cursor-pointer shadow-sm"
+                                :class="depositAmount === 500 ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+                                <input type="radio" value="500" x-model.number="depositAmount" class="w-4 h-4 text-sky-600 border-slate-300 focus:ring-sky-500 cursor-pointer">
+                                $500
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Custom Amount ($)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">$</span>
+                                <input type="number" name="amount" x-model.number="depositAmount" required min="10" step="1" 
+                                    style="padding-left: 2.5rem;"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-4 py-3 text-slate-800 font-bold transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Card Info Fake -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-6 bg-slate-200 rounded flex items-center justify-center">
+                                    <svg class="w-6 h-4 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 6h16v2H4V6zm0 12v-6h16v6H4z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">Visa ending in 4242</p>
+                                    <p class="text-[10px] text-slate-400">Expires 12/28</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 flex-col sm:flex-row">
+                        <button type="button" @click="depositModalOpen = false" class="px-6 py-3 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition-colors order-2 sm:order-1 text-center">
+                            Cancel
+                        </button>
+                        <button type="submit" @click="depositModalOpen = false" class="px-8 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 order-1 sm:order-2">
+                            Pay $<span x-text="depositAmount || 0"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Plan Upgrade Modal -->
+    <template x-teleport="body">
+        <div x-show="upgradeModalOpen" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm" style="z-index: 99999;"
+            x-cloak>
+            
+            <div class="relative w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-white/10" @click.away="upgradeModalOpen = false">
+                <form :action="'{% url 'hospital_billing' %}upgrade/' + selectedPlan + '/'" method="POST" class="m-0">
+                    {% csrf_token %}
+                    <div class="p-6 bg-sky-50 border-b border-sky-100 flex flex-col items-center text-center">
+                        <div class="w-14 h-14 rounded-full bg-sky-500 text-white flex items-center justify-center mb-4 shadow-lg shadow-sky-500/40">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Confirm Upgrade</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">You are about to upgrade your subscription to the <span class="font-black text-sky-600" x-text="selectedPlan"></span> tier.</p>
+                        
+                        <div class="mt-5 w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" name="auto_renew" value="true" checked class="w-5 h-5 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer">
+                                <span class="text-sm font-bold text-slate-700">Auto-Renew Subscription</span>
+                            </label>
+                            <p class="text-[10px] text-slate-400 mt-1 pl-8">Your card will automatically be charged each month.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 bg-white flex flex-col gap-3">
+                        <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 text-center transition-all shadow-md shadow-slate-900/20 active:scale-95">
+                            Confirm Upgrade
+                        </button>
+                        <button type="button" @click="upgradeModalOpen = false" class="w-full py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors text-center">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Cancel Plan Modal -->
+    <template x-teleport="body">
+        <div x-show="cancelModalOpen" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm" style="z-index: 99999;"
+            x-cloak>
+            
+            <div class="relative w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-white/10" @click.away="cancelModalOpen = false">
+                <div class="p-6 bg-red-50 border-b border-red-100 flex flex-col items-center text-center">
+                    <div class="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center mb-4 shadow-lg shadow-red-500/40">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Cancel Subscription?</h3>
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">Are you sure you want to cancel your Premium features? Your account will instantly resort to the Basic plan.</p>
+                </div>
+                
+                <div class="p-6 bg-white flex flex-col gap-3">
+                    <form action="{% url 'cancel_plan' %}" method="POST" class="w-full m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-md transition-all">
+                            Yes, Cancel Subscription
+                        </button>
+                    </form>
+                    <button type="button" @click="cancelModalOpen = false" class="w-full py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                        Nevermind, Keep It
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+{% endblock %}

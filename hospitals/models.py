@@ -52,6 +52,7 @@ class Hospital(models.Model):
     
     subscription_plan = models.CharField(max_length=20, choices=SUBSCRIPTION_PLAN_CHOICES, default='BASIC')
     subscription_end_date = models.DateField(null=True, blank=True)
+    auto_renew = models.BooleanField(default=True)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_featured = models.BooleanField(default=False)
 

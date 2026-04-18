@@ -434,6 +434,85 @@ def manage_inquiries(request):
         "current_status": status_filter,
     })
 
+@hospital_required
+def hospital_billing(request):
+    return render(request, "hospital_billing.html")
+
+@hospital_required
+def upgrade_plan(request, plan_choice):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+
+    hospital = request.user.hospital
+    valid_plans = [choice[0] for choice in Hospital.SUBSCRIPTION_PLAN_CHOICES]
+    
+    if plan_choice in valid_plans:
+        hospital.subscription_plan = plan_choice
+        from datetime import date
+        from dateutil.relativedelta import relativedelta
+        hospital.subscription_end_date = date.today() + relativedelta(months=+1)
+        
+        # Determine auto_renew based on the submitted checkbox
+        auto_renew_val = request.POST.get('auto_renew')
+        hospital.auto_renew = True if auto_renew_val else False
+        
+        hospital.save()
+        
+        from django.contrib import messages
+        messages.success(request, f"Successfully upgraded to {hospital.get_subscription_plan_display()}! Auto-renew is {'enabled' if hospital.auto_renew else 'disabled'}.")
+    
+    return redirect('hospital_billing')
+
+@hospital_required
+def deposit_wallet(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+        
+    amount_str = request.POST.get('amount')
+    try:
+        from decimal import Decimal, InvalidOperation
+        amount = Decimal(amount_str)
+        if amount > 0:
+            hospital = request.user.hospital
+            hospital.wallet_balance += amount
+            hospital.save()
+            from django.contrib import messages
+            messages.success(request, f"Successfully deposited ${amount:.2f} into your Lead Wallet!")
+        else:
+            from django.contrib import messages
+            messages.error(request, "Deposit amount must be greater than zero.")
+    except Exception:
+        from django.contrib import messages
+        messages.error(request, "Invalid deposit amount.")
+        
+    return redirect('hospital_billing')
+
+@hospital_required
+def cancel_plan(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+    
+    hospital = request.user.hospital
+    # Downgrade to basics instantly (can also be deferred to end date)
+    hospital.subscription_plan = 'BASIC'
+    hospital.subscription_end_date = None
+    hospital.save()
+    
+    from django.contrib import messages
+    messages.info(request, "Your subscription has been canceled and downgraded to the Basic Free Tier.")
+    return redirect('hospital_billing')
+
+@hospital_required
+def toggle_auto_renew(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+        
+    hospital = request.user.hospital
+    hospital.auto_renew = not hospital.auto_renew
+    hospital.save()
+    
+    return HttpResponse("")
+    
 def hospital_list(request):
     from django.db.models import Q
     from django.core.paginator import Paginator
