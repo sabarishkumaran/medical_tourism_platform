@@ -98,6 +98,7 @@ class TreatmentPackage(models.Model):
     currency = models.CharField(max_length=10, default="USD")
     stay_days = models.IntegerField()
     recovery_days = models.IntegerField()
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.treatment.name} - {self.hospital.name}"
 
@@ -122,3 +123,21 @@ class ReapprovalRequest(models.Model):
 
     def __str__(self):
         return f"Reapproval: {self.hospital.name} ({self.submitted_at.strftime('%Y-%m-%d')})"
+
+class WalletTransaction(models.Model):
+    TRANSACTION_TYPES = (
+        ('DEPOSIT', 'Deposit'),
+        ('COMMISSION_FEE', 'Commission Fee'),
+        ('SUBSCRIPTION', 'Subscription Fee')
+    )
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='wallet_transactions')
+    amount = models.DecimalField(max_digits=10, decimal_places=2) # positive or negative
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    description = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.transaction_type}: ${self.amount} ({self.hospital.name})"

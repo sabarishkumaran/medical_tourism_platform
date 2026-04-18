@@ -6,7 +6,18 @@ from hospitals.models import Hospital
 def home(request):
 
     treatments = Treatment.objects.all()[:6]
-    hospitals = Hospital.objects.filter(status__iexact="APPROVED")[:6]
+    
+    from django.db.models import Case, When, Value, IntegerField
+    hospitals = Hospital.objects.filter(status__iexact="APPROVED").annotate(
+        plan_rank=Case(
+            When(subscription_plan='ELITE', then=Value(3)),
+            When(subscription_plan='PREMIUM', then=Value(2)),
+            When(subscription_plan='BASIC', then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField()
+        )
+    ).order_by('-plan_rank', 'user__date_joined')[:6]
+    
     countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).exclude(user__country__exact="").values_list('user__country', flat=True).distinct()
     categories = Treatment.objects.values_list('category', flat=True).distinct()
 
@@ -22,7 +33,8 @@ def home(request):
 def treatment_list(request):
     from hospitals.models import TreatmentPackage
     packages = TreatmentPackage.objects.select_related('treatment', 'hospital').filter(
-        hospital__status='APPROVED'
+        hospital__status='APPROVED',
+        is_active=True
     )
 
     
@@ -88,10 +100,24 @@ def treatment_list(request):
 
 
 
+    from django.db.models import Case, When, Value, IntegerField
+    # Default order places higher-tiered plans first
+    packages = packages.annotate(
+        plan_rank=Case(
+            When(hospital__subscription_plan='ELITE', then=Value(3)),
+            When(hospital__subscription_plan='PREMIUM', then=Value(2)),
+            When(hospital__subscription_plan='BASIC', then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField()
+        )
+    )
+
     if sort == "Price: Low to High":
-        packages = packages.order_by('price')
+        packages = packages.order_by('price', '-plan_rank')
     elif sort == "Price: High to Low" or sort == "Rating: High to Low":
-        packages = packages.order_by('-price')
+        packages = packages.order_by('-price', '-plan_rank')
+    else:
+        packages = packages.order_by('-plan_rank')
 
     countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).exclude(user__country__exact="").values_list('user__country', flat=True).distinct()
     categories = Treatment.objects.values_list('category', flat=True).distinct()

@@ -102,7 +102,7 @@
             <div id="inquiries" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
                 <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Recent Inquiries Action</h2>
-                    <button class="text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors">View All</button>
+                    <a href="{% url 'hospital_manage_inquiries' %}" class="text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors">View All</a>
                 </div>
                 
                 <div class="flex-1 overflow-auto">
@@ -209,7 +209,10 @@
                 <!-- Treatment Packages Section -->
                 <div id="treatments" class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
+                            <a href="{% url 'manage_treatment_packages' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 px-2 py-0.5 rounded-full cursor-pointer">View All &rarr;</a>
+                        </div>
                         <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Package
                         </a>
@@ -219,7 +222,10 @@
                         {% for package in packages %}
                         <div class="p-4 border border-slate-100 rounded-xl hover:border-sky-200 hover:shadow-md transition-all group flex justify-between items-center" id="package-{{ package.id }}">
                             <div>
-                                <h3 class="font-bold text-slate-800 text-sm">{{ package.treatment.name }}</h3>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-slate-800 text-sm opacity-{% if package.is_active %}100{% else %}50{% endif %}">{{ package.treatment.name }}</h3>
+                                    {% if not package.is_active %}<span class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Offline</span>{% endif %}
+                                </div>
                                 <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ package.treatment.category }} • {{ package.doctor.name }}</p>
                             </div>
                             <div class="flex items-center gap-4">
@@ -230,6 +236,9 @@
                                 <a href="{% url 'edit_treatment_package' package.id %}" class="text-sky-500 hover:text-sky-700 p-2 ml-2 cursor-pointer transition-colors" title="Edit Package">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 </a>
+                                <button hx-post="{% url 'toggle_package_active' package.id %}" hx-swap="none" class="{% if package.is_active %}text-emerald-500 hover:text-emerald-700{% else %}text-slate-400 hover:text-slate-600{% endif %} p-2 cursor-pointer transition-colors" title="Toggle Visibility">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
                                 <button hx-post="{% url 'delete_treatment_package' package.id %}" hx-target="#package-{{ package.id }}" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this treatment package?" class="text-red-500 hover:text-red-700 p-2 cursor-pointer transition-colors" title="Delete Package">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>

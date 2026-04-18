@@ -361,8 +361,35 @@ def process_payment(request, inquiry_id):
         
     inquiry.commission_amount = float(base_price) * 0.05
     
+    # Elite Plan: 0% commission on the first 5 leads/mo
+    if inquiry.hospital.subscription_plan == 'ELITE':
+        from datetime import date
+        current_month_leads = inquiry.hospital.inquiry_set.filter(
+            status='COMPLETED',
+            created_at__year=date.today().year,
+            created_at__month=date.today().month
+        ).count()
+        
+        if current_month_leads < 5:
+            inquiry.commission_amount = 0.00
+    
     inquiry.status = "COMPLETED"
     inquiry.save()
+    
+    # Process Automated Commission Deduction from Hospital Lead Wallet
+    if inquiry.commission_amount > 0:
+        hospital_acc = inquiry.hospital
+        from decimal import Decimal
+        commission_decimal = Decimal(str(inquiry.commission_amount))
+        hospital_acc.wallet_balance -= commission_decimal
+        hospital_acc.save()
+        from hospitals.models import WalletTransaction
+        WalletTransaction.objects.create(
+            hospital=hospital_acc,
+            amount=-inquiry.commission_amount,
+            transaction_type='COMMISSION_FEE',
+            description=f"Commission fee deduction for completed Inquiry #{inquiry.id}"
+        )
     
     # Save payment details for records
     from payments.models import Payment

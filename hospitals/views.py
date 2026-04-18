@@ -226,7 +226,7 @@ def hospital_dashboard(request):
             "has_pending_request": has_pending_request,
         })
     doctors = Doctor.objects.filter(hospital=hospital)
-    packages = TreatmentPackage.objects.filter(hospital=hospital)
+    packages = TreatmentPackage.objects.filter(hospital=hospital).order_by('-id')[:3]
 
     # Get all treatments offered by this hospital
     hospital_treatment_ids = TreatmentPackage.objects.filter(
@@ -246,8 +246,8 @@ def hospital_dashboard(request):
     # Pending quotes (status = 'QUOTE_SENT')
     pending_quotes = hospital_inquiries.filter(status='QUOTE_SENT').count()
 
-    # Recent inquiries (last 10)
-    recent_inquiries = hospital_inquiries.order_by('-created_at')[:10]
+    # Recent inquiries (last 5)
+    recent_inquiries = hospital_inquiries.order_by('-created_at')[:5]
 
     # Upcoming appointments (assuming Appointment links to Inquiry)
     upcoming_appointments = Appointment.objects.filter(
@@ -256,10 +256,16 @@ def hospital_dashboard(request):
     ).count()
 
     # Calculate Estimated Revenue
-    from django.db.models import Sum
-    revenue_sum = hospital_inquiries.filter(
-        status__in=['CONFIRMED', 'PAYMENT_LINK_SENT', 'COMPLETED']
-    ).aggregate(total=Sum('package__price'))['total'] or 0.0
+    confirmed_inquiries = hospital_inquiries.filter(status__in=['CONFIRMED', 'PAYMENT_LINK_SENT', 'COMPLETED'])
+    revenue_sum = 0
+    for inq in confirmed_inquiries:
+        quote = inq.quote_set.order_by('-created_at').first()
+        if quote:
+            revenue_sum += float(quote.price)
+        elif inq.package:
+            revenue_sum += float(inq.package.price)
+        else:
+            revenue_sum += float(inq.budget or 0)
     
     if revenue_sum >= 1000:
         estimated_revenue = f"${revenue_sum / 1000:.1f}k"
@@ -318,13 +324,26 @@ def add_doctor(request):
 
 @hospital_required
 def add_treatment_package(request):
+    hospital = request.user.hospital
+    
+    # Enforce package limits
+    current_count = TreatmentPackage.objects.filter(hospital=hospital).count()
+    if hospital.subscription_plan == 'BASIC' and current_count >= 5:
+        from django.contrib import messages
+        messages.error(request, "Basic plan allows up to 5 packages. Please upgrade to Premium or Elite to add more.")
+        return redirect('hospital_billing')
+    elif hospital.subscription_plan == 'PREMIUM' and current_count >= 25:
+        from django.contrib import messages
+        messages.error(request, "Premium plan allows up to 25 packages. Please upgrade to Elite to add unlimited packages.")
+        return redirect('hospital_billing')
+
     if request.method == "POST":
-        form = TreatmentPackageForm(request.POST, hospital=request.user.hospital)
+        form = TreatmentPackageForm(request.POST, hospital=hospital)
         if form.is_valid():
             form.save()
             return redirect('hospital_dashboard')
     else:
-        form = TreatmentPackageForm(hospital=request.user.hospital)
+        form = TreatmentPackageForm(hospital=hospital)
     return render(request, "add_treatment_package.html", {"form": form})
 
 @hospital_required
@@ -342,6 +361,42 @@ def edit_treatment_package(request, package_id):
         form = TreatmentPackageForm(instance=package, hospital=request.user.hospital)
         
     return render(request, "edit_treatment_package.html", {"form": form, "package": package})
+
+@hospital_required
+def manage_treatment_packages(request):
+    hospital = request.user.hospital
+    packages = TreatmentPackage.objects.filter(hospital=hospital).order_by('-id')
+    return render(request, "manage_treatment_packages.html", {
+        "hospital": hospital,
+        "packages": packages
+    })
+
+@hospital_required
+def delete_treatment_package(request, package_id):
+    package = get_object_or_404(TreatmentPackage, id=package_id)
+    if package.hospital != request.user.hospital:
+        raise PermissionDenied("Unauthorized access.")
+        
+    if request.method == "POST":
+        package.delete()
+        if request.headers.get('HX-Request'):
+            return HttpResponse("")
+        return redirect('hospital_dashboard')
+    raise PermissionDenied()
+
+@hospital_required
+def toggle_package_active(request, package_id):
+    package = get_object_or_404(TreatmentPackage, id=package_id)
+    if package.hospital != request.user.hospital:
+        raise PermissionDenied("Unauthorized access.")
+        
+    if request.method == "POST":
+        package.is_active = not package.is_active
+        package.save()
+        if request.headers.get('HX-Request'):
+            return HttpResponse(status=204, headers={'HX-Refresh': 'true'})
+        return redirect('hospital_dashboard')
+    raise PermissionDenied()
 
 @hospital_required
 def edit_doctor(request, doctor_id):
@@ -436,7 +491,12 @@ def manage_inquiries(request):
 
 @hospital_required
 def hospital_billing(request):
-    return render(request, "hospital_billing.html")
+    hospital = request.user.hospital
+    transactions = hospital.wallet_transactions.all()[:50]
+    return render(request, "hospital_billing.html", {
+        "hospital": hospital,
+        "transactions": transactions
+    })
 
 @hospital_required
 def upgrade_plan(request, plan_choice):
@@ -476,6 +536,15 @@ def deposit_wallet(request):
             hospital = request.user.hospital
             hospital.wallet_balance += amount
             hospital.save()
+            
+            from hospitals.models import WalletTransaction
+            WalletTransaction.objects.create(
+                hospital=hospital,
+                amount=amount,
+                transaction_type='DEPOSIT',
+                description=f"Direct deposit via billing dashboard"
+            )
+            
             from django.contrib import messages
             messages.success(request, f"Successfully deposited ${amount:.2f} into your Lead Wallet!")
         else:

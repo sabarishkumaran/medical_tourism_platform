@@ -129,7 +129,13 @@
                         </div>
                         
                         <button {% if request.user.hospital.subscription_plan != 'PREMIUM' %}@click="selectedPlan = 'PREMIUM'; upgradeModalOpen = true"{% endif %} class="w-full text-center font-bold py-3.5 px-6 rounded-xl transition-all outline-none {% if request.user.hospital.subscription_plan == 'PREMIUM' %}bg-sky-50 text-sky-600 border border-sky-100 cursor-default pointer-events-none{% else %}bg-slate-900 text-white hover:bg-slate-800 shadow-md hover:shadow-xl{% endif %}">
-                            {% if request.user.hospital.subscription_plan == 'PREMIUM' %}Current Selection{% else %}Upgrade to Premium{% endif %}
+                            {% if request.user.hospital.subscription_plan == 'PREMIUM' %}
+                                Current Selection
+                            {% elif request.user.hospital.subscription_plan == 'ELITE' %}
+                                Downgrade to Premium
+                            {% else %}
+                                Upgrade to Premium
+                            {% endif %}
                         </button>
                     </div>
 
@@ -180,6 +186,62 @@
                 </div>
             </div>
             
+        </div>
+    </div>
+    
+    <!-- Transaction History Ledger -->
+    <div class="max-w-6xl mx-auto mt-8 mb-12 animate-fade-up" style="animation-delay: 200ms;">
+        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Wallet Transaction Ledger
+                </h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-bold">
+                            <th class="p-4 border-b border-slate-200 w-48">Date & Time</th>
+                            <th class="p-4 border-b border-slate-200 w-32">Type</th>
+                            <th class="p-4 border-b border-slate-200">Description</th>
+                            <th class="p-4 border-b border-slate-200 text-right w-32">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for tx in transactions %}
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 text-sm font-medium text-slate-600 whitespace-nowrap">{{ tx.created_at|date:"M d, Y h:i A" }}</td>
+                            <td class="p-4">
+                                {% if tx.transaction_type == 'DEPOSIT' %}
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded">Deposit</span>
+                                {% elif tx.transaction_type == 'COMMISSION_FEE' %}
+                                    <span class="bg-red-100 text-red-800 text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded">Commission</span>
+                                {% else %}
+                                    <span class="bg-slate-200 text-slate-700 text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded">{{ tx.get_transaction_type_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-sm text-slate-700 font-medium">{{ tx.description }}</td>
+                            <td class="p-4 text-right whitespace-nowrap">
+                                {% if tx.amount > 0 %}
+                                    <span class="text-emerald-600 font-black">+${{ tx.amount|floatformat:2 }}</span>
+                                {% else %}
+                                    <span class="text-red-500 font-black">-${{ tx.amount|stringformat:"s"|slice:"1:" }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-slate-400 font-medium text-sm">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                No transactions logged yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
@@ -283,8 +345,8 @@
                         <div class="w-14 h-14 rounded-full bg-sky-500 text-white flex items-center justify-center mb-4 shadow-lg shadow-sky-500/40">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Confirm Upgrade</h3>
-                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">You are about to upgrade your subscription to the <span class="font-black text-sky-600" x-text="selectedPlan"></span> tier.</p>
+                        <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Confirm Plan Change</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">You are about to change your subscription to the <span class="font-black text-sky-600" x-text="selectedPlan"></span> tier.</p>
                         
                         <div class="mt-5 w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
                             <label class="flex items-center gap-3 cursor-pointer">
