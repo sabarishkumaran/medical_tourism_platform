@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+<div class="max-w-[1400px] mx-auto animate-fade-up">
+    
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Manage Inquiries</h1>
+            <p class="text-slate-500">View and respond to patient inquiries for your hospital.</p>
+        </div>
+        <a href="{% url 'hospital_dashboard' %}" class="bg-white border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-2 mb-6 inline-flex overflow-x-auto w-full md:w-auto">
+        <a href="?status=all" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap {% if current_status == 'all' %}bg-slate-900 text-white shadow-md{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-700{% endif %}">
+            All Inquiries
+        </a>
+        <a href="?status=new" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 {% if current_status == 'new' %}bg-sky-50 text-sky-700 shadow-sm border border-sky-100{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-700{% endif %}">
+            New
+            {% if current_status == 'new' %}<span class="w-2 h-2 rounded-full bg-sky-500"></span>{% endif %}
+        </a>
+        <a href="?status=quotes" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 {% if current_status == 'quotes' %}bg-amber-50 text-amber-700 shadow-sm border border-amber-100{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-700{% endif %}">
+            Pending Quotes
+            {% if current_status == 'quotes' %}<span class="w-2 h-2 rounded-full bg-amber-500"></span>{% endif %}
+        </a>
+    </div>
+
+    <!-- Inquiries List -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        {% if inquiries %}
+            <div class="divide-y divide-slate-100">
+                {% for inquiry in inquiries %}
+                <div class="p-6 hover:bg-slate-50 transition-colors group">
+                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                                {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
+                                <p class="text-sm font-semibold text-slate-600 mt-1">{{ inquiry.treatment.name }}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Submitted on {{ inquiry.created_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between md:justify-end md:gap-6 ml-16 md:ml-0 md:pl-0 pl-1">
+                            <div>
+                                {% if inquiry.status == 'NEW' %}
+                                    <span class="bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-amber-200">New Inquiry</span>
+                                {% elif inquiry.status == 'QUOTE_SENT' %}
+                                    <span class="bg-sky-100 text-sky-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-sky-200">Quote Sent</span>
+                                {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
+                                    <span class="bg-indigo-100 text-indigo-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-indigo-200">Payment Pending</span>
+                                {% elif inquiry.status == 'CONFIRMED' %}
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-emerald-200">Quote Accepted</span>
+                                {% else %}
+                                    <span class="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full">{{ inquiry.status }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center gap-2">
+                                {% if inquiry.status == 'NEW' %}
+                                    <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-slate-900 hover:bg-sky-600 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-colors shadow-sm whitespace-nowrap">Review & Quote</a>
+                                {% elif inquiry.status == 'QUOTE_SENT' %}
+                                    <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-slate-100 text-slate-600 text-sm font-bold py-2.5 px-5 rounded-xl hover:bg-slate-200 transition-colors shadow-sm whitespace-nowrap">View Quote</a>
+                                {% else %}
+                                    <button class="inline-block bg-slate-50 text-slate-400 text-sm font-bold py-2.5 px-5 rounded-xl cursor-not-allowed">Details locked</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination (if more than a page) -->
+            {% if inquiries.has_other_pages %}
+            <div class="p-4 border-t border-slate-100 flex justify-center">
+                <nav class="flex items-center gap-2">
+                    {% if inquiries.has_previous %}
+                    <a href="?page={{ inquiries.previous_page_number }}&status={{ current_status }}" class="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </a>
+                    {% endif %}
+                    
+                    <span class="text-sm font-bold text-slate-700 px-4 py-2 bg-slate-50 rounded-lg">Page {{ inquiries.number }} of {{ inquiries.paginator.num_pages }}</span>
+                    
+                    {% if inquiries.has_next %}
+                    <a href="?page={{ inquiries.next_page_number }}&status={{ current_status }}" class="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <div class="p-16 text-center flex flex-col items-center justify-center">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">No inquiries found</h3>
+                <p class="text-slate-500">There are no inquiries matching the selected status filter.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+</div>
+{% endblock %}

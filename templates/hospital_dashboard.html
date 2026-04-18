@@ -75,25 +75,25 @@
 
             <!-- Metric Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-grid">
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-sky-200 transition-colors">
+                <a href="{% url 'hospital_manage_inquiries' %}?status=new" class="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-sky-200 transition-colors">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-sky-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
                     <div class="text-3xl font-black text-slate-800 mb-1">{{ pending_approvals|default:"0" }}</div>
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">New Inquiries</div>
-                </div>
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-amber-200 transition-colors">
+                </a>
+                <a href="{% url 'hospital_manage_inquiries' %}?status=quotes" class="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-amber-200 transition-colors">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
                     <div class="text-3xl font-black text-slate-800 mb-1">{{ pending_quotes|default:"0" }}</div>
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Pending Quotes</div>
-                </div>
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-emerald-200 transition-colors">
+                </a>
+                <a href="{% url 'manage_treatment_packages' %}" class="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-emerald-200 transition-colors">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
                     <div class="text-3xl font-black text-slate-800 mb-1">{{ packages|length|default:"0" }}</div>
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Active Packages</div>
-                </div>
-                <div class="bg-gradient-to-br from-indigo-600 to-sky-700 text-white rounded-2xl p-6 shadow-lg border border-indigo-500 flex flex-col justify-center">
+                </a>
+                <a href="#" class="block bg-gradient-to-br from-indigo-600 to-sky-700 text-white rounded-2xl p-6 shadow-lg border border-indigo-500 flex flex-col justify-center group transform transition-all hover:scale-105 hover:shadow-indigo-500/30">
                     <div class="text-3xl font-black mb-1">{{ estimated_revenue }}</div>
                     <div class="text-xs font-bold text-indigo-200 uppercase tracking-wide">Est. Revenue</div>
-                </div>
+                </a>
             </div>
         </div>
 

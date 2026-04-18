@@ -172,6 +172,10 @@
                                     class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Preferred
                                     Hospital <span class="text-rose-500">*</span></label>
                                 <select name="hospital" @change="updateCountry" required
+                                    hx-get="{% url 'load_hospital_treatments' %}"
+                                    hx-target="#treatment-dropdown"
+                                    hx-select="#treatment-dropdown"
+                                    hx-swap="outerHTML"
                                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
                                     <option value="">Select a hospital</option>
                                     {% for h in hospitals_list %}
@@ -185,10 +189,8 @@
                             {% if not form.package.value %}
                             <!-- Treatment Needed -->
                             <div class="col-span-2 group">
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Treatment
-                                    Needed</label>
-                                {% render_field form.treatment @change="fetchPrice" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="Select treatment..." %}
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-sky-600">Treatment Needed</label>
+                                {% include "partials/treatment_options.html" with treatments=form.treatment.field.queryset current_treatment=form.treatment.value %}
                                 {% if form.treatment.errors %}
                                 <p class="text-[10px] font-bold text-rose-500 mt-1 uppercase">{{ form.treatment.errors.0 }}</p>
                                 {% endif %}

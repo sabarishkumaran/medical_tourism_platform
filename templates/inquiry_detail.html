@@ -66,7 +66,7 @@
                               hx-target="#payment-section" 
                               hx-swap="outerHTML"
                               x-data="{ 
-                                 basePrice: parseFloat('{{ inquiry.package.price }}') || 0,
+                                 basePrice: parseFloat('{% if quote %}{{ quote.price }}{% elif inquiry.package %}{{ inquiry.package.price }}{% else %}0{% endif %}') || 0,
                                  visa: false, travel: false, concierge: false,
                                  get total() { return this.basePrice + (this.visa ? 99 : 0) + (this.travel ? 49 : 0) + (this.concierge ? 199 : 0); }
                               }"
@@ -151,7 +151,7 @@
                     
                     <div class="bg-white/60 backdrop-blur-sm border border-emerald-100 rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs shadow-inner">
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid</span>
-                        <span class="text-lg font-black text-emerald-700">${{ inquiry.package.price|floatformat:2 }}</span>
+                        <span class="text-lg font-black text-emerald-700">${{ inquiry.total_amount_paid|floatformat:2 }}</span>
                     </div>
                 </div>
             </div>

@@ -92,11 +92,36 @@ def submit_inquiry(request):
             return redirect("patient_dashboard")
     else:
         form = InquiryForm(initial=initial_data)
+        
+        # Filter treatments if hospital is pre-selected
+        if hospital_id and 'hospital' in initial_data:
+            from hospitals.models import TreatmentPackage
+            from treatments.models import Treatment
+            treatment_ids = TreatmentPackage.objects.filter(
+                hospital=initial_data['hospital']
+            ).values_list('treatment_id', flat=True)
+            
+            form.fields['treatment'].queryset = Treatment.objects.filter(id__in=treatment_ids).order_by('name')
 
     if request.headers.get('HX-Request') and request.method == "POST":
         return render(request, "submit_inquiry.html", {"form": form, "hospitals_list": hospitals_list})
 
     return render(request, "submit_inquiry.html", {"form": form, "hospitals_list": hospitals_list})
+
+def load_hospital_treatments(request):
+    hospital_id = request.GET.get('hospital')
+    if hospital_id:
+        from hospitals.models import TreatmentPackage
+        from treatments.models import Treatment
+        treatment_ids = TreatmentPackage.objects.filter(
+            hospital_id=hospital_id
+        ).values_list('treatment_id', flat=True)
+        treatments = Treatment.objects.filter(id__in=treatment_ids).order_by('name')
+    else:
+        from treatments.models import Treatment
+        treatments = Treatment.objects.all().order_by('name')
+        
+    return render(request, "partials/treatment_options.html", {"treatments": treatments})
 
 @login_required
 def get_treatment_price(request):
@@ -324,12 +349,29 @@ def process_payment(request, inquiry_id):
         
     inquiry.service_fees_total = service_fees
     
-    # Calculate standard 10% platform commission from hospital
-    if inquiry.package:
-        inquiry.commission_amount = float(inquiry.package.price) * 0.10
+    # Calculate standard 5% platform commission from hospital
+    base_price = 0
+    quote = inquiry.quote_set.order_by('-created_at').first()
+    if quote:
+        base_price = quote.price
+    elif inquiry.package:
+        base_price = inquiry.package.price
+    else:
+        base_price = inquiry.budget or 0
+        
+    inquiry.commission_amount = float(base_price) * 0.05
     
     inquiry.status = "COMPLETED"
     inquiry.save()
+    
+    # Save payment details for records
+    from payments.models import Payment
+    Payment.objects.create(
+        inquiry=inquiry,
+        amount=inquiry.total_amount_paid,
+        currency="USD",
+        status="Completed"
+    )
     
     if request.headers.get('HX-Request'):
         return render(request, "partials/payment_success.html", {"inquiry": inquiry})

@@ -48,6 +48,20 @@ class Inquiry(models.Model):
 
     def __str__(self):
         return f"Inquiry {self.id}"
+        
+    @property
+    def total_amount_paid(self):
+        base_price = 0
+        # A custom quote always overrides the initial package price
+        latest_quote = self.quote_set.order_by('-created_at').first()
+        if latest_quote:
+            base_price = latest_quote.price
+        elif self.package:
+            base_price = self.package.price
+        else:
+            base_price = self.budget or 0
+                
+        return float(base_price) + float(self.service_fees_total)
     
 
 class MedicalDocument(models.Model):

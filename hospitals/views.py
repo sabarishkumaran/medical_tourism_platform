@@ -403,6 +403,37 @@ def manage_treatment_packages(request):
         "active_packages": active_packages,
     })
 
+@hospital_required
+def manage_inquiries(request):
+    hospital = request.user.hospital
+    from django.db.models import Q
+    from django.core.paginator import Paginator
+    
+    hospital_treatment_ids = TreatmentPackage.objects.filter(
+        hospital=hospital
+    ).values_list('treatment_id', flat=True)
+
+    inquiries_all = Inquiry.objects.filter(
+        Q(hospital=hospital) | Q(treatment_id__in=hospital_treatment_ids)
+    ).distinct().order_by('-created_at')
+    
+    status_filter = request.GET.get('status', 'all')
+    
+    if status_filter == 'new':
+        inquiries_all = inquiries_all.filter(status='NEW')
+    elif status_filter == 'quotes':
+        inquiries_all = inquiries_all.filter(status='QUOTE_SENT')
+        
+    paginator = Paginator(inquiries_all, 15)
+    page_number = request.GET.get('page')
+    inquiries = paginator.get_page(page_number)
+    
+    return render(request, "manage_inquiries.html", {
+        "hospital": hospital,
+        "inquiries": inquiries,
+        "current_status": status_filter,
+    })
+
 def hospital_list(request):
     from django.db.models import Q
     from django.core.paginator import Paginator

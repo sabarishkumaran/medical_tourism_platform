@@ -26,6 +26,7 @@ urlpatterns = [
     path('treatment-packages/<int:package_id>/edit/', views.edit_treatment_package, name='edit_treatment_package'),
     path('treatment-packages/<int:package_id>/delete/', views.delete_treatment_package, name='delete_treatment_package'),
     path('treatment-packages/', views.manage_treatment_packages, name='manage_treatment_packages'),
+    path('inquiries/', views.manage_inquiries, name='hospital_manage_inquiries'),
     path('suspend/<int:hospital_id>/', views.suspend_hospital, name='suspend_hospital'),
     path('reapproval/submit/', views.submit_reapproval, name='submit_reapproval'),
     path('list/', views.hospital_list, name="hospital_list"),

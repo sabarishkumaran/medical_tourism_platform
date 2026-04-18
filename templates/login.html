@@ -45,7 +45,7 @@
                     <p class="text-slate-500">Please enter your credentials to proceed.</p>
                 </div>
 
-                <form method="POST" class="space-y-6">
+                <form method="POST" class="space-y-6" id="loginForm">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.GET.next }}">
 
@@ -72,10 +72,29 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer">
-                        Log In to Account
+                    <button type="submit" id="loginSubmitBtn" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer relative overflow-hidden flex items-center justify-center gap-2">
+                        <span id="btnText">Log In to Account</span>
+                        <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </button>
                 </form>
+
+                <script>
+                    document.getElementById('loginForm').addEventListener('submit', function() {
+                        const btn = document.getElementById('loginSubmitBtn');
+                        const text = document.getElementById('btnText');
+                        const spinner = document.getElementById('loadingSpinner');
+                        
+                        // Disable button to prevent double submission
+                        btn.classList.add('opacity-75', 'cursor-not-allowed');
+                        
+                        // Change text and show spinner
+                        text.textContent = 'Signing in...';
+                        spinner.classList.remove('hidden');
+                    });
+                </script>
 
                 <div class="mt-8 text-center">
                     <p class="text-sm text-slate-500">

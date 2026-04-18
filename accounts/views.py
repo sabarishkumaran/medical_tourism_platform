@@ -58,6 +58,9 @@ def admin_dashboard(request):
     
     # Revenue Stats
     commission_revenue = Inquiry.objects.filter(status='COMPLETED').aggregate(total=Sum('commission_amount'))['total'] or 0.00
+    
+    # Platform volume
+    transactions_volume = sum([float(inq.total_amount_paid) for inq in Inquiry.objects.filter(status='COMPLETED')])
     service_fees_revenue = Inquiry.objects.filter(status='COMPLETED').aggregate(total=Sum('service_fees_total'))['total'] or 0.00
     
     premium_subs = Hospital.objects.filter(subscription_plan='PREMIUM').count()
@@ -87,7 +90,8 @@ def admin_dashboard(request):
             'services': service_fees_revenue,
             'subscriptions': subscription_revenue,
             'leads': lead_revenue,
-            'featured': featured_revenue
+            'featured': featured_revenue,
+            'total_volume': transactions_volume
         }
     }
     
