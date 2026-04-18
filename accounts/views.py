@@ -100,14 +100,78 @@ def admin_dashboard(request):
     recent_hospitals = Hospital.objects.select_related('user').order_by('-user__date_joined')[:5]
     recent_messages = ContactMessage.objects.order_by('-created_at')[:5]
     
+    # Report Drilldown Datasets
+    from hospitals.models import WalletTransaction
+    commission_transactions = WalletTransaction.objects.filter(transaction_type='COMMISSION_FEE').select_related('hospital').order_by('-created_at')
+    subscription_hospitals = Hospital.objects.filter(subscription_plan__in=['PREMIUM', 'ELITE']).order_by('-id')
+    lead_transactions = Inquiry.objects.exclude(status='NEW').select_related('patient', 'hospital').order_by('-created_at')
+    featured_hospitals = Hospital.objects.filter(is_featured=True).order_by('-id')
+    
     context = {
         'stats': stats,
         'recent_inquiries': recent_inquiries,
         'recent_hospitals': recent_hospitals,
         'recent_messages': recent_messages,
+        'commission_transactions': commission_transactions,
+        'subscription_hospitals': subscription_hospitals,
+        'lead_transactions': lead_transactions,
+        'featured_hospitals': featured_hospitals,
     }
     
     return render(request, "admin_dashboard.html", context)
+
+
+@login_required
+def admin_revenue_commissions(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+    from hospitals.models import WalletTransaction
+    from django.db.models import Sum
+    transactions = WalletTransaction.objects.filter(transaction_type='COMMISSION_FEE').select_related('hospital').order_by('-created_at')
+    total = abs(transactions.aggregate(total=Sum('amount'))['total'] or 0)
+    return render(request, 'admin_revenue_commissions.html', {'transactions': transactions, 'total': total})
+
+
+@login_required
+def admin_revenue_subscriptions(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+    premium_hospitals = Hospital.objects.filter(subscription_plan='PREMIUM').order_by('-id')
+    elite_hospitals = Hospital.objects.filter(subscription_plan='ELITE').order_by('-id')
+    total = (premium_hospitals.count() * 199) + (elite_hospitals.count() * 499)
+    return render(request, 'admin_revenue_subscriptions.html', {
+        'premium_hospitals': premium_hospitals,
+        'elite_hospitals': elite_hospitals,
+        'total': total,
+    })
+
+
+@login_required
+def admin_revenue_leads(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+    leads = Inquiry.objects.exclude(status='NEW').select_related('patient', 'hospital', 'treatment').order_by('-created_at')
+    total = leads.count() * 50
+    return render(request, 'admin_revenue_leads.html', {'leads': leads, 'total': total})
+
+
+@login_required
+def admin_revenue_services(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+    from django.db.models import Sum
+    inquiries = Inquiry.objects.filter(status='COMPLETED').select_related('patient', 'hospital', 'treatment').order_by('-created_at')
+    service_total = inquiries.aggregate(total=Sum('service_fees_total'))['total'] or 0
+    featured_count = Hospital.objects.filter(is_featured=True).count()
+    featured_total = featured_count * 299
+    featured_hospitals = Hospital.objects.filter(is_featured=True).order_by('-id')
+    return render(request, 'admin_revenue_services.html', {
+        'inquiries': inquiries,
+        'service_total': service_total,
+        'featured_hospitals': featured_hospitals,
+        'featured_total': featured_total,
+        'grand_total': float(service_total) + featured_total,
+    })
 
 @login_required
 def patient_dashboard(request):

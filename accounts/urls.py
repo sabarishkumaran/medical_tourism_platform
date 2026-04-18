@@ -16,6 +16,10 @@ urlpatterns = [
     path('admin/dashboard/', views.admin_dashboard, name="admin_dashboard"),
     path('admin/patients/', views.admin_patients, name="admin_patients"),
     path('admin/patients/<int:user_id>/', views.patient_detail, name="patient_detail"),
+    path('admin/revenue/commissions/', views.admin_revenue_commissions, name="admin_revenue_commissions"),
+    path('admin/revenue/subscriptions/', views.admin_revenue_subscriptions, name="admin_revenue_subscriptions"),
+    path('admin/revenue/leads/', views.admin_revenue_leads, name="admin_revenue_leads"),
+    path('admin/revenue/services/', views.admin_revenue_services, name="admin_revenue_services"),
 
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name="password_change.html"), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name='password_change_done'),

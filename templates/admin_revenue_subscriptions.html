@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="max-w-5xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-500 hover:text-violet-600 hover:border-violet-200 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </a>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Admin · Revenue</p>
+                <h1 class="text-2xl font-extrabold text-slate-900" style="font-family:'Outfit',sans-serif;">Premium Subscription Revenue</h1>
+            </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #4338ca 100%);" class="rounded-3xl p-8 text-white mb-8 shadow-xl flex items-center justify-between">
+            <div>
+                <p class="text-violet-200 text-sm font-bold uppercase tracking-widest mb-1">Total Subscription Revenue</p>
+                <p class="text-5xl font-black" style="font-family:'Outfit',sans-serif;">${{ total }}</p>
+                <p class="text-violet-200 text-xs mt-2">{{ premium_hospitals.count }} Premium · {{ elite_hospitals.count }} Elite active subscriptions</p>
+            </div>
+            <div class="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+        </div>
+
+        <!-- Tier Split -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black text-sm">P</div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Premium Tier</p>
+                    <p class="text-2xl font-black text-slate-800">${{ premium_hospitals.count|default:0 }} × $199 = <span class="text-indigo-600">${{ premium_hospitals.count|default:0|add:"0" }}</span></p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-violet-600 flex items-center justify-center text-white font-black text-sm">E</div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Elite Tier</p>
+                    <p class="text-2xl font-black text-slate-800">{{ elite_hospitals.count|default:0 }} × $499</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elite Hospitals -->
+        {% if elite_hospitals %}
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-6">
+            <div class="p-6 border-b border-slate-50 bg-violet-50/40 flex items-center gap-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>
+                <h2 class="font-bold text-violet-800">Elite Hospitals</h2>
+            </div>
+            <div class="divide-y divide-slate-50">
+                {% for h in elite_hospitals %}
+                <div class="p-5 hover:bg-slate-50/60 transition-colors flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white font-bold text-sm uppercase shrink-0">{{ h.name|slice:":1" }}</div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">{{ h.name }}</p>
+                            <p class="text-[11px] text-slate-400">Auto-renew: {% if h.auto_renew %}Active{% else %}Disabled{% endif %} &bull; Ends {{ h.subscription_end_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    <span class="text-violet-700 font-black text-lg">$499<span class="text-[10px] text-slate-400 font-bold">/mo</span></span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Premium Hospitals -->
+        {% if premium_hospitals %}
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-50 bg-indigo-50/40 flex items-center gap-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                <h2 class="font-bold text-indigo-800">Premium Hospitals</h2>
+            </div>
+            <div class="divide-y divide-slate-50">
+                {% for h in premium_hospitals %}
+                <div class="p-5 hover:bg-slate-50/60 transition-colors flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-bold text-sm uppercase shrink-0">{{ h.name|slice:":1" }}</div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">{{ h.name }}</p>
+                            <p class="text-[11px] text-slate-400">Auto-renew: {% if h.auto_renew %}Active{% else %}Disabled{% endif %} &bull; Ends {{ h.subscription_end_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    <span class="text-indigo-700 font-black text-lg">$199<span class="text-[10px] text-slate-400 font-bold">/mo</span></span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not premium_hospitals and not elite_hospitals %}
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-16 text-center text-slate-400 italic">No premium subscriptions found.</div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
