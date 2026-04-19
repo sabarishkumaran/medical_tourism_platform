@@ -7,6 +7,7 @@ from django.conf import settings
 from .models import BlogPost
 from .forms import BlogPostForm
 from django.db.models import Q
+from newsletter.views import send_new_article_notification
 
 def send_blog_approval_email(request, post):
     """
@@ -90,24 +91,81 @@ def blog_detail(request, slug):
 @login_required
 def blog_write(request):
     """
-    Public facing view allowing any logged in user to submit a draft.
+    Public facing view allowing any logged in user to save a draft or submit for review.
     """
     if request.method == "POST":
         form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.status = 'Draft'
-            post.save()
-            messages.success(request, "Your article has been successfully submitted and is pending administrator approval!")
-            return redirect('blog_list')
+            if 'submit' in request.POST:
+                post.status = 'Draft'
+                post.submitted_for_review = True
+                post.save()
+                messages.success(request, "Your article has been submitted for administrator review!")
+            else:  # save_draft
+                post.status = 'Draft'
+                post.submitted_for_review = False
+                post.save()
+                messages.success(request, "Article saved as draft. You can continue editing it from My Articles.")
+            return redirect('my_articles')
         else:
-            print(form.errors) # For console debugging
             messages.error(request, "There was an error in your submission. Please check the fields below.")
     else:
         form = BlogPostForm()
-        
+
     return render(request, 'blog_write.html', {'form': form})
+
+
+@login_required
+def my_articles(request):
+    """
+    Author dashboard: shows all posts written by the logged-in user.
+    """
+    posts = BlogPost.objects.filter(author=request.user).order_by('-created_at')
+    draft_count = posts.filter(status='Draft').count()
+    published_count = posts.filter(status='Published').count()
+    return render(request, 'my_articles.html', {
+        'posts': posts,
+        'draft_count': draft_count,
+        'published_count': published_count,
+    })
+
+
+@login_required
+def author_blog_edit(request, pk):
+    """
+    Allows authors to edit their own posts.
+    - Drafts can be re-saved or submitted for review.
+    - Published posts are reverted to Draft (pending review) on save.
+    """
+    post = get_object_or_404(BlogPost, pk=pk, author=request.user)
+
+    if request.method == "POST":
+        form = BlogPostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            updated = form.save(commit=False)
+            was_published = post.status == 'Published'
+            if 'submit' in request.POST or was_published:
+                updated.status = 'Draft'
+                updated.submitted_for_review = True  # Goes into admin review queue
+                updated.save()
+                if was_published:
+                    messages.success(request, "Your edits have been saved and sent back for admin review before republishing.")
+                else:
+                    messages.success(request, "Article submitted for review!")
+            else:
+                updated.status = 'Draft'
+                updated.submitted_for_review = False  # Personal draft — hidden from admin
+                updated.save()
+                messages.success(request, "Draft saved successfully.")
+            return redirect('my_articles')
+        else:
+            messages.error(request, "Please fix the errors below.")
+    else:
+        form = BlogPostForm(instance=post)
+
+    return render(request, 'author_blog_edit.html', {'form': form, 'post': post})
 
 @login_required
 def admin_pending_blogs(request):
@@ -118,7 +176,7 @@ def admin_pending_blogs(request):
         messages.error(request, "You do not have permission to access the approval queue.")
         return redirect('home')
         
-    pending_posts = BlogPost.objects.filter(status='Draft').order_by('-created_at')
+    pending_posts = BlogPost.objects.filter(status='Draft', submitted_for_review=True).order_by('-created_at')
     return render(request, 'admin_pending_blogs.html', {'pending_posts': pending_posts})
 
 @login_required
@@ -135,6 +193,7 @@ def approve_blog(request, pk):
         post.status = 'Published'
         post.save()
         send_blog_approval_email(request, post)
+        send_new_article_notification(request, post)
         messages.success(request, f"Article '{post.title}' successfully published!")
         return redirect('admin_pending_blogs')
         
@@ -161,6 +220,7 @@ def admin_blog_edit(request, pk):
                 post.status = 'Published'
                 post.save()
                 send_blog_approval_email(request, post)
+                send_new_article_notification(request, post)
                 messages.success(request, "Article updated and published successfully!")
             else:
                 post.save()

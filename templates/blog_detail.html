@@ -30,7 +30,7 @@
             
             <h1 class="text-5xl md:text-7xl lg:text-[6.5rem] font-black leading-[1] text-white tracking-tight animate-fade-up" 
                 style="font-family: 'Outfit', sans-serif; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                {{ post.title }}
+                {{ post.title|safe }}
             </h1>
             
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-4 animate-fade-up delay-200">
@@ -174,7 +174,7 @@
                     </div>
                     <div>
                         <span class="block text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Previous Article</span>
-                        <span class="block text-xl font-bold line-clamp-1 group-hover:text-sky-600 transition-colors">{{ previous_post.title }}</span>
+                        <span class="block text-xl font-bold line-clamp-1 group-hover:text-sky-600 transition-colors">{{ previous_post.title|safe }}</span>
                     </div>
                 </div>
             </a>

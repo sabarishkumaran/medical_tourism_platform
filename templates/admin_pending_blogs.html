@@ -126,7 +126,7 @@
                                     </div>
                                     <div>
                                         <span class="md:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title</span>
-                                        <div class="font-bold text-slate-800 text-base group-hover:text-sky-600 transition-colors">{{ post.title }}</div>
+                                        <div class="font-bold text-slate-800 text-base group-hover:text-sky-600 transition-colors">{{ post.title|safe }}</div>
                                         <div class="text-sm text-slate-500 mt-0.5 line-clamp-1 max-w-sm">{{ post.excerpt|default:"No excerpt provided" }}</div>
                                     </div>
                                 </div>

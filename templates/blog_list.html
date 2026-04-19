@@ -103,7 +103,7 @@
 
                         <h3 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-3 group-hover:text-sky-600 transition-colors leading-tight"
                             style="font-family: 'Outfit', sans-serif;">
-                            {{ post.title }}
+                            {{ post.title|safe }}
                         </h3>
 
                         <p class="text-slate-500 text-sm leading-relaxed mb-4 font-medium line-clamp-3">
@@ -180,14 +180,53 @@
                     directly to your inbox.
                 </p>
 
-                <form class="flex flex-col gap-3 relative z-10" onsubmit="event.preventDefault(); alert('Subscribed!')">
-                    <input type="email" placeholder="Email address"
+                <form id="blog-newsletter-form" class="flex flex-col gap-3 relative z-10">
+                    {% csrf_token %}
+                    <input type="email" id="blog-newsletter-email" name="email" placeholder="Email address" required
                         class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors">
-                    <button type="submit"
+                    <button type="submit" id="blog-newsletter-btn"
                         class="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm py-3 px-4 rounded-xl shadow transition-all font-sans">
                         Subscribe to Newsletter
                     </button>
+                    <p id="blog-newsletter-msg" class="text-xs text-center hidden"></p>
                 </form>
+                <script>
+                    document.getElementById('blog-newsletter-form').addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        const btn = document.getElementById('blog-newsletter-btn');
+                        const msg = document.getElementById('blog-newsletter-msg');
+                        const email = document.getElementById('blog-newsletter-email').value;
+                        const csrf = this.querySelector('[name=csrfmiddlewaretoken]').value;
+                        btn.disabled = true;
+                        btn.textContent = 'Subscribing...';
+                        try {
+                            const res = await fetch('/newsletter/subscribe/', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrf},
+                                body: 'email=' + encodeURIComponent(email)
+                            });
+                            const data = await res.json();
+                            msg.classList.remove('hidden', 'text-rose-400', 'text-emerald-400');
+                            if (data.status === 'error') {
+                                msg.textContent = data.message;
+                                msg.classList.add('text-rose-400');
+                                btn.disabled = false;
+                                btn.textContent = 'Subscribe to Newsletter';
+                            } else {
+                                msg.textContent = data.message;
+                                msg.classList.add('text-emerald-400');
+                                btn.textContent = '✓ Subscribed!';
+                                document.getElementById('blog-newsletter-email').value = '';
+                            }
+                        } catch(err) {
+                            msg.classList.remove('hidden');
+                            msg.textContent = 'Something went wrong. Please try again.';
+                            msg.classList.add('text-rose-400');
+                            btn.disabled = false;
+                            btn.textContent = 'Subscribe to Newsletter';
+                        }
+                    });
+                </script>
             </div>
 
             <!-- Trending Now Widget -->
