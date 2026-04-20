@@ -14,6 +14,9 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
+from datetime import timedelta
+from django.urls import reverse
 
 def send_otp_html_email(user, otp, subject, recipient_email=None):
     if recipient_email is None:
@@ -395,24 +398,31 @@ def profile_view(request):
             form.save()
             
             if new_email and new_email != old_email:
-                # Revert email temporarily
-                user.email = old_email
-                user.save(update_fields=['email'])
+                # Check for verified email in session
+                verified_email = request.session.get('profile_verified_email')
+                if not verified_email or verified_email != new_email:
+                    # Revert email if not verified
+                    user.email = old_email
+                    user.save(update_fields=['email'])
+                    messages.error(request, "Please verify your new email address first.")
+                    return redirect('profile')
                 
-                import random
-                from django.core.mail import send_mail
-                from .models import OTPVerification
-                
-                otp = str(random.randint(100000, 999999))
-                OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp, 'unverified_email': new_email})
-                
-                send_otp_html_email(user, otp, "Verify your new email address", recipient_email=new_email)
-                request.session['unverified_user_id'] = user.id
-                messages.warning(request, "Please verify your new email address to complete the update.")
-                return redirect('verify_otp')
+                # Success - clear session key
+                del request.session['profile_verified_email']
 
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Profile updated successfully.', 'redirect': reverse('profile')})
+            
             messages.success(request, 'Profile details updated successfully.')
             return redirect('profile')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Map field names to user-friendly labels (generic approach)
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    label = field.replace('_', ' ').title()
+                    errors[label] = list(field_errors)
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
     else:
         form = ProfileForm(instance=user)
 
@@ -617,6 +627,59 @@ def verify_registration_otp(request):
             del request.session['registration_otp']
             del request.session['registration_otp_email']
             del request.session['registration_otp_expiry']
+            return JsonResponse({'success': True, 'message': 'Email verified successfully.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid verification code.'})
+            
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+def request_profile_otp(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        email = request.POST.get('email')
+        if not email:
+            return JsonResponse({'success': False, 'message': 'Email is required.'})
+            
+        # Check if email is already taken by another user
+        if User.objects.filter(email=email).exclude(id=request.user.id).exists():
+            return JsonResponse({'success': False, 'message': 'This email is already registered.'})
+
+        import random
+        otp = str(random.randint(100000, 999999))
+        expiry = timezone.now() + timedelta(minutes=10)
+        
+        request.session['profile_otp'] = otp
+        request.session['profile_otp_email'] = email
+        request.session['profile_otp_expiry'] = expiry.isoformat()
+        
+        send_otp_html_email(request.user, otp, "Your MedTour Email Update Code", recipient_email=email)
+        
+        return JsonResponse({'success': True, 'message': 'Verification code sent.', 'expiry': expiry.isoformat()})
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+def verify_profile_otp(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        otp_input = request.POST.get('otp')
+        email_input = request.POST.get('email')
+        
+        session_otp = request.session.get('profile_otp')
+        session_email = request.session.get('profile_otp_email')
+        session_expiry_str = request.session.get('profile_otp_expiry')
+        
+        if not all([session_otp, session_email, session_expiry_str]):
+            return JsonResponse({'success': False, 'message': 'No OTP requested.'})
+            
+        from django.utils.dateparse import parse_datetime
+        expiry = parse_datetime(session_expiry_str)
+        
+        if timezone.now() > expiry:
+            return JsonResponse({'success': False, 'message': 'OTP has expired.'})
+            
+        if otp_input == session_otp and email_input == session_email:
+            request.session['profile_verified_email'] = email_input
+            # Clean up
+            del request.session['profile_otp']
+            del request.session['profile_otp_email']
+            del request.session['profile_otp_expiry']
             return JsonResponse({'success': True, 'message': 'Email verified successfully.'})
         else:
             return JsonResponse({'success': False, 'message': 'Invalid verification code.'})

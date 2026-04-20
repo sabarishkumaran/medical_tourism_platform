@@ -28,30 +28,151 @@
     },
     saveCrop() {
         if(!this.cropperInstance) return;
-        const canvas = this.cropperInstance.getCroppedCanvas({
-            width: 512,
-            height: 512,
-        });
-        
-        // Update live UI preview
+        const canvas = this.cropperInstance.getCroppedCanvas({ width: 512, height: 512 });
         this.photoPreview = canvas.toDataURL('image/jpeg', 0.9);
-        
-        // Convert canvas strictly back to a File payload to fake standard HTTP upload
         canvas.toBlob((blob) => {
             const file = new File([blob], 'avatar_cropped.jpg', {type: 'image/jpeg'});
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             document.getElementById('id_avatar').files = dataTransfer.files;
         }, 'image/jpeg', 0.9);
-        
         this.cropModalOpen = false;
         this.cropImageSource = null;
         this.removed = false;
+    },
+    // Verification State
+    email: '{{ user.email }}',
+    originalEmail: '{{ user.email }}',
+    emailVerified: true,
+    otpSent: false,
+    otpLoading: false,
+    otpTimer: 0,
+    otpCode: '',
+    otpExpiry: null,
+    showErrorModal: false,
+    formErrors: {},
+    isSubmitting: false,
+    timerInterval: null,
+
+    init() {
+        this.$watch('email', value => {
+            this.emailVerified = (value === this.originalEmail);
+            if (this.emailVerified) {
+                this.otpSent = false;
+                clearInterval(this.timerInterval);
+                this.otpTimer = 0;
+            }
+        });
+    },
+
+    async requestOtp() {
+        this.otpLoading = true;
+        const formData = new FormData();
+        formData.append('email', this.email);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        try {
+            const response = await fetch('{% url 'request_profile_otp' %}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            if (data.success) {
+                this.otpSent = true;
+                this.otpExpiry = new Date(data.expiry);
+                this.startTimer();
+            } else {
+                this.formErrors = { 'Verification Error': [data.message] };
+                this.showErrorModal = true;
+            }
+        } catch (e) {
+            this.formErrors = { 'System Error': ['Failed to send code.'] };
+            this.showErrorModal = true;
+        } finally {
+            this.otpLoading = false;
+        }
+    },
+
+    startTimer() {
+        clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            const now = new Date();
+            const diff = Math.floor((this.otpExpiry - now) / 1000);
+            if (diff <= 0) {
+                this.otpTimer = 0;
+                clearInterval(this.timerInterval);
+            } else {
+                this.otpTimer = diff;
+            }
+        }, 1000);
+    },
+
+    formatTimer() {
+        const m = Math.floor(this.otpTimer / 60);
+        const s = this.otpTimer % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    },
+
+    async verifyOtp() {
+        this.otpLoading = true;
+        const formData = new FormData();
+        formData.append('otp', this.otpCode);
+        formData.append('email', this.email);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        try {
+            const response = await fetch('{% url 'verify_profile_otp' %}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            if (data.success) {
+                this.emailVerified = true;
+                this.otpSent = false;
+                clearInterval(this.timerInterval);
+                this.otpTimer = 0;
+            } else {
+                this.formErrors = { 'OTP Error': [data.message] };
+                this.showErrorModal = true;
+            }
+        } catch (e) {
+            this.formErrors = { 'System Error': ['Verification failed.'] };
+            this.showErrorModal = true;
+        } finally {
+            this.otpLoading = false;
+        }
+    },
+    async submitProfile() {
+        this.isSubmitting = true;
+        const form = this.$el;
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                this.formErrors = data.errors || { 'Update Error': [data.message] };
+                this.showErrorModal = true;
+            }
+        } catch (e) {
+            this.formErrors = { 'System Error': ['Failed to save changes.'] };
+            this.showErrorModal = true;
+        } finally {
+            this.isSubmitting = false;
+        }
     }
 }">
 <div class="max-w-5xl mx-auto animate-fade-up">
 
-    <form method="POST" enctype="multipart/form-data" class="space-y-8">
+    <form method="POST" enctype="multipart/form-data" class="space-y-8" @submit.prevent="submitProfile()">
       {% csrf_token %}
 
     <!-- Profile Header -->
@@ -195,7 +316,42 @@
           {% endif %}
           <div class="group">
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Email Address</label>
-            {% render_field form.email class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex-1">
+                    {% render_field form.email class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" x-model="email" :readonly="otpSent" %}
+                </div>
+                <button type="button" @click="requestOtp()" class="px-6 py-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]" x-show="!emailVerified && !otpSent" :disabled="otpLoading">
+                    <span x-show="!otpLoading">Verify Email</span>
+                    <span x-show="otpLoading" class="flex items-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sending...</span>
+                </button>
+                <div x-show="emailVerified && email !== originalEmail" class="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 animate-fade-in">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    <span class="text-xs font-bold">Email Verified</span>
+                </div>
+            </div>
+
+            <!-- OTP Input -->
+            <div x-show="otpSent" x-transition class="mt-4 p-6 bg-slate-50 rounded-2xl border border-slate-200" style="display: none;">
+                <div class="flex flex-col sm:flex-row items-end gap-4">
+                    <div class="flex-1 w-full">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Enter 6-Digit Code</label>
+                        <input type="text" x-model="otpCode" maxlength="6" 
+                            class="w-full text-center text-2xl tracking-[0.5em] font-black bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:border-sky-500 outline-none" 
+                            placeholder="------">
+                    </div>
+                    <button type="button" @click="verifyOtp()" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-sky-600 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95 disabled:opacity-50" :disabled="otpCode.length < 6 || otpLoading">
+                        <span x-show="!otpLoading">Verify Code</span>
+                        <span x-show="otpLoading">Verifying...</span>
+                    </button>
+                </div>
+                <div class="mt-4 flex items-center justify-between text-[11px]">
+                    <div class="flex items-center gap-2 text-slate-500">
+                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span></span>
+                        <span>Expires in: <span class="font-bold text-slate-700" x-text="formatTimer()"></span></span>
+                    </div>
+                    <button type="button" @click="requestOtp()" class="text-sky-600 font-bold hover:underline" x-show="otpTimer === 0">Resend Code</button>
+                </div>
+            </div>
           </div>
           <div class="group">
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Phone Number</label>
@@ -300,19 +456,20 @@
 
       <!-- SUBMIT BUTTON (Premium Style) -->
       <div class="flex justify-end pt-8 mt-4 border-t border-slate-100">
-        <button type="submit" class="group relative px-8 py-4 font-bold text-white rounded-2xl overflow-hidden transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-sky-500/50">
+        <button type="submit" class="group relative px-8 py-4 font-bold text-white rounded-2xl overflow-hidden transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-sky-500/50 disabled:opacity-75 disabled:cursor-not-allowed" :disabled="!emailVerified || isSubmitting">
           <!-- Gradient Background -->
-          <div class="absolute inset-0 bg-gradient-to-r from-sky-500 via-sky-600 to-indigo-600 group-hover:from-sky-600 group-hover:via-sky-700 group-hover:to-indigo-700 transition-all duration-300"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-sky-500 via-sky-600 to-indigo-600 group-hover:from-sky-600 group-hover:via-sky-700 group-hover:to-indigo-700 transition-all duration-300" :class="{'opacity-50': !emailVerified}"></div>
           
           <!-- Animated Glow Effect -->
           <div class="absolute -inset-1 bg-gradient-to-r from-sky-400 to-indigo-500 opacity-0 group-hover:opacity-75 blur-lg transition-all duration-300 -z-10"></div>
           
           <!-- Content -->
           <div class="relative flex items-center gap-3 justify-center">
-            <svg class="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg x-show="!isSubmitting" class="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span class="text-base tracking-wide">Save All Changes</span>
+            <svg x-show="isSubmitting" class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span class="text-base tracking-wide" x-text="emailVerified ? (isSubmitting ? 'Saving...' : 'Save All Changes') : 'Verify Email to Save'"></span>
           </div>
         </button>
       </div>
@@ -446,6 +603,38 @@
                     Crop & Save
                 </button>
             </div>
+        </div>
+    </div>
+</template>
+
+<!-- Error Modal Popup -->
+<template x-teleport="body">
+    <div x-show="showErrorModal" x-transition class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 p-4" @click.self="showErrorModal = false" style="display: none;" x-cloak>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Update Error</h2>
+                </div>
+                <button @click="showErrorModal = false" class="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="mb-8 space-y-3">
+                <template x-for="[label, errors_list] in Object.entries(formErrors)">
+                    <div>
+                        <template x-for="error in errors_list">
+                            <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                <p class="font-semibold text-slate-900 text-sm" x-text="label"></p>
+                                <p class="text-slate-700 text-sm mt-1" x-text="error"></p>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+            <button @click="showErrorModal = false" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all">Close</button>
         </div>
     </div>
 </template>
