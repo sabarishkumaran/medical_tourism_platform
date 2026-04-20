@@ -21,6 +21,12 @@ class TreatmentPackageForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['doctor'].queryset = Doctor.objects.filter(hospital=self.hospital)
         
+        # Pre-populate treatment-related fields if editing an existing package
+        if self.instance and self.instance.pk and self.instance.treatment:
+            self.fields['treatment_name'].initial = self.instance.treatment.name
+            self.fields['category'].initial = self.instance.treatment.category
+            self.fields['description'].initial = self.instance.treatment.description
+        
         # Update price field to indicate it's a starting price
         self.fields['price'].label = "Starting Price"
         self.fields['price'].help_text = "This is the base price. Final price will be determined based on patient's medical condition during quote process."
