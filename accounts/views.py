@@ -7,9 +7,31 @@ from .forms import ProfileForm, RegisterForm, StaffCreationForm
 from .models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
 from blog.models import BlogPost
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.dateparse import parse_datetime
+
+def send_otp_html_email(user, otp, subject, recipient_email=None):
+    if recipient_email is None:
+        recipient_email = user.email
+        
+    html_message = render_to_string('otp_email_html.html', {
+        'user': user,
+        'otp': otp
+    })
+    
+    send_mail(
+        subject,
+        f"Your OTP confirmation code is: {otp}",
+        settings.DEFAULT_FROM_EMAIL,
+        [recipient_email],
+        html_message=html_message,
+        fail_silently=True,
+    )
 
 @login_required
 def manage_staff(request):
@@ -89,7 +111,7 @@ def admin_dashboard(request):
         'total_inquiries': Inquiry.objects.count(),
         'total_patients': User.objects.filter(role='PATIENT').count(),
         'unread_contacts': ContactMessage.objects.filter(is_read=False).count(),
-        'pending_blogs': BlogPost.objects.filter(status='Draft').count(),
+        'pending_blogs': BlogPost.objects.filter(status='Draft', submitted_for_review=True).count(),
         'revenue': {
             'total': total_revenue,
             'commissions': commission_revenue,
@@ -222,47 +244,47 @@ def register(request):
 
         if form.is_valid():
 
+            # Ensure email matches verified email in session
+            verified_email = request.session.get('registration_verified_email')
+            if not verified_email or verified_email != form.cleaned_data.get('email'):
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': {'email': ['Please verify your email address first.']}})
+                messages.error(request, "Please verify your email address first.")
+                return render(request, "register.html", {"form": form})
+
             user = form.save()
+            user.is_email_verified = True
+            user.save()
 
-            # if role is hospital create hospital record
-            if user.role == "HOSPITAL":
-
+            # Hospital registration logic
+            if user.role == 'HOSPITAL':
+                from hospitals.models import Hospital
                 Hospital.objects.create(
                     user=user,
-                    name=form.cleaned_data["hospital_name"],
-                    city=form.cleaned_data["hospital_city"],
-                    address=form.cleaned_data["hospital_address"],
-                    description=form.cleaned_data["hospital_description"],
-                    established_year=form.cleaned_data["hospital_established_year"],
-                    certificate=request.FILES.get("hospital_certificate"),
+                    name=form.cleaned_data.get('hospital_name'),
+                    city=form.cleaned_data.get('hospital_city'),
+                    address=form.cleaned_data.get('hospital_address'),
+                    description=form.cleaned_data.get('hospital_description'),
+                    established_year=form.cleaned_data.get('hospital_established_year'),
+                    certificate=form.cleaned_data.get('hospital_certificate'),
+                    status='PENDING'
                 )
-
-            import random
-            from django.core.mail import send_mail
-            from django.conf import settings
-            from .models import OTPVerification
             
-            otp = str(random.randint(100000, 999999))
-            OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp})
+            # Clear session
+            del request.session['registration_verified_email']
             
-            send_mail(
-                "Your Medical Tourism Platform Verification Code",
-                f"Your OTP confirmation code is: {otp}",
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=True,
-            )
-            
-            request.session['unverified_user_id'] = user.id
+            # Log in automatically after registration
+            from django.contrib.auth import login
+            login(request, user)
 
             # Return JSON for AJAX requests
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 from django.http import JsonResponse
                 from django.urls import reverse
-                return JsonResponse({'success': True, 'redirect': reverse('verify_otp')})
+                return JsonResponse({'success': True, 'redirect': reverse('home')})
             
-            from django.urls import reverse
-            return redirect("verify_otp")
+            messages.success(request, "Registration successful! Welcome to MedTour.")
+            return redirect("home")
 
         else:
             # Return JSON with form errors for AJAX requests
@@ -310,21 +332,14 @@ def user_login(request):
                 if not user.is_email_verified:
                     import random
                     from django.core.mail import send_mail
-                    from django.conf import settings
                     from .models import OTPVerification
                     
                     otp = str(random.randint(100000, 999999))
                     OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp})
                     
-                    send_mail(
-                        "Your Medical Tourism Platform Verification Code",
-                        f"Your OTP confirmation code is: {otp}",
-                        settings.DEFAULT_FROM_EMAIL,
-                        [user.email],
-                        fail_silently=True,
-                    )
+                    send_otp_html_email(user, otp, "Your Medical Tourism Platform Verification Code")
                     request.session['unverified_user_id'] = user.id
-                    messages.warning(request, "Please verify your email address before logging in.")
+                    messages.warning(request, "Please verify your email address. A new code has been sent.")
                     return redirect('verify_otp')
 
                 login(request, user)
@@ -386,19 +401,12 @@ def profile_view(request):
                 
                 import random
                 from django.core.mail import send_mail
-                from django.conf import settings
                 from .models import OTPVerification
                 
                 otp = str(random.randint(100000, 999999))
                 OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp, 'unverified_email': new_email})
                 
-                send_mail(
-                    "Verify your new email address",
-                    f"Your OTP confirmation code is: {otp}",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [new_email],
-                    fail_silently=True,
-                )
+                send_otp_html_email(user, otp, "Verify your new email address", recipient_email=new_email)
                 request.session['unverified_user_id'] = user.id
                 messages.warning(request, "Please verify your new email address to complete the update.")
                 return redirect('verify_otp')
@@ -528,7 +536,6 @@ def verify_otp(request):
             otp_record.delete()
             if 'unverified_user_id' in request.session:
                 del request.session['unverified_user_id']
-            
             login(request, user)
             
             if user.role == 'HOSPITAL':
@@ -541,3 +548,77 @@ def verify_otp(request):
             messages.error(request, "Invalid verification code.")
             
     return render(request, "verify_otp.html", {"unverified_user": user})
+
+def resend_otp(request):
+    user_id = request.session.get('unverified_user_id')
+    if not user_id:
+        return redirect('login')
+        
+    from .models import User, OTPVerification
+    import random
+    user = get_object_or_404(User, id=user_id)
+    
+    otp = str(random.randint(100000, 999999))
+    OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp})
+    
+    send_otp_html_email(user, otp, "Your NEW Verification Code")
+    messages.success(request, "A new verification code has been sent to your email.")
+    return redirect('verify_otp')
+
+from django.utils import timezone
+from datetime import timedelta
+
+def request_registration_otp(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        if not email:
+            return JsonResponse({'success': False, 'message': 'Email is required.'})
+            
+        import random
+        otp = str(random.randint(100000, 999999))
+        expiry = timezone.now() + timedelta(minutes=10)
+        
+        request.session['registration_otp'] = otp
+        request.session['registration_otp_email'] = email
+        request.session['registration_otp_expiry'] = expiry.isoformat()
+        
+        # Send email (using a dummy user object for the helper function)
+        class DummyUser:
+            def __init__(self, email):
+                self.email = email
+                self.username = email
+        
+        send_otp_html_email(DummyUser(email), otp, "Your MedTour Registration Code")
+        
+        return JsonResponse({'success': True, 'message': 'Verification code sent.', 'expiry': expiry.isoformat()})
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+def verify_registration_otp(request):
+    if request.method == "POST":
+        otp_input = request.POST.get('otp')
+        email_input = request.POST.get('email')
+        
+        session_otp = request.session.get('registration_otp')
+        session_email = request.session.get('registration_otp_email')
+        session_expiry_str = request.session.get('registration_otp_expiry')
+        
+        if not all([session_otp, session_email, session_expiry_str]):
+            return JsonResponse({'success': False, 'message': 'No OTP requested.'})
+            
+        from django.utils import timezone
+        expiry = parse_datetime(session_expiry_str)
+        
+        if timezone.now() > expiry:
+            return JsonResponse({'success': False, 'message': 'OTP has expired.'})
+            
+        if otp_input == session_otp and email_input == session_email:
+            request.session['registration_verified_email'] = email_input
+            # Clean up
+            del request.session['registration_otp']
+            del request.session['registration_otp_email']
+            del request.session['registration_otp_expiry']
+            return JsonResponse({'success': True, 'message': 'Email verified successfully.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid verification code.'})
+            
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})

@@ -10,10 +10,136 @@
         background-repeat: no-repeat;
         appearance: none;
     }
+    @keyframes bounce-short {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+    .animate-bounce-short {
+        animation: bounce-short 1s ease-in-out 3;
+    }
 </style>
 <!-- Use Alpine to handle the conditional logic elegantly without bleeding JS globally -->
 <div class="container mx-auto px-4 md:px-8 py-10">
-<div class="min-h-[85vh] -mt-10 mb-[-2.5rem] flex items-center justify-center p-4 animate-fade-up" x-data="{ role: '{{ form.data.role|default:'PATIENT'|escapejs }}', showErrorModal: {% if form.errors %}true{% else %}false{% endif %}, formErrors: {}, isSubmitting: false, async submitForm(e) { this.isSubmitting = true; const formElement = e.target; const formData = new FormData(formElement); try { const response = await fetch(formElement.action, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); const data = await response.json(); if (data.success) { window.location.href = data.redirect; } else { this.formErrors = data.errors || {}; this.showErrorModal = true; window.scrollTo({ top: 0, behavior: 'smooth' }); } } catch (error) { console.error('Form submission error:', error); this.showErrorModal = true; } finally { this.isSubmitting = false; } } }">
+<div class="min-h-[85vh] -mt-10 mb-[-2.5rem] flex items-center justify-center p-4 animate-fade-up" x-data="{ 
+    role: '{{ form.data.role|default:'PATIENT'|escapejs }}', 
+    showErrorModal: {% if form.errors %}true{% else %}false{% endif %}, 
+    formErrors: {}, 
+    isSubmitting: false, 
+    email: '',
+    otpSent: false,
+    otpVerified: false,
+    otpCode: '',
+    otpExpiry: null,
+    otpTimer: 0,
+    otpLoading: false,
+    timerInterval: null,
+
+    async requestOtp() {
+        if (!this.email) return;
+        this.otpLoading = true;
+        try {
+            const formData = new FormData();
+            formData.append('email', this.email);
+            const response = await fetch('{% url 'request_registration_otp' %}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}' }
+            });
+            const data = await response.json();
+            if (data.success) {
+                this.otpSent = true;
+                this.otpExpiry = new Date(data.expiry);
+                this.startTimer();
+            } else {
+                this.formErrors = { 'Verification Error': [data.message] };
+                this.showErrorModal = true;
+            }
+        } catch (e) {
+            console.error(e);
+            this.formErrors = { 'System Error': ['Failed to send verification code. Please try again.'] };
+            this.showErrorModal = true;
+        } finally {
+            this.otpLoading = false;
+        }
+    },
+
+    async verifyOtp() {
+        if (!this.otpCode) return;
+        this.otpLoading = true;
+        try {
+            const formData = new FormData();
+            formData.append('email', this.email);
+            formData.append('otp', this.otpCode);
+            const response = await fetch('{% url 'verify_registration_otp' %}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}' }
+            });
+            const data = await response.json();
+            if (data.success) {
+                this.otpVerified = true;
+                clearInterval(this.timerInterval);
+                this.otpTimer = 0;
+            } else {
+                this.formErrors = { 'OTP Error': [data.message] };
+                this.showErrorModal = true;
+            }
+        } catch (e) {
+            console.error(e);
+            this.formErrors = { 'System Error': ['An error occurred during verification.'] };
+            this.showErrorModal = true;
+        } finally {
+            this.otpLoading = false;
+        }
+    },
+
+    startTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            const now = new Date();
+            const diff = Math.floor((this.otpExpiry - now) / 1000);
+            if (diff <= 0) {
+                this.otpTimer = 0;
+                clearInterval(this.timerInterval);
+            } else {
+                this.otpTimer = diff;
+            }
+        }, 1000);
+    },
+
+    formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    },
+
+    async submitForm(e) { 
+        if (!this.otpVerified) {
+            this.formErrors = { 'Verification Required': ['Please verify your email address before creating an account.'] };
+            this.showErrorModal = true;
+            return;
+        }
+        this.isSubmitting = true; 
+        const formElement = e.target; 
+        const formData = new FormData(formElement); 
+        try { 
+            const response = await fetch(formElement.action, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); 
+            const data = await response.json(); 
+            if (data.success) { 
+                window.location.href = data.redirect; 
+            } else { 
+                this.formErrors = data.errors || {}; 
+                this.showErrorModal = true; 
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            } 
+        } catch (error) { 
+            console.error('Form submission error:', error); 
+            this.showErrorModal = true; 
+        } finally { 
+            this.isSubmitting = false; 
+        } 
+    } 
+}">
 
     <div class="w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
         
@@ -89,9 +215,40 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Username <span class="text-red-600">*</span></label>
                             {% render_field form.username class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
                         </div>
-                        <div class="group">
+                        <div class="group sm:col-span-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Email Address <span class="text-red-600">*</span></label>
-                            {% render_field form.email class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <div class="flex-1">
+                                    {% render_field form.email class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" x-model="email" :readonly="otpSent" @input="email = $event.target.value" %}
+                                </div>
+                                <button type="button" @click="requestOtp()" class="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]" :disabled="otpSent || otpLoading || !email">
+                                    <span x-show="!otpLoading">Verify Email</span>
+                                    <span x-show="otpLoading" class="flex items-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sending...</span>
+                                </button>
+                            </div>
+                            
+                            <!-- OTP Verification Input (Show after sending) -->
+                            <div x-show="otpSent && !otpVerified" x-transition class="mt-4 p-5 bg-sky-50 rounded-2xl border border-sky-100 flex flex-col sm:flex-row gap-4 items-center animate-fade-down">
+                                <div class="flex-1 w-full">
+                                    <label class="block text-[10px] font-bold text-sky-700 uppercase mb-1">Enter 6-Digit Code</label>
+                                    <input type="text" x-model="otpCode" maxlength="6" class="w-full bg-white border border-sky-200 rounded-xl px-4 py-2 text-center text-xl font-bold tracking-[0.5em] focus:border-sky-500 outline-none" placeholder="------">
+                                    <div class="flex justify-between items-center mt-2 px-1">
+                                        <p class="text-[10px] text-slate-500" x-show="otpTimer > 0">Code expires in: <span class="font-bold text-sky-600" x-text="formatTime(otpTimer)"></span></p>
+                                        <p class="text-[10px] text-red-500 font-bold" x-show="otpTimer <= 0">Code expired.</p>
+                                        <button type="button" @click="otpSent = false; requestOtp()" class="text-[10px] font-bold text-sky-600 hover:underline" x-show="otpTimer <= 0">Resend Code</button>
+                                    </div>
+                                </div>
+                                <button type="button" @click="verifyOtp()" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center" :disabled="otpLoading || otpCode.length < 6">
+                                    <span x-show="!otpLoading">Verify Code</span>
+                                    <span x-show="otpLoading"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                                </button>
+                            </div>
+
+                            <!-- Verification Success Badge -->
+                            <div x-show="otpVerified" x-transition class="mt-3 inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100 text-xs font-bold animate-bounce-short">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                Email Verified Successfully
+                            </div>
                         </div>
                         <div class="group">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Phone Number <span class="text-red-600">*</span></label>
@@ -157,7 +314,7 @@
                     <button type="submit" class="w-full mt-8 bg-slate-900 hover:bg-sky-600 text-white font-bold py-4 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
                     :class="{'hover:bg-indigo-600': role === 'HOSPITAL', 'opacity-50 cursor-not-allowed': isSubmitting}"
                     :disabled="isSubmitting">
-                        <span x-show="!isSubmitting">Create Account</span>
+                        <span x-show="!isSubmitting" x-text="otpVerified ? 'Create Account' : 'Verify Email to Proceed'"></span>
                         <span x-show="isSubmitting">Creating Account...</span>
                     </button>
                 </form>
