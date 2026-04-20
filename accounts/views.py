@@ -584,6 +584,10 @@ def request_registration_otp(request):
         if not email:
             return JsonResponse({'success': False, 'message': 'Email is required.'})
             
+        # Check if email is already taken
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': 'This email is already registered.'})
+            
         import random
         otp = str(random.randint(100000, 999999))
         expiry = timezone.now() + timedelta(minutes=10)
