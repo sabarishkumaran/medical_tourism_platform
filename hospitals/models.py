@@ -3,8 +3,23 @@ from django.db.models import Avg
 from accounts.models import User
 from treatments.models import Treatment
 
+class SubscriptionPlanConfig(models.Model):
+    PLAN_CHOICES = [
+        ('BASIC', 'Basic (Free)'),
+        ('PREMIUM', 'Premium'),
+        ('ELITE', 'Elite Executive'),
+    ]
+    plan_type = models.CharField(max_length=20, choices=PLAN_CHOICES, unique=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    max_packages = models.IntegerField(default=5, help_text="-1 means unlimited")
+    commission_free_leads = models.IntegerField(default=0)
+    ranking_bonus = models.IntegerField(default=0)
 
-
+    display_title = models.CharField(max_length=100, blank=True)
+    description = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"{self.get_plan_type_display()} - ${self.price}/mo"
 class Hospital(models.Model):
 
     STATUS_CHOICES = (

@@ -15,10 +15,20 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, blank=True)
     country = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    is_email_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
-    
+class OTPVerification(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp_verification')
+    otp_code = models.CharField(max_length=6)
+    unverified_email = models.EmailField(blank=True, null=True, help_text="Used when changing email address")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"OTP for {self.user.username}"
+
+
 class PatientProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)

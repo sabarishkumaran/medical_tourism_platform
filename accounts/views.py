@@ -63,9 +63,15 @@ def admin_dashboard(request):
     transactions_volume = sum([float(inq.total_amount_paid) for inq in Inquiry.objects.filter(status='COMPLETED')])
     service_fees_revenue = Inquiry.objects.filter(status='COMPLETED').aggregate(total=Sum('service_fees_total'))['total'] or 0.00
     
+    from hospitals.models import SubscriptionPlanConfig
+    prem_conf = SubscriptionPlanConfig.objects.filter(plan_type='PREMIUM').first()
+    elite_conf = SubscriptionPlanConfig.objects.filter(plan_type='ELITE').first()
+    prem_price = prem_conf.price if prem_conf else 199.00
+    elite_price = elite_conf.price if elite_conf else 499.00
+
     premium_subs = Hospital.objects.filter(subscription_plan='PREMIUM').count()
     elite_subs = Hospital.objects.filter(subscription_plan='ELITE').count()
-    subscription_revenue = (premium_subs * 199) + (elite_subs * 499)
+    subscription_revenue = float(premium_subs * prem_price) + float(elite_subs * elite_price)
     
     processed_leads = Inquiry.objects.exclude(status='NEW').count()
     lead_revenue = processed_leads * 50  # Flat $50 per qualified lead for calculation
@@ -136,9 +142,15 @@ def admin_revenue_commissions(request):
 def admin_revenue_subscriptions(request):
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
         raise PermissionDenied("Administrative access required.")
+    from hospitals.models import SubscriptionPlanConfig
+    prem_conf = SubscriptionPlanConfig.objects.filter(plan_type='PREMIUM').first()
+    elite_conf = SubscriptionPlanConfig.objects.filter(plan_type='ELITE').first()
+    prem_price = prem_conf.price if prem_conf else 199.00
+    elite_price = elite_conf.price if elite_conf else 499.00
+
     premium_hospitals = Hospital.objects.filter(subscription_plan='PREMIUM').order_by('-id')
     elite_hospitals = Hospital.objects.filter(subscription_plan='ELITE').order_by('-id')
-    total = (premium_hospitals.count() * 199) + (elite_hospitals.count() * 499)
+    total = float(premium_hospitals.count() * prem_price) + float(elite_hospitals.count() * elite_price)
     return render(request, 'admin_revenue_subscriptions.html', {
         'premium_hospitals': premium_hospitals,
         'elite_hospitals': elite_hospitals,
@@ -225,12 +237,32 @@ def register(request):
                     certificate=request.FILES.get("hospital_certificate"),
                 )
 
+            import random
+            from django.core.mail import send_mail
+            from django.conf import settings
+            from .models import OTPVerification
+            
+            otp = str(random.randint(100000, 999999))
+            OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp})
+            
+            send_mail(
+                "Your Medical Tourism Platform Verification Code",
+                f"Your OTP confirmation code is: {otp}",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=True,
+            )
+            
+            request.session['unverified_user_id'] = user.id
+
             # Return JSON for AJAX requests
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 from django.http import JsonResponse
-                return JsonResponse({'success': True, 'redirect': '/accounts/login/'})
+                from django.urls import reverse
+                return JsonResponse({'success': True, 'redirect': reverse('verify_otp')})
             
-            return redirect("login")
+            from django.urls import reverse
+            return redirect("verify_otp")
 
         else:
             # Return JSON with form errors for AJAX requests
@@ -275,6 +307,26 @@ def user_login(request):
             user = authenticate(username=username, password=password)
 
             if user is not None:
+                if not user.is_email_verified:
+                    import random
+                    from django.core.mail import send_mail
+                    from django.conf import settings
+                    from .models import OTPVerification
+                    
+                    otp = str(random.randint(100000, 999999))
+                    OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp})
+                    
+                    send_mail(
+                        "Your Medical Tourism Platform Verification Code",
+                        f"Your OTP confirmation code is: {otp}",
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=True,
+                    )
+                    request.session['unverified_user_id'] = user.id
+                    messages.warning(request, "Please verify your email address before logging in.")
+                    return redirect('verify_otp')
+
                 login(request, user)
                 
                 next_url = request.POST.get('next') or request.GET.get('next')
@@ -321,9 +373,36 @@ def profile_view(request):
             )
 
     if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        old_email = user.email
+        form = ProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
+            new_email = form.cleaned_data.get('email')
             form.save()
+            
+            if new_email and new_email != old_email:
+                # Revert email temporarily
+                user.email = old_email
+                user.save(update_fields=['email'])
+                
+                import random
+                from django.core.mail import send_mail
+                from django.conf import settings
+                from .models import OTPVerification
+                
+                otp = str(random.randint(100000, 999999))
+                OTPVerification.objects.update_or_create(user=user, defaults={'otp_code': otp, 'unverified_email': new_email})
+                
+                send_mail(
+                    "Verify your new email address",
+                    f"Your OTP confirmation code is: {otp}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [new_email],
+                    fail_silently=True,
+                )
+                request.session['unverified_user_id'] = user.id
+                messages.warning(request, "Please verify your new email address to complete the update.")
+                return redirect('verify_otp')
+
             messages.success(request, 'Profile details updated successfully.')
             return redirect('profile')
     else:
@@ -388,7 +467,77 @@ def delete_account(request):
             messages.success(request, "Your account has been permanently deleted.")
             return redirect('home')
         else:
-            messages.error(request, "Incorrect password. Account deletion cancelled.")
+            messages.error(request, "Incorrect password. Account deletion failed.")
             return redirect('profile')
             
     return redirect('profile')
+
+@login_required
+def admin_subscription_settings(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+        
+    from hospitals.models import SubscriptionPlanConfig
+    
+    if request.method == "POST":
+        plan_type = request.POST.get('plan_type')
+        if plan_type:
+            plan = SubscriptionPlanConfig.objects.filter(plan_type=plan_type).first()
+            if plan:
+                try:
+                    plan.price = float(request.POST.get('price', plan.price))
+                    plan.max_packages = int(request.POST.get('max_packages', plan.max_packages))
+                    plan.commission_free_leads = int(request.POST.get('commission_free_leads', plan.commission_free_leads))
+                    plan.ranking_bonus = int(request.POST.get('ranking_bonus', plan.ranking_bonus))
+                    plan.display_title = request.POST.get('display_title', plan.display_title)
+                    plan.description = request.POST.get('description', plan.description)
+                    plan.save()
+                    messages.success(request, f"{plan.get_plan_type_display()} settings updated successfully.")
+                except ValueError:
+                    messages.error(request, "Invalid numeric values provided.")
+                    
+        return redirect('admin_subscription_settings')
+        
+    plans = SubscriptionPlanConfig.objects.all().order_by('price')
+    return render(request, "admin_subscription_settings.html", {"plans": plans})
+
+def verify_otp(request):
+    user_id = request.session.get('unverified_user_id')
+    if not user_id:
+        return redirect('login')
+        
+    from .models import User, OTPVerification
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        code = request.POST.get('otp_code', '').strip()
+        otp_record = OTPVerification.objects.filter(user=user).first()
+        
+        if otp_record and otp_record.otp_code == code:
+            # Success
+            if otp_record.unverified_email:
+                user.email = otp_record.unverified_email
+                user.is_email_verified = True
+                user.save(update_fields=['email', 'is_email_verified'])
+                messages.success(request, "Your email address has been successfully updated!")
+            else:
+                user.is_email_verified = True
+                user.save(update_fields=['is_email_verified'])
+                messages.success(request, "Your account has been successfully verified!")
+                
+            otp_record.delete()
+            if 'unverified_user_id' in request.session:
+                del request.session['unverified_user_id']
+            
+            login(request, user)
+            
+            if user.role == 'HOSPITAL':
+                return redirect("hospital_dashboard")
+            elif user.role in ['ADMIN', 'COORDINATOR']:
+                return redirect("admin_dashboard")
+            else:
+                return redirect("patient_dashboard")
+        else:
+            messages.error(request, "Invalid verification code.")
+            
+    return render(request, "verify_otp.html", {"unverified_user": user})

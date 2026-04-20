@@ -106,9 +106,9 @@
                         {% endif %}
                         
                         <div class="mb-6">
-                            <h3 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Premium Tier</h3>
+                            <h3 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">{{ plan_data.PREMIUM.display_title|default:"Premium Tier" }}</h3>
                             <div class="mt-2 flex items-baseline gap-1">
-                                <span class="text-4xl font-black text-slate-900">$199</span>
+                                <span class="text-4xl font-black text-slate-900">${{ plan_data.PREMIUM.price|floatformat:"0"|default:"199" }}</span>
                                 <span class="text-sm font-bold text-slate-400">/mo</span>
                             </div>
                         </div>
@@ -120,7 +120,7 @@
                             </div>
                             <div class="flex items-start gap-3">
                                 <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span class="text-sm text-slate-600 font-medium">Up to 25 Active Treatment Packages</span>
+                                <span class="text-sm text-slate-600 font-medium">Up to {{ plan_data.PREMIUM.max_packages|default:"25" }} Active Treatment Packages</span>
                             </div>
                             <div class="flex items-start gap-3">
                                 <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -137,6 +137,17 @@
                                 Upgrade to Premium
                             {% endif %}
                         </button>
+                        {% if request.user.hospital.subscription_plan == 'PREMIUM' %}
+                            <div class="mt-4 text-center">
+                                <form action="{% url 'hospital_billing' %}upgrade/BASIC/" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="auto_renew" value="">
+                                    <button type="submit" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest underline transition-colors" onclick="return confirm('Are you sure you want to cancel your Premium features? Your account will instantly resort to the Basic plan.');">
+                                        Downgrade to Basic
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- ELITE Card -->
@@ -152,9 +163,9 @@
                         {% endif %}
                         
                         <div class="mb-6">
-                            <h3 class="text-xl font-bold text-amber-300" style="font-family: 'Outfit', sans-serif;">Elite Executive</h3>
+                            <h3 class="text-xl font-bold text-amber-300" style="font-family: 'Outfit', sans-serif;">{{ plan_data.ELITE.display_title|default:"Elite Executive" }}</h3>
                             <div class="mt-2 flex items-baseline gap-1">
-                                <span class="text-4xl font-black text-white">$499</span>
+                                <span class="text-4xl font-black text-white">${{ plan_data.ELITE.price|floatformat:"0"|default:"499" }}</span>
                                 <span class="text-sm font-bold text-indigo-300">/mo</span>
                             </div>
                         </div>
@@ -174,13 +185,24 @@
                             </div>
                             <div class="flex items-start gap-3">
                                 <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span class="text-sm text-indigo-100 font-medium">0% commission on the first 5 leads/mo</span>
+                                <span class="text-sm text-indigo-100 font-medium">0% commission on the first {{ plan_data.ELITE.commission_free_leads|default:"5" }} leads/mo</span>
                             </div>
                         </div>
                         
                         <button {% if request.user.hospital.subscription_plan != 'ELITE' %}@click="selectedPlan = 'ELITE'; upgradeModalOpen = true"{% endif %} class="w-full text-center font-bold py-3.5 px-6 rounded-xl transition-all outline-none {% if request.user.hospital.subscription_plan == 'ELITE' %}bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none{% else %}bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 hover:from-amber-300 hover:to-orange-300 shadow-[0_4px_15px_rgba(251,191,36,0.3)] hover:shadow-[0_6px_25px_rgba(251,191,36,0.5)]{% endif %}">
                             {% if request.user.hospital.subscription_plan == 'ELITE' %}Current Selection{% else %}Upgrade to Elite{% endif %}
                         </button>
+                        {% if request.user.hospital.subscription_plan == 'ELITE' %}
+                            <div class="mt-4 text-center">
+                                <form action="{% url 'hospital_billing' %}upgrade/BASIC/" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="auto_renew" value="">
+                                    <button type="submit" class="text-[11px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest underline transition-colors" onclick="return confirm('Are you sure you want to cancel your Elite features? Your account will instantly resort to the Basic plan.');">
+                                        Downgrade to Basic
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
 
                 </div>

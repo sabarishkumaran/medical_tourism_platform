@@ -7,6 +7,7 @@ urlpatterns = [
 
 
     path('register/', views.register, name="register"),
+    path('verify-email/', views.verify_otp, name="verify_otp"),
     path('login/', views.user_login, name="login"),
     path('logout/', views.user_logout, name="logout"),
     path('profile/', views.profile_view, name='profile'),
@@ -20,7 +21,7 @@ urlpatterns = [
     path('admin/revenue/subscriptions/', views.admin_revenue_subscriptions, name="admin_revenue_subscriptions"),
     path('admin/revenue/leads/', views.admin_revenue_leads, name="admin_revenue_leads"),
     path('admin/revenue/services/', views.admin_revenue_services, name="admin_revenue_services"),
-
+    path('admin/settings/subscriptions/', views.admin_subscription_settings, name="admin_subscription_settings"),
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name="password_change.html"), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name='password_change_done'),
 

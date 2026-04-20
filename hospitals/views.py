@@ -326,15 +326,14 @@ def add_doctor(request):
 def add_treatment_package(request):
     hospital = request.user.hospital
     
-    # Enforce package limits
+    # Enforce dynamic package limits
     current_count = TreatmentPackage.objects.filter(hospital=hospital).count()
-    if hospital.subscription_plan == 'BASIC' and current_count >= 5:
+    from hospitals.models import SubscriptionPlanConfig
+    plan_config = SubscriptionPlanConfig.objects.filter(plan_type=hospital.subscription_plan).first()
+    
+    if plan_config and plan_config.max_packages != -1 and current_count >= plan_config.max_packages:
         from django.contrib import messages
-        messages.error(request, "Basic plan allows up to 5 packages. Please upgrade to Premium or Elite to add more.")
-        return redirect('hospital_billing')
-    elif hospital.subscription_plan == 'PREMIUM' and current_count >= 25:
-        from django.contrib import messages
-        messages.error(request, "Premium plan allows up to 25 packages. Please upgrade to Elite to add unlimited packages.")
+        messages.error(request, f"Your {plan_config.display_title} plan allows up to {plan_config.max_packages} packages. Please upgrade to add more.")
         return redirect('hospital_billing')
 
     if request.method == "POST":
@@ -493,9 +492,15 @@ def manage_inquiries(request):
 def hospital_billing(request):
     hospital = request.user.hospital
     transactions = hospital.wallet_transactions.all()[:50]
+    
+    from hospitals.models import SubscriptionPlanConfig
+    plans = SubscriptionPlanConfig.objects.all().order_by('price')
+    plan_data = { p.plan_type: p for p in plans }
+    
     return render(request, "hospital_billing.html", {
         "hospital": hospital,
-        "transactions": transactions
+        "transactions": transactions,
+        "plan_data": plan_data
     })
 
 @hospital_required
