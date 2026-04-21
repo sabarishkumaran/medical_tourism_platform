@@ -1,7 +1,19 @@
 from django import forms
 from .models import User
 
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, PasswordChangeForm
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        old_password = cleaned_data.get('old_password')
+        new_password1 = cleaned_data.get('new_password1')
+        
+        if old_password and new_password1 and old_password == new_password1:
+            raise forms.ValidationError(
+                "New password cannot be the same as your current password."
+            )
+        return cleaned_data
 
 class CustomPasswordResetForm(PasswordResetForm):
     def clean_email(self):

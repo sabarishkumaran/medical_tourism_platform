@@ -523,8 +523,28 @@
   </script>
 
   <main class="flex-1 w-full bg-slate-50 relative">
-    {% if messages %}
-    <div class="fixed top-24 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+    {% if messages or request.GET.account_deleted %}
+    <div class="fixed top-24 right-4 z-50 flex flex-col gap-2 pointer-events-none" x-data="{ forcedShow: new URLSearchParams(window.location.search).has('account_deleted') }">
+      {% if request.GET.account_deleted %}
+      <div
+        class="bg-white border-l-4 border-rose-500 shadow-xl rounded-lg p-4 animate-fade-up flex items-start gap-3 w-80 relative pointer-events-auto"
+        x-show="forcedShow" x-init="setTimeout(() => forcedShow = false, 8000)">
+        <div class="text-rose-500 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-slate-800">Account successfully deleted. We're sorry to see you go.</p>
+        </div>
+        <button @click="forcedShow = false" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      {% endif %}
+
       {% for message in messages %}
       <div
         class="bg-white border-l-4 border-sky-500 shadow-xl rounded-lg p-4 animate-fade-up flex items-start gap-3 w-80 relative pointer-events-auto"

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .forms import CustomPasswordResetForm
+from .forms import CustomPasswordResetForm, CustomPasswordChangeForm
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -27,7 +27,11 @@ urlpatterns = [
     path('admin/revenue/leads/', views.admin_revenue_leads, name="admin_revenue_leads"),
     path('admin/revenue/services/', views.admin_revenue_services, name="admin_revenue_services"),
     path('admin/settings/subscriptions/', views.admin_subscription_settings, name="admin_subscription_settings"),
-    path('password_change/', auth_views.PasswordChangeView.as_view(template_name="password_change.html"), name='password_change'),
+    path('password_change/', auth_views.PasswordChangeView.as_view(
+        template_name="password_change.html",
+        form_class=CustomPasswordChangeForm
+    ), name='password_change'),
+    path('password-change-ajax/', views.ajax_password_change, name='password_change_ajax'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name='password_change_done'),
 
     # Password Reset

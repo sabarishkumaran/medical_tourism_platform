@@ -1,7 +1,7 @@
 from hospitals.models import Hospital
 from inquiries.models import Inquiry
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
 from .forms import ProfileForm, RegisterForm, StaffCreationForm
 from .models import User
@@ -420,7 +420,7 @@ def profile_view(request):
                 # Map field names to user-friendly labels (generic approach)
                 errors = {}
                 for field, field_errors in form.errors.items():
-                    label = field.replace('_', ' ').title()
+                    label = field if field == '__all__' else field.replace('_', ' ').title()
                     errors[label] = list(field_errors)
                 return JsonResponse({'success': False, 'errors': errors}, status=400)
     else:
@@ -476,15 +476,21 @@ def delete_account(request):
         user = request.user
         
         if not password:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': 'Please enter your password to confirm deletion.'}, status=400)
             messages.error(request, "Please enter your password to confirm deletion.")
             return redirect('profile')
             
         if user.check_password(password):
             logout(request)
             user.delete()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'redirect': reverse('home')})
             messages.success(request, "Your account has been permanently deleted.")
             return redirect('home')
         else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': 'Incorrect password. Account deletion failed.'}, status=400)
             messages.error(request, "Incorrect password. Account deletion failed.")
             return redirect('profile')
             
@@ -689,3 +695,20 @@ def verify_profile_otp(request):
             return JsonResponse({'success': False, 'message': 'Invalid verification code.'})
             
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+@login_required
+def ajax_password_change(request):
+    if request.method == "POST" and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from .forms import CustomPasswordChangeForm
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return JsonResponse({'success': True, 'message': 'Password changed successfully.'})
+        else:
+            errors = {}
+            for field, field_errors in form.errors.items():
+                label = field if field == '__all__' else field.replace('_', ' ').title()
+                errors[label] = list(field_errors)
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
+    return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=405)
