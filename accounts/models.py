@@ -37,3 +37,15 @@ class PatientProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+import uuid
+
+class StaffInvitation(models.Model):
+    email = models.EmailField()
+    role = models.CharField(max_length=20, choices=User.ROLE_CHOICES)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Invitation for {self.email} ({self.role})"

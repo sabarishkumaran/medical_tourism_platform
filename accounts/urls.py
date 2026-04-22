@@ -19,6 +19,7 @@ urlpatterns = [
     path('delete-account/', views.delete_account, name='delete_account'),
     path('dashboard/', views.patient_dashboard, name="patient_dashboard"),
     path('staff/manage/', views.manage_staff, name="manage_staff"),
+    path('staff/accept-invite/<uuid:token>/', views.staff_accept_invite, name="staff_accept_invite"),
     path('admin/dashboard/', views.admin_dashboard, name="admin_dashboard"),
     path('admin/patients/', views.admin_patients, name="admin_patients"),
     path('admin/patients/<int:user_id>/', views.patient_detail, name="patient_detail"),

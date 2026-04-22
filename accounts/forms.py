@@ -85,14 +85,14 @@ class RegisterForm(UserCreationForm):
         return cleaned_data
 
 
-class StaffCreationForm(UserCreationForm):
+class StaffInvitationForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ["first_name", "last_name", "username", "email", "role"]
-
+        from .models import StaffInvitation
+        model = StaffInvitation
+        fields = ['email', 'role']
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Limit choices to staff roles
         self.fields['role'].choices = [
             ('ADMIN', 'Admin'),
             ('COORDINATOR', 'Coordinator'),
@@ -100,6 +100,20 @@ class StaffCreationForm(UserCreationForm):
         for field in self.fields.values():
             field.widget.attrs.update({
                 "class": "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:bg-white focus:border-sky-500 outline-none"
+            })
+
+class StaffSignupForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "username"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                "class": "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             })
     
 

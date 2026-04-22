@@ -26,33 +26,58 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
             
             <!-- Add New Staff Form -->
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-1" x-data="{
+                showErrorModal: false, 
+                formErrors: {}, 
+                isSubmitting: false,
+                isSuccess: false,
+                successMessage: '',
+                
+                async submitForm(e) { 
+                    this.isSubmitting = true; 
+                    const formElement = e.target; 
+                    const formData = new FormData(formElement); 
+                    try { 
+                        const response = await fetch(formElement.action, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); 
+                        const data = await response.json(); 
+                        if (data.success) { 
+                            this.isSuccess = true;
+                            this.successMessage = data.message;
+                            formElement.reset();
+                            setTimeout(() => { this.isSuccess = false; }, 5000);
+                        } else { 
+                            this.formErrors = data.errors || {}; 
+                            this.showErrorModal = true; 
+                        } 
+                    } catch (error) { 
+                        console.error('Form submission error:', error); 
+                        this.formErrors = { 'System Error': ['An unexpected error occurred.'] };
+                        this.showErrorModal = true; 
+                    } finally { 
+                        this.isSubmitting = false; 
+                    } 
+                } 
+            }">
                 <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden sticky top-28">
                     <div class="bg-slate-900 p-8 text-white relative overflow-hidden">
                         <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-sky-500/20 rounded-full blur-2xl"></div>
-                        <h2 class="text-xl font-bold relative z-10" style="font-family: 'Outfit', sans-serif;">Add New Member</h2>
-                        <p class="text-indigo-200 text-xs mt-1 relative z-10">Onboard a new Admin or Coordinator.</p>
+                        <h2 class="text-xl font-bold relative z-10" style="font-family: 'Outfit', sans-serif;">Invite New Member</h2>
+                        <p class="text-indigo-200 text-xs mt-1 relative z-10">Send an invitation link to a new Admin or Coordinator.</p>
                     </div>
                     
                     <div class="p-8">
-                        <form hx-post="{% url 'manage_staff' %}" hx-target="#staff-list-container" hx-swap="innerHTML" hx-on::after-request="if(event.detail.successful) this.reset()" class="space-y-5">
+                        <div x-show="isSuccess" x-transition style="display: none;" class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl p-4 flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm">Invitation Sent</h3>
+                                <p class="text-xs text-emerald-600 mt-1" x-text="successMessage"></p>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="submitForm($event)" action="{% url 'manage_staff' %}" class="space-y-5">
                             {% csrf_token %}
-                            <!-- Form fields ... -->
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="group">
-                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">First Name</label>
-                                    {% render_field form.first_name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" placeholder="e.g. Sarah" %}
-                                </div>
-                                <div class="group">
-                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">Last Name</label>
-                                    {% render_field form.last_name class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" placeholder="e.g. Connor" %}
-                                </div>
-                            </div>
-                            
-                            <div class="group">
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">Username</label>
-                                {% render_field form.username class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" %}
-                            </div>
                             
                             <div class="group">
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">Email Address</label>
@@ -63,22 +88,54 @@
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">Assigned Role</label>
                                 {% render_field form.role class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" %}
                             </div>
-
-                            {% for field in form %}
-                                {% if field.name == 'password1' or field.name == 'password2' %}
-                                <div class="group">
-                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-sky-600">{{ field.label }}</label>
-                                    {% render_field field class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 transition-all focus:bg-white focus:border-sky-500 outline-none" %}
-                                </div>
-                                {% endif %}
-                            {% endfor %}
                             
-                            <button type="submit" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-extrabold py-4 px-4 rounded-2xl shadow-lg hover:shadow-sky-500/30 transition-all duration-300 transform hover:-translate-y-1 mt-6 cursor-pointer">
-                                Create Staff Account
+                            <button type="submit" :disabled="isSubmitting" :class="{'opacity-50 cursor-not-allowed': isSubmitting}" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-extrabold py-4 px-4 rounded-2xl shadow-lg hover:shadow-sky-500/30 transition-all duration-300 transform hover:-translate-y-1 mt-6 cursor-pointer">
+                                <span x-show="!isSubmitting">Send Invitation Link</span>
+                                <span x-show="isSubmitting" style="display: none;">Sending...</span>
                             </button>
                         </form>
                     </div>
                 </div>
+
+                <!-- Error Modal Popup -->
+                <template x-teleport="body">
+                    <div x-show="showErrorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" style="display: none;" @click.self="showErrorModal = false">
+                        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-fade-up">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path></svg>
+                                    </div>
+                                    <h2 class="text-2xl font-bold text-slate-900">Registration Error</h2>
+                                </div>
+                                <button @click="showErrorModal = false" class="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0 p-1">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            <div class="mb-8 space-y-3 max-h-96 overflow-y-auto">
+                                <template x-if="Object.keys(formErrors).length > 0">
+                                    <div>
+                                        <template x-for="[label, errors_list] in Object.entries(formErrors)">
+                                            <div>
+                                                <template x-for="error in errors_list">
+                                                    <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                        <p x-show="label !== '__all__'" class="font-bold text-slate-900 text-sm" x-text="label"></p>
+                                                        <p class="text-slate-700 text-sm mt-1" x-text="error"></p>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="flex gap-4">
+                                <button @click="showErrorModal = false" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
             
             <!-- Staff List -->

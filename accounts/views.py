@@ -3,7 +3,7 @@ from inquiries.models import Inquiry
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
-from .forms import ProfileForm, RegisterForm, StaffCreationForm
+from .forms import ProfileForm, RegisterForm
 from .models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
@@ -42,6 +42,12 @@ def manage_staff(request):
         raise PermissionDenied("Administrative access required.")
     
     from django.core.paginator import Paginator
+    from django.core.mail import send_mail
+    from django.conf import settings
+    from django.urls import reverse
+    from .forms import StaffInvitationForm
+    from .models import StaffInvitation
+    
     staff_users_all = User.objects.filter(role__in=['ADMIN', 'COORDINATOR']).order_by('-date_joined')
     
     paginator = Paginator(staff_users_all, 10)
@@ -49,18 +55,58 @@ def manage_staff(request):
     staff_users = paginator.get_page(page_number)
     
     if request.method == "POST":
-        form = StaffCreationForm(request.POST)
+        form = StaffInvitationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            if request.headers.get('HX-Request'):
-                staff_users_all = User.objects.filter(role__in=['ADMIN', 'COORDINATOR']).order_by('-date_joined')
-                paginator = Paginator(staff_users_all, 10)
-                staff_users = paginator.get_page(1)
-                return render(request, "partials/staff_list.html", {"staff_users": staff_users})
-            messages.success(request, f"Staff account for {user.username} created successfully.")
+            email = form.cleaned_data.get('email')
+            if User.objects.filter(email=email).exists():
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': {'email': ['A user with this email already exists.']}})
+                messages.error(request, "A user with this email already exists.")
+                return redirect('manage_staff')
+
+            invitation = form.save()
+            
+            invite_link = request.build_absolute_uri(
+                reverse('staff_accept_invite', kwargs={'token': invitation.token})
+            )
+            subject = "Invitation to join Medical Tourism Platform Team"
+            message = f"You have been invited to join the platform as a {invitation.get_role_display()}.\n\nPlease click the following link to set up your account. This link is valid for 12 hours:\n{invite_link}"
+            
+            html_message = render_to_string('staff_invite_email_html.html', {
+                'invite_link': invite_link,
+                'role': invitation.get_role_display()
+            })
+            
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+            except Exception as e:
+                invitation.delete()
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': {'__all__': [f"Failed to send email: {str(e)}"]}})
+                messages.error(request, f"Failed to send email: {str(e)}")
+                return redirect('manage_staff')
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': f"Invitation sent successfully to {email}."})
+                
+            messages.success(request, f"Invitation sent successfully to {email}.")
             return redirect('manage_staff')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    label = field if field == '__all__' else field.replace('_', ' ').title()
+                    errors[label] = list(field_errors)
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
     else:
-        form = StaffCreationForm()
+        form = StaffInvitationForm()
         
     if request.headers.get('HX-Request'):
         return render(request, "partials/staff_list.html", {"staff_users": staff_users})
@@ -712,3 +758,48 @@ def ajax_password_change(request):
                 errors[label] = list(field_errors)
             return JsonResponse({'success': False, 'errors': errors}, status=400)
     return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=405)
+
+from django.utils import timezone
+from datetime import timedelta
+from django.contrib.auth import login
+from .forms import StaffSignupForm
+
+def staff_accept_invite(request, token):
+    from .models import StaffInvitation
+    try:
+        invitation = StaffInvitation.objects.get(token=token)
+    except StaffInvitation.DoesNotExist:
+        messages.error(request, "Invalid invitation link.")
+        return redirect('login')
+
+    if invitation.is_used:
+        messages.error(request, "This invitation link has already been used.")
+        return redirect('login')
+        
+    if timezone.now() > invitation.created_at + timedelta(hours=12):
+        messages.error(request, "This invitation link has expired.")
+        return redirect('login')
+
+    if request.method == "POST":
+        form = StaffSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.email = invitation.email
+            user.role = invitation.role
+            user.is_email_verified = True
+            user.save()
+            
+            invitation.is_used = True
+            invitation.save()
+            
+            login(request, user)
+            messages.success(request, "Account created successfully. Welcome to the team!")
+            return redirect('admin_dashboard')
+    else:
+        form = StaffSignupForm()
+        
+    return render(request, 'staff_invite_signup.html', {
+        'form': form,
+        'email': invitation.email,
+        'role': invitation.get_role_display()
+    })
