@@ -2,35 +2,66 @@
 
 {% block content %}
 <!-- Page Header -->
-<div class="bg-gradient-to-r from-sky-900 to-indigo-900 rounded-3xl p-10 md:p-16 text-center text-white mb-12 shadow-xl relative overflow-hidden animate-fade-up">
-    <div class="absolute inset-0 z-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay"></div>
-    <div class="relative z-10">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-4" style="font-family: 'Outfit', sans-serif;">Explore Treatments</h1>
-        <p class="text-sky-100 text-lg max-w-2xl mx-auto mb-10">Compare global treatment costs, find top accredited hospitals, and request your customized quote.</p>
+<div class="relative bg-slate-900 rounded-3xl overflow-hidden mb-12 shadow-2xl animate-fade-up">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50 mix-blend-overlay" alt="Modern Hospital">
+    </div>
+    
+    <!-- Deep Gradient Overlay for Maximum Text Visibility -->
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/95 z-10"></div>
+    
+    <div class="relative z-20 px-6 py-16 md:py-24 flex flex-col items-center text-center">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-bold tracking-widest text-white uppercase">200+ Accredited Hospitals</span>
+        </div>
         
-        <!-- Search Bar -->
-        <div class="max-w-lg mx-auto flex items-center gap-2 animate-fade-up">
-            <div class="relative flex-1 group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-sky-400 group-focus-within:text-sky-300 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <!-- Headline -->
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight" style="font-family: 'Outfit', sans-serif;">
+            Empowering Your <br class="hidden md:block"/>
+            <span class="text-sky-400">Health Journey</span>
+        </h1>
+        
+        <!-- Subheadline -->
+        <p class="text-white text-lg md:text-2xl max-w-3xl mx-auto mb-12 font-semibold leading-relaxed drop-shadow-md">
+            Discover world-class treatments across top global destinations. Estimate costs instantly and transparently.
+        </p>
+        
+        <!-- Search Bar Container -->
+        <div class="w-full max-w-3xl mx-auto">
+            <div class="bg-white p-2 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 transform transition-all hover:scale-[1.01]">
+                <div class="flex-1 flex items-center px-4 w-full">
+                    <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" name="q" id="search-input" value="{{ query|default:'' }}" 
+                        placeholder="Search for conditions, treatments, or hospitals..." 
+                        hx-get="{% url 'treatments' %}"
+                        hx-target="#treatment-results"
+                        hx-trigger="keyup[key=='Enter']"
+                        hx-include="[name='category'],[name='country'],[name='min_budget'],[name='max_budget'],[name='accreditation'],[name='sort']"
+                        hx-push-url="true"
+                        class="w-full bg-transparent border-none py-3 px-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-0 text-base font-medium">
                 </div>
-                <input type="text" name="q" id="search-input" value="{{ query|default:'' }}" 
-                    placeholder="Search treatments..." 
+                <button type="button" 
                     hx-get="{% url 'treatments' %}"
                     hx-target="#treatment-results"
-                    hx-trigger="keyup[key=='Enter']"
-                    hx-include="[name='category'],[name='country'],[name='min_budget'],[name='max_budget'],[name='accreditation'],[name='sort']"
+                    hx-include="[name='q'],[name='category'],[name='country'],[name='min_budget'],[name='max_budget'],[name='accreditation'],[name='sort']"
                     hx-push-url="true"
-                    class="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl py-2.5 pl-11 pr-4 text-white placeholder:text-sky-200/50 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:bg-white/15 transition-all shadow-lg text-base font-medium">
+                    class="w-full md:w-auto bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold px-8 py-3.5 rounded-xl md:rounded-full transition-all active:scale-95 flex-shrink-0 shadow-md">
+                    Search Now
+                </button>
             </div>
-            <button type="button" 
-                hx-get="{% url 'treatments' %}"
-                hx-target="#treatment-results"
-                hx-include="[name='q'],[name='category'],[name='country'],[name='min_budget'],[name='max_budget'],[name='accreditation'],[name='sort']"
-                hx-push-url="true"
-                class="bg-gradient-to-r from-sky-400 to-indigo-500 hover:from-sky-300 hover:to-indigo-400 text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-lg active:scale-95 text-sm border border-white/20">
-                Search
-            </button>
+            
+            <!-- Quick links
+            <div class="flex flex-wrap items-center justify-center gap-3 mt-6 text-sm">
+                <span class="text-slate-300 font-medium">Popular:</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white cursor-pointer hover:bg-white/20 transition-colors">Dental Implant</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white cursor-pointer hover:bg-white/20 transition-colors">Hair Transplant</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white cursor-pointer hover:bg-white/20 transition-colors">IVF</span>
+            </div> -->
         </div>
     </div>
 </div>
