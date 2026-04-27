@@ -121,10 +121,10 @@
 
             <!-- Budget Slider -->
             <div x-data="{ 
-                minPrice: {{ current_min_budget|default:1000 }}, 
-                maxPrice: {{ current_max_budget|default:50000 }},
-                min: 1000,
-                max: 50000,
+                minPrice: {{ current_min_budget|default:min_possible_price }}, 
+                maxPrice: {{ current_max_budget|default:max_possible_price }},
+                min: {{ min_possible_price }},
+                max: {{ max_possible_price }},
                 step: 100,
                 activeThumb: 'none',
                 get trackStyle() {
@@ -166,8 +166,8 @@
                         [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-sky-600 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none transition-transform active:scale-110">
                 </div>
                 <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-10">
-                    <span>Min $1k</span>
-                    <span>Max $50k+</span>
+                    <span>Min ${% widthratio min_possible_price 1000 1 %}k</span>
+                    <span>Max ${% widthratio max_possible_price 1000 1 %}k+</span>
                 </div>
             </div>
 

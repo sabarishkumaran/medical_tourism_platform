@@ -127,6 +127,14 @@ def treatment_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    from django.db.models import Min, Max
+    price_stats = TreatmentPackage.objects.filter(hospital__status='APPROVED', is_active=True).aggregate(
+        min_p=Min('price'), 
+        max_p=Max('price')
+    )
+    min_possible = price_stats.get('min_p')
+    max_possible = price_stats.get('max_p')
+
     context = {
         "page_obj": page_obj,
         "countries": countries,
@@ -134,12 +142,14 @@ def treatment_list(request):
         "current_category": category,
         "current_country": country,
         "current_budget": budget,
-        "current_min_budget": min_budget or "1000",
-        "current_max_budget": max_budget or "50000",
+        "current_min_budget": min_budget or str(int(min_possible or 1000)),
+        "current_max_budget": max_budget or str(int(max_possible or 50000)),
         "current_accreditation": accreditation,
         "current_sort": sort,
         "query": query,
-        "accreditation_options": Hospital.ACCREDITATION_CHOICES
+        "accreditation_options": Hospital.ACCREDITATION_CHOICES,
+        "min_possible_price": int(min_possible or 1000),
+        "max_possible_price": int(max_possible or 50000)
     }
     
     if request.headers.get('HX-Request'):
