@@ -263,7 +263,7 @@
             {% csrf_token %}
 
             <!-- Profile Header -->
-            <div class="rounded-3xl p-8 mb-8 text-white shadow-lg relative overflow-hidden bg-slate-900">
+            <div class="rounded-3xl p-8 mb-8 text-white shadow-lg relative overflow-hidden bg-slate-900 z-0">
                 <!-- Dynamic Aura Background (Instagram Style) -->
                 <div class="absolute inset-0 z-0 overflow-hidden">
                     <template x-if="!photoPreview && !removed && '{% if user.avatar %}{{ user.avatar }}{% endif %}'">
@@ -280,7 +280,7 @@
 
                 <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
 
-                <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                <div class="relative z-0 flex flex-col md:flex-row items-center gap-6">
                     <!-- Avatar Section (Fixed Box for Absolute Positioning) -->
                     <div class="relative group" style="width: 128px; height: 128px;">
                         <!-- Main Clickable Avatar Area (Force-Square) -->
@@ -364,8 +364,8 @@
                     </div>
 
                     <!-- Identity Details -->
-                    <div class="text-center md:text-left">
-                        <h1 class="text-3xl font-extrabold mb-1" style="font-family: 'Outfit', sans-serif;">
+                    <div class="text-center md:text-left min-w-0 flex-1">
+                        <h1 class="text-3xl font-extrabold mb-1 truncate max-w-[250px] md:max-w-none" style="font-family: 'Outfit', sans-serif;">
                             {% if user.role == 'HOSPITAL' and user.hospital %}
                             {{ user.hospital.name }}
                             {% else %}
@@ -622,7 +622,7 @@
                         x-transition:leave-end="opacity-0"
                         class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"
                         style="display: none;" x-cloak @click.self="passwordModalOpen = false">
-                        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-fade-up relative" @keydown.escape.window="passwordModalOpen = false">
+                        <div class="bg-white bg-opacity-100 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-fade-up relative z-[100000]" @keydown.escape.window="passwordModalOpen = false">
                             <!-- Header -->
                             <div class="px-8 pt-8 pb-6 bg-gradient-to-br from-slate-900 to-indigo-900 text-white relative">
                                 <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -669,16 +669,18 @@
 
                                 <div class="group" x-data="{ showOld: false }">
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Current Password</label>
-                                    <div class="relative w-full">
-                                        <input :type="showOld ? 'text' : 'password'" x-model="oldPassword" placeholder="••••••••"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-5 pr-14 py-4 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+                                    <div style="position: relative; width: 100%;">
+                                        <input :type="showOld ? 'text' : 'password'" x-model="oldPassword" placeholder="••••••••" autocomplete="current-password"
+                                            style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 1rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 1rem; padding-bottom: 1rem; color: rgb(30 41 59); transition: all 0.2s;"
+                                            class="focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
                                         <button type="button" 
                                             @mousedown="showOld = true" 
                                             @mouseup="showOld = false" 
                                             @mouseleave="showOld = false"
                                             @touchstart="showOld = true" 
                                             @touchend="showOld = false"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
+                                            style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); padding: 0.25rem; color: rgb(148 163 184); border: none; background: transparent; cursor: pointer;"
+                                            class="hover:text-sky-600 transition-colors focus:outline-none">
                                             <svg x-show="!showOld" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             <svg x-show="showOld" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.04m4.227-4.227A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-4.29 5.728M4.472 4.472l15.056 15.056M9.88 9.88a3 3 0 104.24 4.24l-4.24-4.24z"/></svg>
                                         </button>
@@ -687,16 +689,18 @@
 
                                 <div class="group" x-data="{ showNew: false }">
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">New Password</label>
-                                    <div class="relative w-full">
-                                        <input :type="showNew ? 'text' : 'password'" x-model="newPassword" placeholder="••••••••"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-5 pr-14 py-4 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+                                    <div style="position: relative; width: 100%;">
+                                        <input :type="showNew ? 'text' : 'password'" x-model="newPassword" placeholder="••••••••" autocomplete="new-password"
+                                            style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 1rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 1rem; padding-bottom: 1rem; color: rgb(30 41 59); transition: all 0.2s;"
+                                            class="focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
                                         <button type="button" 
                                             @mousedown="showNew = true" 
                                             @mouseup="showNew = false" 
                                             @mouseleave="showNew = false"
                                             @touchstart="showNew = true" 
                                             @touchend="showNew = false"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
+                                            style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); padding: 0.25rem; color: rgb(148 163 184); border: none; background: transparent; cursor: pointer;"
+                                            class="hover:text-sky-600 transition-colors focus:outline-none">
                                             <svg x-show="!showNew" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             <svg x-show="showNew" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.04m4.227-4.227A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-4.29 5.728M4.472 4.472l15.056 15.056M9.88 9.88a3 3 0 104.24 4.24l-4.24-4.24z"/></svg>
                                         </button>
@@ -739,16 +743,18 @@
 
                                 <div class="group" x-data="{ showConfirm: false }">
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Confirm New Password</label>
-                                    <div class="relative w-full">
-                                        <input :type="showConfirm ? 'text' : 'password'" x-model="confirmPassword" placeholder="••••••••"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-5 pr-14 py-4 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+                                    <div style="position: relative; width: 100%;">
+                                        <input :type="showConfirm ? 'text' : 'password'" x-model="confirmPassword" placeholder="••••••••" autocomplete="new-password"
+                                            style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 1rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 1rem; padding-bottom: 1rem; color: rgb(30 41 59); transition: all 0.2s;"
+                                            class="focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
                                         <button type="button" 
                                             @mousedown="showConfirm = true" 
                                             @mouseup="showConfirm = false" 
                                             @mouseleave="showConfirm = false"
                                             @touchstart="showConfirm = true" 
                                             @touchend="showConfirm = false"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
+                                            style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); padding: 0.25rem; color: rgb(148 163 184); border: none; background: transparent; cursor: pointer;"
+                                            class="hover:text-sky-600 transition-colors focus:outline-none">
                                             <svg x-show="!showConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             <svg x-show="showConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.04m4.227-4.227A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-4.29 5.728M4.472 4.472l15.056 15.056M9.88 9.88a3 3 0 104.24 4.24l-4.24-4.24z"/></svg>
                                         </button>
@@ -919,12 +925,26 @@
                             </template>
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-2" x-data="{ showDeletePass: false }">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Enter
                                 Current Password</label>
-                            <input type="password" name="confirm_password" x-model="deletePassword" required
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-800 focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all"
-                                placeholder="••••••••">
+                            <div style="position: relative; width: 100%;">
+                                <input :type="showDeletePass ? 'text' : 'password'" name="confirm_password" x-model="deletePassword" required
+                                    style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 0.75rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 1rem; padding-bottom: 1rem; color: rgb(30 41 59); transition: all 0.2s;"
+                                    class="focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none"
+                                    placeholder="••••••••">
+                                <button type="button" 
+                                    @mousedown="showDeletePass = true" 
+                                    @mouseup="showDeletePass = false" 
+                                    @mouseleave="showDeletePass = false"
+                                    @touchstart="showDeletePass = true" 
+                                    @touchend="showDeletePass = false"
+                                    style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); padding: 0.25rem; color: rgb(148 163 184); border: none; background: transparent; cursor: pointer;"
+                                    class="hover:text-rose-500 transition-colors focus:outline-none">
+                                    <svg x-show="!showDeletePass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <svg x-show="showDeletePass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.04m4.227-4.227A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-4.29 5.728M4.472 4.472l15.056 15.056M9.88 9.88a3 3 0 104.24 4.24l-4.24-4.24z"/></svg>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex flex-col gap-3 pt-2">
