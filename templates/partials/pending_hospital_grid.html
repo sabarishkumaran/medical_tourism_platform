@@ -3,15 +3,16 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 stagger-grid">
         {% for hospital in hospitals %}
         <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col" id="hospital-card-{{ hospital.id }}">
-            <div class="px-6 py-4 flex items-center justify-between
-                {% if hospital.status == 'APPROVED' %}bg-gradient-to-r from-emerald-500 to-teal-500
-                {% elif hospital.status == 'SUSPENDED' %}bg-gradient-to-r from-rose-500 to-rose-600
-                {% elif hospital.status == 'REJECTED' %}bg-gradient-to-r from-red-600 to-red-800
-                {% else %}bg-gradient-to-r from-amber-500 to-orange-500{% endif %}">
+            <div class="px-6 py-4 flex items-center justify-between text-white"
+                style="background: 
+                {% if hospital.status|upper == 'APPROVED' %}linear-gradient(to right, rgb(16, 185, 129), rgb(20, 184, 166))
+                {% elif hospital.status|upper == 'SUSPENDED' %}linear-gradient(to right, rgb(244, 63, 94), rgb(225, 29, 72))
+                {% elif hospital.status|upper == 'REJECTED' %}linear-gradient(to right, rgb(220, 38, 38), rgb(153, 27, 27))
+                {% else %}linear-gradient(to right, rgb(245, 158, 11), rgb(249, 115, 22)){% endif %};">
                 <span class="text-white font-bold text-sm uppercase tracking-wider">
-                    {% if hospital.status == 'APPROVED' %}Verified Partner
-                    {% elif hospital.status == 'SUSPENDED' %}Suspended
-                    {% elif hospital.status == 'REJECTED' %}Rejected
+                    {% if hospital.status|upper == 'APPROVED' %}Verified Partner
+                    {% elif hospital.status|upper == 'SUSPENDED' %}Suspended
+                    {% elif hospital.status|upper == 'REJECTED' %}Rejected
                     {% else %}Pending Review{% endif %}
                 </span>
                 <span class="text-white font-medium text-xs">{{ hospital.created_at|date:"M d, Y" }}</span>
@@ -34,11 +35,11 @@
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <a href="{% if hospital.status == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all text-center text-xs uppercase tracking-widest">
-                        {% if hospital.status == 'APPROVED' %}View Profile{% else %}Review Full Details{% endif %}
+                    <a href="{% if hospital.status|upper == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all text-center text-xs uppercase tracking-widest">
+                        {% if hospital.status|upper == 'APPROVED' %}View Profile{% else %}Review Full Details{% endif %}
                     </a>
                     <div class="flex gap-2">
-                        {% if hospital.status != 'APPROVED' %}
+                        {% if hospital.status|upper != 'APPROVED' %}
                         <form hx-post="{% url 'approve_hospital' hospital.id %}" hx-target="#pending-hospitals-container" hx-swap="outerHTML" class="flex-1">
                             {% csrf_token %}
                             <input type="hidden" name="accreditation" value="JCI"> <!-- Default to JCI for quick approval -->
@@ -48,7 +49,7 @@
                         </form>
                         {% endif %}
                         
-                        {% if hospital.status != 'REJECTED' %}
+                        {% if hospital.status|upper != 'REJECTED' %}
                         <div x-data="{ 
                             showGridReject: false,
                             reason: '', 
@@ -73,7 +74,7 @@
                             }
                         }" class="flex-1">
                             <button @click="showGridReject = true" type="button" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl shadow-md transition-all text-xs uppercase tracking-widest">
-                                {% if hospital.status == 'APPROVED' %}Suspend{% else %}Reject{% endif %}
+                                {% if hospital.status|upper == 'APPROVED' %}Suspend{% else %}Reject{% endif %}
                             </button>
                             
                             <!-- Reject Modal via Teleport to avoid overflow clipping -->
@@ -83,14 +84,14 @@
                                         <div class="bg-rose-50 border-b border-rose-100 p-6 flex justify-between items-center">
                                             <h3 class="text-xl font-bold text-rose-800 flex items-center gap-2" style="font-family: 'Outfit', sans-serif;">
                                                 <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                                {% if hospital.status == 'APPROVED' %}Suspend{% else %}Reject{% endif %} {{ hospital.name }}
+                                                {% if hospital.status|upper == 'APPROVED' %}Suspend{% else %}Reject{% endif %} {{ hospital.name }}
                                             </h3>
                                             <button type="button" @click="showGridReject = false" class="text-rose-400 hover:text-rose-600 bg-white rounded-full p-1 border border-rose-100">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                             </button>
                                         </div>
                                         
-                                        <form action="{% if hospital.status == 'APPROVED' %}{% url 'suspend_hospital' hospital.id %}{% else %}{% url 'reject_hospital' hospital.id %}{% endif %}" method="POST" class="p-6 space-y-6 text-slate-800" @submit.prevent="submitForm($event)">
+                                        <form action="{% if hospital.status|upper == 'APPROVED' %}{% url 'suspend_hospital' hospital.id %}{% else %}{% url 'reject_hospital' hospital.id %}{% endif %}" method="POST" class="p-6 space-y-6 text-slate-800" @submit.prevent="submitForm($event)">
                                             {% csrf_token %}
                                             
                                             <div x-show="showError && charCount < 250" x-cloak style="display: none;" class="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-sm flex items-start gap-3 shadow-sm">
