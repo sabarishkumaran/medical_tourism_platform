@@ -43,13 +43,27 @@ class InquiryForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        from django.utils import timezone
+        
         for field in self.fields.values():
             field.widget.attrs.update({
                 "class": "w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
             })
+            
+        self.fields['travel_date'].widget.attrs.update({
+            "min": timezone.now().date().isoformat()
+        })
 
         if 'hospital' in self.fields:
             self.fields['hospital'].required = True
+
+    def clean_travel_date(self):
+        travel_date = self.cleaned_data.get('travel_date')
+        if travel_date:
+            from django.utils import timezone
+            if travel_date < timezone.now().date():
+                raise forms.ValidationError("Travel date cannot be in the past.")
+        return travel_date
 
 from .models import Quote
 
@@ -78,7 +92,22 @@ class ConfirmedInquiryForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        from django.utils import timezone
+        
         for field in self.fields.values():
             field.widget.attrs.update({
                 "class": "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none font-medium"
             })
+            
+        self.fields['travel_date'].widget.attrs.update({
+            "min": timezone.now().date().isoformat()
+        })
+
+    def clean_travel_date(self):
+        travel_date = self.cleaned_data.get('travel_date')
+        if travel_date:
+            from django.utils import timezone
+            if travel_date < timezone.now().date():
+                raise forms.ValidationError("Travel date cannot be in the past.")
+        return travel_date

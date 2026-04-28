@@ -44,6 +44,8 @@ class Inquiry(models.Model):
     needs_travel_booking = models.BooleanField(default=False)
     needs_concierge = models.BooleanField(default=False)
 
+    treatment_completed = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -482,10 +482,14 @@ def manage_inquiries(request):
     page_number = request.GET.get('page')
     inquiries = paginator.get_page(page_number)
     
+    from django.utils import timezone
+    current_date = timezone.now().date()
+    
     return render(request, "manage_inquiries.html", {
         "hospital": hospital,
         "inquiries": inquiries,
         "current_status": status_filter,
+        "current_date": current_date,
     })
 
 @hospital_required

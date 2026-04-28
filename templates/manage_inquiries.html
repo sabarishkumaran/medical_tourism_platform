@@ -35,45 +35,64 @@
         {% if inquiries %}
             <div class="divide-y divide-slate-100">
                 {% for inquiry in inquiries %}
-                <div class="p-6 hover:bg-slate-50 transition-colors group">
-                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                                {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-lg">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
-                                <p class="text-sm font-semibold text-slate-600 mt-1">{{ inquiry.treatment.name }}</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Submitted on {{ inquiry.created_at|date:"M d, Y" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between md:justify-end md:gap-6 ml-16 md:ml-0 md:pl-0 pl-1">
-                            <div>
-                                {% if inquiry.status == 'NEW' %}
-                                    <span class="bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-amber-200">New Inquiry</span>
-                                {% elif inquiry.status == 'QUOTE_SENT' %}
-                                    <span class="bg-sky-100 text-sky-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-sky-200">Quote Sent</span>
-                                {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
-                                    <span class="bg-indigo-100 text-indigo-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-indigo-200">Payment Pending</span>
-                                {% elif inquiry.status == 'CONFIRMED' %}
-                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-emerald-200">Quote Accepted</span>
-                                {% else %}
-                                    <span class="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full">{{ inquiry.status }}</span>
-                                {% endif %}
+                <div class="relative group border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                    <a href="{% url 'view_inquiry' inquiry.id %}" class="p-6 block w-full h-full">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                                    {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-lg group-hover:text-sky-600 transition-colors">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
+                                    <p class="text-sm font-semibold text-slate-600 mt-1">{{ inquiry.treatment.name }}</p>
+                                    <p class="text-xs text-slate-500 mt-0.5">Submitted on {{ inquiry.created_at|date:"M d, Y" }}</p>
+                                </div>
                             </div>
                             
-                            <div class="flex items-center gap-2">
-                                {% if inquiry.status == 'NEW' %}
-                                    <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-slate-900 hover:bg-sky-600 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-colors shadow-sm whitespace-nowrap">Review & Quote</a>
-                                {% elif inquiry.status == 'QUOTE_SENT' %}
-                                    <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-slate-100 text-slate-600 text-sm font-bold py-2.5 px-5 rounded-xl hover:bg-slate-200 transition-colors shadow-sm whitespace-nowrap">View Quote</a>
-                                {% else %}
-                                    <button class="inline-block bg-slate-50 text-slate-400 text-sm font-bold py-2.5 px-5 rounded-xl cursor-not-allowed">Details locked</button>
-                                {% endif %}
+                            <div class="flex items-center justify-between md:justify-end md:gap-6 ml-16 md:ml-0 md:pl-0 pl-1">
+                                <div>
+                                    {% if inquiry.status == 'NEW' %}
+                                        <span class="bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-amber-200">New Inquiry</span>
+                                    {% elif inquiry.status == 'QUOTE_SENT' %}
+                                        <span class="bg-sky-100 text-sky-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-sky-200">Waiting for Patient</span>
+                                    {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
+                                        <span class="bg-indigo-100 text-indigo-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-indigo-200">Payment Pending</span>
+                                    {% elif inquiry.status == 'CONFIRMED' %}
+                                        <span class="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-emerald-200">Booking Confirmed</span>
+                                    {% elif inquiry.status == 'COMPLETED' %}
+                                        {% if inquiry.treatment_completed %}
+                                            <span class="bg-emerald-50 text-emerald-600 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full border border-emerald-100">Treatment Completed</span>
+                                        {% elif inquiry.travel_date and current_date > inquiry.travel_date %}
+                                            <!-- No status badge, action button will handle it -->
+                                        {% else %}
+                                            <span class="bg-sky-100 text-sky-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full ring-1 ring-sky-200">Awaiting Arrival</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full">{{ inquiry.status|title }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="flex items-center gap-2 relative z-10" onclick="event.stopPropagation()">
+                                    {% if inquiry.status == 'NEW' %}
+                                        <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-slate-900 hover:bg-sky-600 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-colors shadow-sm whitespace-nowrap">Send Quote</a>
+                                    {% elif inquiry.status == 'QUOTE_SENT' %}
+                                        <a href="{% url 'respond_inquiry' inquiry.id %}" class="inline-block bg-white text-slate-600 border border-slate-200 text-sm font-bold py-2.5 px-5 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">View Quote</a>
+                                    {% elif inquiry.status == 'COMPLETED' and not inquiry.treatment_completed %}
+                                        {% if inquiry.travel_date and current_date > inquiry.travel_date %}
+                                        <form method="post" action="{% url 'mark_treatment_completed' inquiry.id %}" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-colors shadow-md whitespace-nowrap">Mark as Completed</button>
+                                        </form>
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    <div class="p-2 text-slate-300 group-hover:text-sky-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>

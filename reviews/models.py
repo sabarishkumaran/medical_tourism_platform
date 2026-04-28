@@ -12,6 +12,8 @@ class Review(models.Model):
     rating = models.IntegerField()
 
     comment = models.TextField()
+    
+    inquiry = models.OneToOneField('inquiries.Inquiry', on_delete=models.CASCADE, null=True, blank=True, related_name='review')
 
     created_at = models.DateTimeField(auto_now_add=True)
 

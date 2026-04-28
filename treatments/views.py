@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Treatment
 from hospitals.models import Hospital
-
+from reviews.models import Review
 
 def home(request):
 
@@ -20,12 +20,16 @@ def home(request):
     
     countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).exclude(user__country__exact="").values_list('user__country', flat=True).distinct()
     categories = Treatment.objects.values_list('category', flat=True).distinct()
+    
+    # Fetch top patient reviews for "Patient Stories"
+    reviews = Review.objects.filter(rating__gte=4).order_by('-created_at')[:10]
 
     context = {
         "treatments": treatments,
         "hospitals": hospitals,
         "countries": countries,
-        "categories": categories
+        "categories": categories,
+        "reviews": reviews
     }
 
     return render(request, "home.html", context)

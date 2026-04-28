@@ -15,4 +15,6 @@ urlpatterns = [
     path('edit-confirmation/<int:inquiry_id>/', views.edit_confirmation, name="edit_confirmation"),
     path('send-payment/<int:inquiry_id>/', views.send_payment_link, name="send_payment_link"),
     path('pay/<int:inquiry_id>/', views.process_payment, name="process_payment"),
+    path('mark-completed/<int:inquiry_id>/', views.mark_treatment_completed, name="mark_treatment_completed"),
+    path('submit-review/<int:inquiry_id>/', views.submit_review, name="submit_review"),
 ]

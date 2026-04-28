@@ -240,10 +240,14 @@ def patient_inquiries(request):
     page_number = request.GET.get('page')
     inquiries = paginator.get_page(page_number)
     
+    from django.utils import timezone
+    current_date = timezone.now().date()
+    
     context = {
         "inquiries": inquiries,
         "filter_display": filter_display,
-        "current_status": status_filter
+        "current_status": status_filter,
+        "current_date": current_date,
     }
     
     if request.headers.get('HX-Request'):
@@ -406,3 +410,79 @@ def process_payment(request, inquiry_id):
     from django.contrib import messages
     messages.success(request, "Payment processed successfully! Your treatment is fully booked.")
     return redirect('view_inquiry', inquiry_id=inquiry.id)
+
+@login_required
+@hospital_required
+def mark_treatment_completed(request, inquiry_id):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+        
+    hospital = request.user.hospital
+    inquiry = get_object_or_404(Inquiry, id=inquiry_id, hospital=hospital)
+    
+    # Must be paid/completed status
+    if inquiry.status != "COMPLETED":
+        from django.contrib import messages
+        messages.error(request, "Cannot mark as completed until payment is settled.")
+        return redirect('hospital_manage_inquiries')
+        
+    from django.utils import timezone
+    if inquiry.travel_date and inquiry.travel_date >= timezone.now().date():
+        from django.contrib import messages
+        messages.error(request, "Cannot mark treatment as completed before the travel date.")
+        return redirect('hospital_manage_inquiries')
+        
+    inquiry.treatment_completed = True
+    inquiry.save()
+    
+    from django.contrib import messages
+    messages.success(request, f"Treatment for {inquiry.patient.get_full_name()} marked as completed.")
+    return redirect('hospital_manage_inquiries')
+
+
+@login_required
+def submit_review(request, inquiry_id):
+    if request.user.role != 'PATIENT':
+        raise PermissionDenied("Only patients can submit reviews.")
+        
+    inquiry = get_object_or_404(Inquiry, id=inquiry_id, patient=request.user)
+    
+    if not inquiry.treatment_completed:
+        raise PermissionDenied("Cannot review until treatment is marked as completed.")
+        
+    if hasattr(inquiry, 'review') and inquiry.review is not None:
+        from django.contrib import messages
+        messages.error(request, "You have already submitted a review for this treatment.")
+        return redirect('patient_inquiries')
+        
+    if request.method == "POST":
+        rating_str = request.POST.get('rating')
+        comment = request.POST.get('comment', '').strip()
+        
+        try:
+            rating = int(rating_str)
+            if rating < 1 or rating > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            from django.contrib import messages
+            messages.error(request, "Invalid rating submitted.")
+            return redirect('patient_inquiries')
+            
+        from reviews.models import Review
+        Review.objects.create(
+            inquiry=inquiry,
+            hospital=inquiry.hospital,
+            patient=request.user,
+            rating=rating,
+            comment=comment
+        )
+        
+        from django.contrib import messages
+        messages.success(request, "Thank you for your feedback! Your review has been submitted.")
+        
+        if request.headers.get('HX-Request'):
+            return HttpResponse(status=204, headers={'HX-Refresh': 'true'})
+            
+        return redirect('patient_inquiries')
+        
+    return HttpResponse("Method not allowed", status=405)
