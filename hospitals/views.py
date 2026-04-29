@@ -40,6 +40,10 @@ def pending_hospitals(request):
     
     if status_filter == 'ALL':
         hospitals_all = Hospital.objects.all().order_by('-user__date_joined')
+    elif status_filter == 'REINSTATEMENT':
+        hospitals_all = Hospital.objects.filter(status='SUSPENDED', reapproval_requests__status='PENDING').distinct().order_by('-user__date_joined')
+    elif status_filter == 'SUSPENDED':
+        hospitals_all = Hospital.objects.filter(status='SUSPENDED').exclude(reapproval_requests__status='PENDING').distinct().order_by('-user__date_joined')
     else:
         hospitals_all = Hospital.objects.filter(status=status_filter).order_by('-user__date_joined')
         
@@ -48,6 +52,9 @@ def pending_hospitals(request):
     paginator = Paginator(hospitals_all, 10)
     page_number = request.GET.get('page')
     hospitals = paginator.get_page(page_number)
+    
+    for hosp in hospitals:
+        hosp.has_reinstatement = hosp.reapproval_requests.filter(status='PENDING').exists()
     
     if request.headers.get('HX-Request'):
         return render(request, "partials/pending_hospital_grid.html", {"hospitals": hospitals, "status_filter": status_filter})
@@ -91,11 +98,40 @@ def approve_hospital(request, hospital_id):
         return redirect("review_hospital", hospital_id=hospital_id)
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
+    previous_status = hospital.status
 
     accreditation = request.POST.get("accreditation", "")
     hospital.accreditation = accreditation
     hospital.status = "APPROVED"
     hospital.save()
+    
+    # Mark all pending reapproval requests as REVIEWED
+    hospital.reapproval_requests.filter(status='PENDING').update(status='REVIEWED')
+
+    from django.template.loader import render_to_string
+    from django.core.mail import send_mail
+    from django.conf import settings
+    from django.urls import reverse
+    
+    is_reinstatement = previous_status in ('SUSPENDED', 'REJECTED')
+    login_link = request.build_absolute_uri(reverse('login'))
+    html_message = render_to_string('hospital_approved_email_html.html', {
+        'hospital': hospital,
+        'login_link': login_link,
+        'is_reinstatement': is_reinstatement,
+    })
+    
+    email_subject = "MedTour Account Reinstated!" if is_reinstatement else "MedTour Application Approved!"
+    email_body = f"Your account for {hospital.name} has been successfully reinstated." if is_reinstatement else f"Congratulations! Your application for {hospital.name} has been approved."
+    
+    send_mail(
+        email_subject,
+        email_body,
+        settings.DEFAULT_FROM_EMAIL,
+        [hospital.user.email],
+        html_message=html_message,
+        fail_silently=True
+    )
 
     if request.headers.get('HX-Request'):
         from django.core.paginator import Paginator
@@ -136,6 +172,23 @@ def reject_hospital(request, hospital_id):
     hospital.status = "REJECTED"
     hospital.suspension_reason = reason
     hospital.save()
+
+    from django.template.loader import render_to_string
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    html_message = render_to_string('hospital_rejected_email_html.html', {
+        'hospital': hospital,
+        'reason': reason,
+    })
+    send_mail(
+        "MedTour Application Update",
+        f"Your application for {hospital.name} has been rejected.",
+        settings.DEFAULT_FROM_EMAIL,
+        [hospital.user.email],
+        html_message=html_message,
+        fail_silently=True
+    )
 
     messages.success(request, f'{hospital.name} has been rejected.')
 
@@ -182,6 +235,26 @@ def suspend_hospital(request, hospital_id):
     hospital.status = 'SUSPENDED'
     hospital.suspension_reason = reason
     hospital.save()
+    
+    # Mark existing requests as REVIEWED on new suspension
+    hospital.reapproval_requests.filter(status='PENDING').update(status='REVIEWED')
+
+    from django.template.loader import render_to_string
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    html_message = render_to_string('hospital_suspended_email_html.html', {
+        'hospital': hospital,
+        'reason': reason,
+    })
+    send_mail(
+        "MedTour Account Status Update",
+        f"Your account for {hospital.name} has been suspended.",
+        settings.DEFAULT_FROM_EMAIL,
+        [hospital.user.email],
+        html_message=html_message,
+        fail_silently=True
+    )
 
     messages.success(request, f'{hospital.name} has been suspended.')
     
@@ -206,11 +279,103 @@ def submit_reapproval(request):
                 comment=comment,
                 document=document,
             )
+            
+            # Send Notification to Admins and Coordinators
+            from django.db.models import Q
+            from django.core.mail import send_mail
+            from accounts.models import User
+            from django.conf import settings
+            from django.urls import reverse
+            from django.template.loader import render_to_string
+            
+            admin_emails = list(User.objects.filter(Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)).values_list('email', flat=True))
+            if admin_emails:
+                admin_subject = f"Reapproval Request Submitted by {hospital.name}"
+                review_link = request.build_absolute_uri(reverse('pending_hospitals'))
+                html_message = render_to_string('admin_hospital_signup_email_html.html', {
+                    'hospital': hospital,
+                    'review_link': review_link,
+                    'is_reapproval': True,
+                })
+                send_mail(
+                    admin_subject, 
+                    f"The hospital {hospital.name} has addressed its suspension items and requested reinstation.", 
+                    settings.DEFAULT_FROM_EMAIL, 
+                    admin_emails, 
+                    html_message=html_message, 
+                    fail_silently=True
+                )
+            
             messages.success(request, 'Your reapproval request has been submitted. Our team will review it shortly.')
         else:
             messages.error(request, 'Please provide a comment explaining the changes you have made.')
     return redirect('hospital_dashboard')
 
+
+@login_required
+def notify_admin_aged_approval(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+        
+    if request.user.role != 'HOSPITAL':
+        raise PermissionDenied
+        
+    hospital = request.user.hospital
+    if hospital.status != 'PENDING':
+        from django.contrib import messages
+        messages.error(request, "You do not have a pending application.")
+        return redirect('hospital_dashboard')
+        
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    is_aged = hospital.user.date_joined < (timezone.now() - timedelta(days=3))
+    can_notify = True
+    if hospital.last_admin_notification_date:
+        can_notify = hospital.last_admin_notification_date < (timezone.now() - timedelta(days=1))
+        
+    if not is_aged:
+        from django.contrib import messages
+        messages.error(request, "Your application was submitted recently. Please wait for the initial review period.")
+        return redirect('hospital_dashboard')
+        
+    if not can_notify:
+        from django.contrib import messages
+        messages.error(request, "You have already notified the admin today. Please wait for their response.")
+        return redirect('hospital_dashboard')
+        
+    # Send Notification
+    from django.db.models import Q
+    from django.core.mail import send_mail
+    from accounts.models import User
+    from django.conf import settings
+    from django.urls import reverse
+    from django.template.loader import render_to_string
+    
+    admin_emails = list(User.objects.filter(Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)).values_list('email', flat=True))
+    if admin_emails:
+        admin_subject = f"Urgent: Aged Approval Escalation for {hospital.name}"
+        review_link = request.build_absolute_uri(reverse('pending_hospitals'))
+        html_message = render_to_string('admin_hospital_signup_email_html.html', {
+            'hospital': hospital,
+            'review_link': review_link,
+            'is_escalation': True,
+        })
+        send_mail(
+            admin_subject, 
+            f"The hospital {hospital.name} has escalated their application as it has been pending for more than 3 days.", 
+            settings.DEFAULT_FROM_EMAIL, 
+            admin_emails, 
+            html_message=html_message, 
+            fail_silently=True
+        )
+        
+    hospital.last_admin_notification_date = timezone.now()
+    hospital.save(update_fields=['last_admin_notification_date'])
+    
+    from django.contrib import messages
+    messages.success(request, "Administrators have been notified of your pending application.")
+    return redirect('hospital_dashboard')
 
 @hospital_required
 def hospital_dashboard(request):
@@ -220,10 +385,20 @@ def hospital_dashboard(request):
     if hospital.status != 'APPROVED':
         reapproval_requests = hospital.reapproval_requests.all()
         has_pending_request = reapproval_requests.filter(status='PENDING').exists()
+        
+        from django.utils import timezone
+        from datetime import timedelta
+        is_aged = hospital.user.date_joined < (timezone.now() - timedelta(days=3))
+        can_notify = True
+        if hospital.last_admin_notification_date:
+            can_notify = hospital.last_admin_notification_date < (timezone.now() - timedelta(days=1))
+            
         return render(request, "hospital_pending_approval.html", {
             "hospital": hospital,
             "reapproval_requests": reapproval_requests,
             "has_pending_request": has_pending_request,
+            "is_aged": is_aged,
+            "can_notify": can_notify,
         })
     doctors = Doctor.objects.filter(hospital=hospital)
     packages = TreatmentPackage.objects.filter(hospital=hospital).order_by('-id')[:3]

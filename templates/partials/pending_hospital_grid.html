@@ -11,7 +11,8 @@
                 {% else %}linear-gradient(to right, rgb(245, 158, 11), rgb(249, 115, 22)){% endif %};">
                 <span class="text-white font-bold text-sm uppercase tracking-wider">
                     {% if hospital.status|upper == 'APPROVED' %}Verified Partner
-                    {% elif hospital.status|upper == 'SUSPENDED' %}Suspended
+                    {% elif hospital.status|upper == 'SUSPENDED' %}
+                        {% if hospital.has_reinstatement %}Suspended - Reinstated{% else %}Suspended{% endif %}
                     {% elif hospital.status|upper == 'REJECTED' %}Rejected
                     {% else %}Pending Review{% endif %}
                 </span>

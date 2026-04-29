@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto px-4 md:px-8 py-10">
-    <div class="h-[60vh] flex items-center justify-center p-4 animate-fade-up">
+<div class="container mx-auto px-4 md:px-8 pt-28 pb-10">
+    <div class="min-h-[60vh] flex items-center justify-center p-4 animate-fade-up">
         
         <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 p-8 md:p-12 text-center max-w-2xl w-full">
             
@@ -13,11 +13,37 @@
                     </svg>
                 </div>
                 <h1 class="text-3xl font-extrabold text-slate-800 mb-4" style="font-family: 'Outfit', sans-serif;">Approval in Progress</h1>
-                <p class="text-slate-600 text-lg mb-8">
+                <p class="text-slate-600 text-lg mb-6">
                     Your hospital application is currently under review by our administration team. 
                     <br><br>
                     <strong>Please check after some time.</strong> We will notify you once your account is fully verified.
                 </p>
+                
+                {% if is_aged %}
+                    <div class="mt-2 mb-8 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-left flex items-center justify-between gap-4 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-amber-100/50 rounded-xl flex items-center justify-center flex-shrink-0 text-amber-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-700">Approval taking longer than expected?</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Notify our support team to prioritize your verification.</p>
+                            </div>
+                        </div>
+                        {% if can_notify %}
+                            <form action="{% url 'notify_admin_aged_approval' %}" method="POST" class="flex-shrink-0">
+                                {% csrf_token %}
+                                <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-all shadow-sm whitespace-nowrap">
+                                    Notify Admin
+                                </button>
+                            </form>
+                        {% else %}
+                            <button disabled class="flex-shrink-0 px-4 py-2 bg-slate-200 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed whitespace-nowrap" title="You can only notify admins once per day.">
+                                Notified Today
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% elif hospital.status == 'SUSPENDED' %}
                 <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-rose-100">
                     <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

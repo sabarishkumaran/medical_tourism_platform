@@ -70,6 +70,7 @@ class Hospital(models.Model):
     auto_renew = models.BooleanField(default=True)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_featured = models.BooleanField(default=False)
+    last_admin_notification_date = models.DateTimeField(null=True, blank=True)
 
     beds_count = models.IntegerField(default=100)
     international_patients = models.IntegerField(default=1000)

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f8fafc; padding: 40px 0; }
+        .content { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .header { background-color: #0f172a; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .body { padding: 40px 40px 30px; color: #334155; text-align: center; }
+        .body p { font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; color: #475569; }
+        .body h2 { font-size: 22px; font-weight: 600; color: #0f172a; margin: 0 0 20px 0; }
+        .button-container { margin: 30px 0; }
+        .btn { display: inline-block; background-color: #0ea5e9 !important; color: #ffffff !important; text-decoration: none !important; font-size: 16px; font-weight: bold; padding: 16px 32px; border-radius: 12px; transition: background-color 0.3s; }
+        .btn:hover { background-color: #0284c7; }
+        .footer { background-color: #f1f5f9; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer p { font-size: 13px; color: #64748b; margin: 0 0 10px 0; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="content">
+            <div class="header">
+                <h1>MedTour.</h1>
+            </div>
+            
+            <div class="body">
+                {% if is_reinstatement %}
+                    <h2>Account Reinstated!</h2>
+                    <p>Dear {{ hospital.name }} Team,</p>
+                    <p>We are pleased to inform you that your hospital account on the Medical Tourism Platform has been successfully reinstated.</p>
+                    <p>You can now log back in and manage your operations, update medical staff lists, and maintain treatment packages.</p>
+                {% else %}
+                    <h2>Application Approved!</h2>
+                    <p>Dear {{ hospital.name }} Team,</p>
+                    <p>Congratulations! Your application to join the Medical Tourism Platform has been successfully approved.</p>
+                    <p>You can now log in and access all features of the platform, including uploading doctor information and treatment packages.</p>
+                {% endif %}
+                
+                <div class="button-container">
+                    <a href="{{ login_link }}" class="btn">Go to Dashboard</a>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>This is an automated notification from MedTour. Please do not reply to this email.</p>
+                <p>&copy; 2026 Medical Tourism Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

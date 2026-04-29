@@ -37,4 +37,5 @@ urlpatterns = [
     path('reapproval/submit/', views.submit_reapproval, name='submit_reapproval'),
     path('list/', views.hospital_list, name="hospital_list"),
 
+    path('notify-admin-aged/', views.notify_admin_aged_approval, name='notify_admin_aged_approval'),
 ]

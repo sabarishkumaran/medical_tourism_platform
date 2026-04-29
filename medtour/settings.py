@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'accounts.middleware.HospitalApprovalMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]

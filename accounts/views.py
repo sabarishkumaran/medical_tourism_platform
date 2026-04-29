@@ -308,7 +308,12 @@ def register(request):
             # Hospital registration logic
             if user.role == 'HOSPITAL':
                 from hospitals.models import Hospital
-                Hospital.objects.create(
+                from django.db.models import Q
+                from django.core.mail import send_mail
+                from django.conf import settings
+                from django.urls import reverse
+                
+                hospital = Hospital.objects.create(
                     user=user,
                     name=form.cleaned_data.get('hospital_name'),
                     city=form.cleaned_data.get('hospital_city'),
@@ -317,6 +322,39 @@ def register(request):
                     established_year=form.cleaned_data.get('hospital_established_year'),
                     certificate=form.cleaned_data.get('hospital_certificate'),
                     status='PENDING'
+                )
+                
+                # Notify admins/superusers
+                admin_emails = list(User.objects.filter(Q(role='ADMIN') | Q(is_superuser=True)).values_list('email', flat=True))
+                if admin_emails:
+                    admin_subject = f"New Hospital Sign-up: {hospital.name}"
+                    review_link = request.build_absolute_uri(reverse('pending_hospitals'))
+                    html_message = render_to_string('admin_hospital_signup_email_html.html', {
+                        'hospital': hospital,
+                        'review_link': review_link,
+                        'is_escalation': False,
+                    })
+                    send_mail(
+                        admin_subject, 
+                        f"A new hospital, {hospital.name}, has signed up on the platform and is awaiting approval.", 
+                        settings.DEFAULT_FROM_EMAIL, 
+                        admin_emails, 
+                        html_message=html_message, 
+                        fail_silently=True
+                    )
+                
+                # Welcome Email to Hospital
+                welcome_subject = "Welcome to MedTour! Application under Review"
+                welcome_html = render_to_string('hospital_welcome_email_html.html', {
+                    'hospital': hospital
+                })
+                send_mail(
+                    welcome_subject, 
+                    f"Welcome to MedTour! Your application for {hospital.name} is currently under review.", 
+                    settings.DEFAULT_FROM_EMAIL, 
+                    [user.email], 
+                    html_message=welcome_html, 
+                    fail_silently=True
                 )
             
             # Clear session
