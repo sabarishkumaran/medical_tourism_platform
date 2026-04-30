@@ -159,13 +159,9 @@
                         </button>
                         {% if request.user.hospital.subscription_plan == 'PREMIUM' %}
                             <div class="mt-4 text-center">
-                                <form action="{% url 'hospital_billing' %}upgrade/BASIC/" method="POST" class="inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="auto_renew" value="">
-                                    <button type="submit" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest underline transition-colors" onclick="return confirm('Are you sure you want to cancel your Premium features? Your account will instantly resort to the Basic plan.');">
-                                        Downgrade to Basic
-                                    </button>
-                                </form>
+                                <button type="button" @click="cancelModalOpen = true" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest underline transition-colors">
+                                    Downgrade to Basic
+                                </button>
                             </div>
                         {% endif %}
                     </div>
@@ -214,13 +210,9 @@
                         </button>
                         {% if request.user.hospital.subscription_plan == 'ELITE' %}
                             <div class="mt-4 text-center">
-                                <form action="{% url 'hospital_billing' %}upgrade/BASIC/" method="POST" class="inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="auto_renew" value="">
-                                    <button type="submit" class="text-[11px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest underline transition-colors" onclick="return confirm('Are you sure you want to cancel your Elite features? Your account will instantly resort to the Basic plan.');">
-                                        Downgrade to Basic
-                                    </button>
-                                </form>
+                                <button type="button" @click="cancelModalOpen = true" class="text-[11px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest underline transition-colors">
+                                    Downgrade to Basic
+                                </button>
                             </div>
                         {% endif %}
                     </div>
@@ -401,7 +393,13 @@
 
                         <!-- Perks Section -->
                         <div class="mt-5 w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">New Perks You'll Unlock:</p>
+                            <template x-if="selectedPlan && planPrices[selectedPlan] < currentPlanPrice">
+                                <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3">Warning: Benefits You'll Lose:</p>
+                            </template>
+                            <template x-if="selectedPlan && planPrices[selectedPlan] >= currentPlanPrice">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">New Perks You'll Unlock:</p>
+                            </template>
+                            
                             <div class="space-y-2">
                                 <template x-if="selectedPlan === 'ELITE'">
                                     <div class="space-y-2">
@@ -410,7 +408,7 @@
                                             Homepage Priority Ranking
                                         </div>
                                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                             Unlimited Treatment Packages
                                         </div>
                                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
@@ -422,16 +420,31 @@
                                 <template x-if="selectedPlan === 'PREMIUM'">
                                     <div class="space-y-2">
                                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                            Expanded Profile Visibility
+                                            <template x-if="planPrices[selectedPlan] < currentPlanPrice">
+                                                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </template>
+                                            <template x-if="planPrices[selectedPlan] >= currentPlanPrice">
+                                                <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            </template>
+                                            <span x-text="planPrices[selectedPlan] < currentPlanPrice ? 'No Homepage Priority' : 'Expanded Profile Visibility'"></span>
                                         </div>
                                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                            25 Treatment Package Slots
+                                            <template x-if="planPrices[selectedPlan] < currentPlanPrice">
+                                                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </template>
+                                            <template x-if="planPrices[selectedPlan] >= currentPlanPrice">
+                                                <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            </template>
+                                            <span x-text="planPrices[selectedPlan] < currentPlanPrice ? 'Limited to 25 Treatment Packages' : '25 Treatment Package Slots'"></span>
                                         </div>
                                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                            Dedicated Coordinator
+                                            <template x-if="planPrices[selectedPlan] < currentPlanPrice">
+                                                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </template>
+                                            <template x-if="planPrices[selectedPlan] >= currentPlanPrice">
+                                                <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            </template>
+                                            <span x-text="planPrices[selectedPlan] < currentPlanPrice ? 'Standard Lead Commission Rates' : 'Dedicated Coordinator'"></span>
                                         </div>
                                     </div>
                                 </template>
