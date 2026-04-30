@@ -205,7 +205,13 @@
                             </div>
                         </div>
                         
-                        <button {% if request.user.hospital.subscription_plan != 'ELITE' %}@click="selectedPlan = 'ELITE'; upgradeModalOpen = true"{% endif %} class="w-full text-center font-bold py-3.5 px-6 rounded-xl transition-all outline-none {% if request.user.hospital.subscription_plan == 'ELITE' %}bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none{% else %}bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 hover:from-amber-300 hover:to-orange-300 shadow-[0_4px_15px_rgba(251,191,36,0.3)] hover:shadow-[0_6px_25px_rgba(251,191,36,0.5)]{% endif %}">
+                        <button {% if request.user.hospital.subscription_plan != 'ELITE' %}@click="selectedPlan = 'ELITE'; upgradeModalOpen = true"{% endif %} 
+                            class="w-full text-center font-bold py-3.5 px-6 rounded-xl transition-all outline-none block
+                            {% if request.user.hospital.subscription_plan == 'ELITE' %}
+                                bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none
+                            {% else %}
+                                bg-amber-400 text-slate-900 hover:bg-amber-300 shadow-lg shadow-amber-400/20 hover:shadow-xl active:scale-[0.98]
+                            {% endif %}">
                             {% if request.user.hospital.subscription_plan == 'ELITE' %}Current Selection{% else %}Upgrade to Elite{% endif %}
                         </button>
                         {% if request.user.hospital.subscription_plan == 'ELITE' %}
@@ -261,7 +267,7 @@
                                 {% if tx.amount > 0 %}
                                     <span class="text-emerald-600 font-black">+${{ tx.amount|floatformat:2 }}</span>
                                 {% else %}
-                                    <span class="text-red-500 font-black">-${{ tx.amount|stringformat:"s"|slice:"1:" }}</span>
+                                    <span class="text-red-500 font-black">-${{ tx.amount|floatformat:2|slice:"1:" }}</span>
                                 {% endif %}
                             </td>
                         </tr>

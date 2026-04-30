@@ -720,17 +720,23 @@ def upgrade_plan(request, plan_choice):
         charge_amount = plan_price
         credit_applied = Decimal('0.00')
         is_upgrade = False
+        is_downgrade = False
         
-        # Proration Logic for Upgrades
+        # Proration Logic
         if hospital.subscription_plan != 'BASIC' and hospital.subscription_end_date and hospital.subscription_end_date > date.today():
             current_config = SubscriptionPlanConfig.objects.filter(plan_type=hospital.subscription_plan).first()
-            if current_config and plan_price > current_config.price:
-                # Calculate unused credit
-                remaining_days = (hospital.subscription_end_date - date.today()).days
-                daily_rate = current_config.price / Decimal('30')
-                credit_applied = (daily_rate * Decimal(str(remaining_days))).quantize(Decimal('0.01'))
-                charge_amount = max(Decimal('0.00'), plan_price - credit_applied)
-                is_upgrade = True
+            if current_config:
+                if plan_price > current_config.price:
+                    # Upgrade: Calculate unused credit and charge difference
+                    remaining_days = (hospital.subscription_end_date - date.today()).days
+                    daily_rate = current_config.price / Decimal('30')
+                    credit_applied = (daily_rate * Decimal(str(remaining_days))).quantize(Decimal('0.01'))
+                    charge_amount = max(Decimal('0.00'), plan_price - credit_applied)
+                    is_upgrade = True
+                elif plan_price < current_config.price and plan_price > 0:
+                    # Downgrade between paid tiers: No immediate charge, keep existing end date
+                    charge_amount = Decimal('0.00')
+                    is_downgrade = True
         
         if plan_price > 0:
             if hospital.wallet_balance < charge_amount:
@@ -744,6 +750,8 @@ def upgrade_plan(request, plan_choice):
             desc = f"Subscription Activation: {plan_choice}"
             if is_upgrade:
                 desc = f"Subscription Upgrade: {plan_choice} (Prorated credit of ${credit_applied} applied)"
+            elif is_downgrade:
+                desc = f"Subscription Downgrade: {plan_choice}"
             
             WalletTransaction.objects.create(
                 hospital=hospital,
@@ -754,7 +762,8 @@ def upgrade_plan(request, plan_choice):
 
         # Update Subscription Status
         hospital.subscription_plan = plan_choice
-        hospital.subscription_end_date = date.today() + relativedelta(months=+1)
+        if not is_downgrade:
+            hospital.subscription_end_date = date.today() + relativedelta(months=+1)
         
         # Determine auto_renew based on the submitted checkbox
         auto_renew_val = request.POST.get('auto_renew')
