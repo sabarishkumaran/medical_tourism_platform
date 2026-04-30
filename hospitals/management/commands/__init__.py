@@ -1,0 +1,1 @@
+# Hospitals management commands package
