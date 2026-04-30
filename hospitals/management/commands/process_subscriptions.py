@@ -74,7 +74,8 @@ class Command(BaseCommand):
                 'success': True,
                 'plan_name': kwargs.get('plan_name'),
                 'price': kwargs.get('price'),
-                'next_billing': hospital.subscription_end_date
+                'next_billing': hospital.subscription_end_date,
+                'login_link': f"{settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost'}"
             }
         else:
             subject = "MedTour Subscription Downgraded"
@@ -83,7 +84,8 @@ class Command(BaseCommand):
                 'hospital': hospital,
                 'success': False,
                 'reason': kwargs.get('reason'),
-                'old_plan': kwargs.get('old_plan')
+                'old_plan': kwargs.get('old_plan'),
+                'login_link': f"{settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost'}"
             }
 
         html_message = render_to_string(template, context)

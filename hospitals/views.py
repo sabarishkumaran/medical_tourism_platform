@@ -288,7 +288,9 @@ def submit_reapproval(request):
             from django.urls import reverse
             from django.template.loader import render_to_string
             
-            admin_emails = list(User.objects.filter(Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)).values_list('email', flat=True))
+            admin_emails = list(User.objects.filter(
+                (Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)) & Q(is_active=True)
+            ).values_list('email', flat=True).distinct())
             if admin_emails:
                 admin_subject = f"Reapproval Request Submitted by {hospital.name}"
                 review_link = request.build_absolute_uri(reverse('pending_hospitals'))
@@ -352,7 +354,9 @@ def notify_admin_aged_approval(request):
     from django.urls import reverse
     from django.template.loader import render_to_string
     
-    admin_emails = list(User.objects.filter(Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)).values_list('email', flat=True))
+    admin_emails = list(User.objects.filter(
+        (Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)) & Q(is_active=True)
+    ).values_list('email', flat=True).distinct())
     if admin_emails:
         admin_subject = f"Urgent: Aged Approval Escalation for {hospital.name}"
         review_link = request.build_absolute_uri(reverse('pending_hospitals'))
@@ -670,16 +674,27 @@ def manage_inquiries(request):
 @hospital_required
 def hospital_billing(request):
     hospital = request.user.hospital
-    transactions = hospital.wallet_transactions.all()[:50]
+    transactions = hospital.wallet_transactions.all().order_by('-created_at')[:50]
     
     from hospitals.models import SubscriptionPlanConfig
     plans = SubscriptionPlanConfig.objects.all().order_by('price')
     plan_data = { p.plan_type: p for p in plans }
     
+    # Proration Data
+    from datetime import date
+    remaining_days = 0
+    if hospital.subscription_end_date and hospital.subscription_end_date > date.today():
+        remaining_days = (hospital.subscription_end_date - date.today()).days
+    
+    current_plan_config = plan_data.get(hospital.subscription_plan)
+    current_plan_price = current_plan_config.price if current_plan_config else 0
+    
     return render(request, "hospital_billing.html", {
         "hospital": hospital,
         "transactions": transactions,
-        "plan_data": plan_data
+        "plan_data": plan_data,
+        "remaining_days": remaining_days,
+        "current_plan_price": current_plan_price,
     })
 
 @hospital_required
@@ -691,18 +706,87 @@ def upgrade_plan(request, plan_choice):
     valid_plans = [choice[0] for choice in Hospital.SUBSCRIPTION_PLAN_CHOICES]
     
     if plan_choice in valid_plans:
-        hospital.subscription_plan = plan_choice
+        from hospitals.models import SubscriptionPlanConfig, WalletTransaction
+        from decimal import Decimal
         from datetime import date
         from dateutil.relativedelta import relativedelta
+        from django.template.loader import render_to_string
+        from django.core.mail import send_mail
+        from django.conf import settings
+        
+        plan_config = SubscriptionPlanConfig.objects.filter(plan_type=plan_choice).first()
+        plan_price = plan_config.price if plan_config else Decimal('0.00')
+        
+        charge_amount = plan_price
+        credit_applied = Decimal('0.00')
+        is_upgrade = False
+        
+        # Proration Logic for Upgrades
+        if hospital.subscription_plan != 'BASIC' and hospital.subscription_end_date and hospital.subscription_end_date > date.today():
+            current_config = SubscriptionPlanConfig.objects.filter(plan_type=hospital.subscription_plan).first()
+            if current_config and plan_price > current_config.price:
+                # Calculate unused credit
+                remaining_days = (hospital.subscription_end_date - date.today()).days
+                daily_rate = current_config.price / Decimal('30')
+                credit_applied = (daily_rate * Decimal(str(remaining_days))).quantize(Decimal('0.01'))
+                charge_amount = max(Decimal('0.00'), plan_price - credit_applied)
+                is_upgrade = True
+        
+        if plan_price > 0:
+            if hospital.wallet_balance < charge_amount:
+                messages.error(request, f"Insufficient funds in Lead Wallet to upgrade. Amount due: ${charge_amount}. Please deposit funds first.")
+                return redirect('hospital_billing')
+            
+            # Perform Debit
+            hospital.wallet_balance -= charge_amount
+            
+            # Record Transaction
+            desc = f"Subscription Activation: {plan_choice}"
+            if is_upgrade:
+                desc = f"Subscription Upgrade: {plan_choice} (Prorated credit of ${credit_applied} applied)"
+            
+            WalletTransaction.objects.create(
+                hospital=hospital,
+                amount=-charge_amount,
+                transaction_type='SUBSCRIPTION',
+                description=desc
+            )
+
+        # Update Subscription Status
+        hospital.subscription_plan = plan_choice
         hospital.subscription_end_date = date.today() + relativedelta(months=+1)
         
         # Determine auto_renew based on the submitted checkbox
         auto_renew_val = request.POST.get('auto_renew')
         hospital.auto_renew = True if auto_renew_val else False
-        
         hospital.save()
         
-        from django.contrib import messages
+        # Send Notification Email
+        if plan_price > 0:
+            context = {
+                'hospital': hospital,
+                'success': True,
+                'is_upgrade': (plan_choice != 'BASIC' and hospital.subscription_plan != 'BASIC'), # Simplified for now
+                'plan_name': plan_config.display_title if plan_config else plan_choice,
+                'price': charge_amount if 'charge_amount' in locals() else plan_price,
+                'next_billing': hospital.subscription_end_date,
+                'login_link': request.build_absolute_uri('/')
+            }
+            
+            subject = f"Your {context['plan_name']} Subscription Activated!"
+            if context['is_upgrade']:
+                subject = f"Your Subscription Upgraded to {context['plan_name']}!"
+                
+            html_message = render_to_string('subscription_renewal_email_html.html', context)
+            send_mail(
+                subject,
+                "",
+                settings.DEFAULT_FROM_EMAIL,
+                [hospital.user.email],
+                html_message=html_message,
+                fail_silently=True
+            )
+        
         messages.success(request, f"Successfully upgraded to {hospital.get_subscription_plan_display()}! Auto-renew is {'enabled' if hospital.auto_renew else 'disabled'}.")
     
     return redirect('hospital_billing')

@@ -7,7 +7,27 @@
     upgradeModalOpen: false, 
     selectedPlan: '', 
     cancelModalOpen: false, 
-    autoRenew: {{ request.user.hospital.auto_renew|yesno:'true,false' }} 
+    autoRenew: {{ request.user.hospital.auto_renew|yesno:'true,false' }},
+    remainingDays: {{ remaining_days|default:0 }},
+    currentPlanPrice: {{ current_plan_price|default:0 }},
+    planPrices: {
+        'BASIC': 0,
+        'PREMIUM': {{ plan_data.PREMIUM.price|default:199 }},
+        'ELITE': {{ plan_data.ELITE.price|default:499 }}
+    },
+    calculateProrated() {
+        if (!this.selectedPlan) return 0;
+        const newPrice = this.planPrices[this.selectedPlan];
+        if (this.currentPlanPrice === 0) return newPrice;
+        
+        // Calculate credit for unused days of current plan
+        const dailyRate = this.currentPlanPrice / 30;
+        const credit = dailyRate * this.remainingDays;
+        
+        // Final amount is New Price - Unused Credit
+        const total = Math.max(0, newPrice - credit);
+        return total.toFixed(2);
+    }
 }">
     <div class="max-w-6xl mx-auto">
         <!-- Header -->
@@ -370,12 +390,60 @@
                         <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Confirm Plan Change</h3>
                         <p class="text-sm text-slate-500 mt-2 leading-relaxed">You are about to change your subscription to the <span class="font-black text-sky-600" x-text="selectedPlan"></span> tier.</p>
                         
-                        <div class="mt-5 w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
+                        <!-- Prorated Amount Display -->
+                        <div class="mt-4 p-3 bg-white border-2 border-dashed border-sky-200 rounded-2xl w-full">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Prorated Amount Due Today</p>
+                            <p class="text-2xl font-black text-slate-900">$<span x-text="calculateProrated()"></span></p>
+                            <template x-if="remainingDays > 0">
+                                <p class="text-[10px] text-emerald-600 font-bold mt-1">Includes credit for <span x-text="remainingDays"></span> remaining days</p>
+                            </template>
+                        </div>
+
+                        <!-- Perks Section -->
+                        <div class="mt-5 w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">New Perks You'll Unlock:</p>
+                            <div class="space-y-2">
+                                <template x-if="selectedPlan === 'ELITE'">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                            Homepage Priority Ranking
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                            Unlimited Treatment Packages
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                            5 Commission-Free Leads/mo
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="selectedPlan === 'PREMIUM'">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            Expanded Profile Visibility
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            25 Treatment Package Slots
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            Dedicated Coordinator
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
                             <label class="flex items-center gap-3 cursor-pointer">
                                 <input type="checkbox" name="auto_renew" value="true" checked class="w-5 h-5 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer">
                                 <span class="text-sm font-bold text-slate-700">Auto-Renew Subscription</span>
                             </label>
-                            <p class="text-[10px] text-slate-400 mt-1 pl-8">Your card will automatically be charged each month.</p>
+                            <p class="text-[10px] text-slate-400 mt-1 pl-8">Your wallet will be charged automatically next month.</p>
                         </div>
                     </div>
                     
@@ -410,7 +478,26 @@
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
                     <h3 class="font-bold text-slate-800 text-xl" style="font-family: 'Outfit', sans-serif;">Cancel Subscription?</h3>
-                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">Are you sure you want to cancel your Premium features? Your account will instantly resort to the Basic plan.</p>
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">Are you sure you want to cancel your <span class="font-bold text-red-600">{{ request.user.hospital.get_subscription_plan_display }}</span> features?</p>
+                    
+                    <!-- Loss of Perks Section -->
+                    <div class="mt-5 w-full text-left bg-white rounded-2xl p-4 border border-red-100 shadow-sm">
+                        <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-3">You will lose access to:</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2 text-xs font-medium text-slate-600">
+                                <svg class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Homepage priority ranking & algorithm boosts
+                            </li>
+                            <li class="flex items-start gap-2 text-xs font-medium text-slate-600">
+                                <svg class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Unlimited treatment package slots
+                            </li>
+                            <li class="flex items-start gap-2 text-xs font-medium text-slate-600">
+                                <svg class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Account coordinator & review dispute tools
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 
                 <div class="p-6 bg-white flex flex-col gap-3">

@@ -324,8 +324,10 @@ def register(request):
                     status='PENDING'
                 )
                 
-                # Notify admins/superusers
-                admin_emails = list(User.objects.filter(Q(role='ADMIN') | Q(is_superuser=True)).values_list('email', flat=True))
+                # Notify admins/superusers and coordinators
+                admin_emails = list(User.objects.filter(
+                    (Q(role__in=['ADMIN', 'COORDINATOR']) | Q(is_superuser=True)) & Q(is_active=True)
+                ).values_list('email', flat=True).distinct())
                 if admin_emails:
                     admin_subject = f"New Hospital Sign-up: {hospital.name}"
                     review_link = request.build_absolute_uri(reverse('pending_hospitals'))
