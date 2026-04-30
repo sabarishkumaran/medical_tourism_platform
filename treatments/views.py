@@ -24,12 +24,25 @@ def home(request):
     # Fetch top patient reviews for "Patient Stories"
     reviews = Review.objects.filter(rating__gte=4).order_by('-created_at')[:10]
 
+    # Calculate Budget Range for the slider
+    from hospitals.models import TreatmentPackage
+    from django.db.models import Min, Max
+    price_stats = TreatmentPackage.objects.filter(hospital__status='APPROVED', is_active=True).aggregate(
+        min_p=Min('price'), 
+        max_p=Max('price')
+    )
+    min_possible = price_stats.get('min_p')
+    max_possible = price_stats.get('max_p')
+
     context = {
         "treatments": treatments,
         "hospitals": hospitals,
         "countries": countries,
         "categories": categories,
-        "reviews": reviews
+        "reviews": reviews,
+        "min_possible_price": int(min_possible or 1000),
+        "max_possible_price": int(max_possible or 50000),
+        "avg_possible_price": (int(min_possible or 1000) + int(max_possible or 50000)) // 2
     }
 
     return render(request, "home.html", context)

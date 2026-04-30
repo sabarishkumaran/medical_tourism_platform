@@ -124,16 +124,16 @@
 
         <!-- Budget Range -->
         <!-- Budget Range Slider -->
-        <div class="flex-1" x-data="{ price: {% if current_budget.isdigit %}{{ current_budget }}{% else %}25000{% endif %} }">
+        <div class="flex-1" x-data="{ price: {{ avg_possible_price|default:25000 }} }">
             <div class="flex items-center justify-between mb-2">
                 <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Max Budget</label>
                 <span class="text-[10px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded-md">$<span x-text="Number(price).toLocaleString()"></span></span>
             </div>
-            <input type="range" name="budget" min="1000" max="50000" step="500" x-model="price" 
+            <input type="range" name="budget" min="{{ min_possible_price|default:1000 }}" max="{{ max_possible_price|default:50000 }}" step="500" x-model="price" 
                 class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-sky-600 transition-all">
             <div class="flex justify-between text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">
-                <span>$1k</span>
-                <span>$50k+</span>
+                <span>${{ min_possible_price|default:1000|floatformat:0 }}</span>
+                <span>${{ max_possible_price|default:50000|floatformat:0 }}+</span>
             </div>
         </div>
         <div class="w-px bg-slate-200 hidden md:block"></div>
