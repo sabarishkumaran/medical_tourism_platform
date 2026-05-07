@@ -85,8 +85,13 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
                         <div>
-                            <h2 class="text-2xl font-extrabold text-slate-900" style="font-family: 'Outfit', sans-serif;">Prepare Treatment Proposal</h2>
-                            <p class="text-sm text-slate-500">Submit a detailed plan and fixed price to the patient.</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-2xl font-extrabold text-slate-900" style="font-family: 'Outfit', sans-serif;">Prepare Treatment Proposal</h2>
+                                {% if quote_already_sent %}
+                                <span class="bg-sky-100 text-sky-700 text-[10px] uppercase font-bold px-3 py-1 rounded-full border border-sky-200">Quote Sent</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-slate-500">{% if quote_already_sent %}Review the proposal you submitted to the patient.{% else %}Submit a detailed plan and fixed price to the patient.{% endif %}</p>
                         </div>
                     </div>
 
@@ -95,22 +100,37 @@
                         
                         <div class="group">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Proposed Treatment Plan</label>
-                            {% render_field form.treatment_plan %}
-                            <p class="mt-2 text-[10px] text-slate-400">Be as detailed as possible to increase approval rates.</p>
+                            {% if quote_already_sent %}
+                                <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-600 text-sm min-h-[150px] whitespace-pre-wrap">{{ quote.treatment_plan }}</div>
+                            {% else %}
+                                {% render_field form.treatment_plan %}
+                                <p class="mt-2 text-[10px] text-slate-400">Be as detailed as possible to increase approval rates.</p>
+                            {% endif %}
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="group">
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Fixed Price Quote ($)</label>
-                                {% render_field form.price placeholder="e.g. 4500" %}
+                                {% if quote_already_sent %}
+                                    <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-900 font-bold text-lg">${{ quote.price }}</div>
+                                {% else %}
+                                    {% render_field form.price placeholder="e.g. 4500" %}
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="pt-4 flex items-center justify-between gap-4">
                             <a href="{% url 'hospital_dashboard' %}" class="px-6 py-4 rounded-xl text-slate-500 font-bold hover:bg-slate-50 transition-colors">Cancel</a>
+                            {% if not quote_already_sent %}
                             <button type="submit" class="flex-1 bg-slate-900 hover:bg-sky-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-sky-500/25 transition-all duration-300 transform hover:-translate-y-1">
                                 Send Quote to Patient
                             </button>
+                            {% else %}
+                            <button type="button" disabled class="flex-1 bg-slate-200 text-slate-400 font-bold py-4 px-8 rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Quote Already Sent
+                            </button>
+                            {% endif %}
                         </div>
                     </form>
                 </div>

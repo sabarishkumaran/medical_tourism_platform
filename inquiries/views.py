@@ -17,8 +17,15 @@ def respond_inquiry(request, inquiry_id):
     if inquiry.hospital and inquiry.hospital != hospital:
         raise PermissionDenied("This inquiry belongs to a different hospital.")
 
+    # Fetch existing quote if any
+    quote = Quote.objects.filter(inquiry=inquiry, hospital=hospital).first()
+    quote_already_sent = inquiry.status != "NEW"
+
     if request.method == "POST":
-        form = QuoteForm(request.POST)
+        if quote_already_sent:
+            return redirect('hospital_dashboard')
+
+        form = QuoteForm(request.POST, instance=quote)
         if form.is_valid():
             quote = form.save(commit=False)
             quote.inquiry = inquiry
@@ -30,11 +37,13 @@ def respond_inquiry(request, inquiry_id):
 
             return redirect('hospital_dashboard')
     else:
-        form = QuoteForm()
+        form = QuoteForm(instance=quote)
 
     return render(request, "respond_inquiry.html", {
         "form": form,
-        "inquiry": inquiry
+        "inquiry": inquiry,
+        "quote_already_sent": quote_already_sent,
+        "quote": quote
     })
 
 
