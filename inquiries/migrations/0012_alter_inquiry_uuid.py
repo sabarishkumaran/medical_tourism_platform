@@ -4,6 +4,19 @@ import uuid
 from django.db import migrations, models
 
 
+def gen_uuid(apps, schema_editor):
+    Inquiry = apps.get_model('inquiries', 'Inquiry')
+    seen_uuids = set()
+    for row in Inquiry.objects.all():
+        if row.uuid is None or row.uuid in seen_uuids:
+            new_uuid = uuid.uuid4()
+            while new_uuid in seen_uuids:
+                new_uuid = uuid.uuid4()
+            row.uuid = new_uuid
+            row.save(update_fields=['uuid'])
+        seen_uuids.add(row.uuid)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -11,9 +24,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(gen_uuid, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
             model_name='inquiry',
             name='uuid',
             field=models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
         ),
     ]
+
