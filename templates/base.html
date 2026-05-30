@@ -90,7 +90,7 @@
       </h1>
 
       <!-- Center: Navigation Menu (Desktop) -->
-      <nav class="hidden md:flex space-x-6 items-center text-[14px] font-bold text-slate-600">
+      <nav class="hidden md:flex space-x-6 items-center text-[15px] font-bold text-slate-600">
         {% with current_url=request.resolver_match.url_name %}
         {% if not user.is_authenticated %}
         <a href="{% url 'home' %}"
@@ -109,16 +109,18 @@
 
           <div x-show="open" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
-            class="absolute left-0 mt-0 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden z-[100] py-2">
-            {% for country in global_countries %}
-            <a href="{% url 'hospital_list' %}?country={{ country }}"
-              class="block px-4 py-2.5 text-sm text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-colors">
-              <span class="mr-2">📍</span>{{ country }}
-            </a>
-            {% empty %}
-            <p class="px-4 py-2 text-xs text-slate-400 italic">Exploring destinations...</p>
-            {% endfor %}
-            <div class="border-t border-slate-50 mt-1 pt-1">
+            class="absolute left-0 mt-0 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl z-[100] py-2 flex flex-col">
+            <div class="max-h-64 overflow-y-auto" style="scrollbar-width: thin;">
+              {% for country in global_countries %}
+              <a href="{% url 'hospital_list' %}?country={{ country }}"
+                class="block px-4 py-2.5 text-sm text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-colors">
+                <span class="mr-2">📍</span>{{ country }}
+              </a>
+              {% empty %}
+              <p class="px-4 py-2 text-xs text-slate-400 italic">Exploring destinations...</p>
+              {% endfor %}
+            </div>
+            <div class="border-t border-slate-50 mt-1 pt-1 bg-white shrink-0">
               <a href="{% url 'hospital_list' %}"
                 class="block px-4 py-2 text-xs font-bold text-sky-600 hover:bg-sky-50 transition-colors">View All
                 Hospitals →</a>
@@ -168,16 +170,18 @@
 
           <div x-show="open" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
-            class="absolute left-0 mt-0 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden z-[100] py-2">
-            {% for country in global_countries %}
-            <a href="{% url 'hospital_list' %}?country={{ country }}"
-              class="block px-4 py-2.5 text-sm text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-colors">
-              <span class="mr-2">📍</span>{{ country }}
-            </a>
-            {% empty %}
-            <p class="px-4 py-2 text-xs text-slate-400 italic">Exploring destinations...</p>
-            {% endfor %}
-            <div class="border-t border-slate-50 mt-1 pt-1">
+            class="absolute left-0 mt-0 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl z-[100] py-2 flex flex-col">
+            <div class="max-h-64 overflow-y-auto" style="scrollbar-width: thin;">
+              {% for country in global_countries %}
+              <a href="{% url 'hospital_list' %}?country={{ country }}"
+                class="block px-4 py-2.5 text-sm text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-colors">
+                <span class="mr-2">📍</span>{{ country }}
+              </a>
+              {% empty %}
+              <p class="px-4 py-2 text-xs text-slate-400 italic">Exploring destinations...</p>
+              {% endfor %}
+            </div>
+            <div class="border-t border-slate-50 mt-1 pt-1 bg-white shrink-0">
               <a href="{% url 'hospital_list' %}"
                 class="block px-4 py-2 text-xs font-bold text-sky-600 hover:bg-sky-50 transition-colors">View All
                 Hospitals →</a>
@@ -265,14 +269,16 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div x-show="open" x-transition class="bg-slate-50/50 py-2">
-                {% for country in global_countries %}
-                <a href="{% url 'hospital_list' %}?country={{ country }}"
-                  class="block py-3 px-8 text-sm text-slate-600 font-medium hover:text-sky-600 transition-colors">
-                  📍 {{ country }}
-                </a>
-                {% endfor %}
-                <a href="{% url 'hospital_list' %}" class="block py-3 px-8 text-sm text-sky-600 font-bold">View All
+              <div x-show="open" x-transition class="bg-slate-50/50 py-2 flex flex-col">
+                <div class="max-h-48 overflow-y-auto" style="scrollbar-width: thin;">
+                  {% for country in global_countries %}
+                  <a href="{% url 'hospital_list' %}?country={{ country }}"
+                    class="block py-3 px-8 text-sm text-slate-600 font-medium hover:text-sky-600 transition-colors">
+                    📍 {{ country }}
+                  </a>
+                  {% endfor %}
+                </div>
+                <a href="{% url 'hospital_list' %}" class="block py-3 px-8 text-sm text-sky-600 font-bold border-t border-slate-100">View All
                   Destinations →</a>
               </div>
             </div>
@@ -327,14 +333,16 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div x-show="open" x-transition class="bg-slate-50/50 py-2">
-                {% for country in global_countries %}
-                <a href="{% url 'hospital_list' %}?country={{ country }}"
-                  class="block py-3 px-8 text-sm text-slate-600 font-medium hover:text-sky-600 transition-colors">
-                  📍 {{ country }}
-                </a>
-                {% endfor %}
-                <a href="{% url 'hospital_list' %}" class="block py-3 px-8 text-sm text-sky-600 font-bold">View All
+              <div x-show="open" x-transition class="bg-slate-50/50 py-2 flex flex-col">
+                <div class="max-h-48 overflow-y-auto" style="scrollbar-width: thin;">
+                  {% for country in global_countries %}
+                  <a href="{% url 'hospital_list' %}?country={{ country }}"
+                    class="block py-3 px-8 text-sm text-slate-600 font-medium hover:text-sky-600 transition-colors">
+                    📍 {{ country }}
+                  </a>
+                  {% endfor %}
+                </div>
+                <a href="{% url 'hospital_list' %}" class="block py-3 px-8 text-sm text-sky-600 font-bold border-t border-slate-100">View All
                   Destinations →</a>
               </div>
             </div>
@@ -755,9 +763,19 @@
     </div>
   </footer>
 
+  <style>
+    .whatsapp-float {
+      bottom: 5rem;
+    }
+    @media (min-width: 768px) {
+      .whatsapp-float {
+        bottom: 1.5rem;
+      }
+    }
+  </style>
   <!-- Global WhatsApp Floating Button -->
   <a href="https://web.whatsapp.com/send?phone=18001234567" target="_blank" rel="noopener noreferrer"
-    class="fixed bottom-6 right-6 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-lg shadow-[#25D366]/40 hover:scale-110 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 animate__animated animate__fadeInUp animate__delay-1s flex items-center justify-center group"
+    class="fixed right-6 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-lg shadow-[#25D366]/40 hover:scale-110 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 animate__animated animate__fadeInUp animate__delay-1s flex items-center justify-center group whatsapp-float"
     aria-label="Chat with us on WhatsApp">
     <svg class="w-8 h-8 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
       <path
@@ -777,6 +795,23 @@
   <script>
     document.body.addEventListener('htmx:configRequest', (event) => {
       event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+    
+    // Global Confirmation Dialog for critical actions
+    document.addEventListener('submit', function(e) {
+      if (e.target.hasAttribute('data-confirm')) {
+        if (!confirm(e.target.getAttribute('data-confirm'))) {
+          e.preventDefault();
+        }
+      }
+    });
+    document.addEventListener('click', function(e) {
+      let el = e.target.closest('[data-confirm]');
+      if (el && el.tagName !== 'FORM') {
+        if (!confirm(el.getAttribute('data-confirm'))) {
+          e.preventDefault();
+        }
+      }
     });
   </script>
 

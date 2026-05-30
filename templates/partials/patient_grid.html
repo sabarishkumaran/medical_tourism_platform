@@ -23,6 +23,24 @@
             </div>
         </div>
 
+        <!-- Latest Inquiry Info -->
+        {% with latest_inq=patient.latest_inquiries|first %}
+        {% if latest_inq %}
+        <div class="mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs shadow-sm">
+            <div class="flex justify-between items-center mb-1.5">
+                <span class="font-bold text-slate-700">Latest Inquiry:</span>
+                <span class="text-slate-500 font-medium">{{ latest_inq.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="text-slate-600 truncate mb-1">
+                <span class="font-semibold text-slate-500">Hospital:</span> {{ latest_inq.hospital.name|default:"Not selected" }}
+            </div>
+            <div class="text-slate-600 truncate">
+                <span class="font-semibold text-slate-500">Treatment:</span> {{ latest_inq.treatment.name|default:"Not specified" }}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <!-- Telemetry -->
         <div class="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
             <div class="bg-slate-50 rounded-xl p-3 border border-slate-100/50 flex flex-col items-center justify-center transition-colors group-hover:bg-sky-50 duration-300">
@@ -55,7 +73,7 @@
 <div class="mt-12 flex justify-center">
     <div class="bg-white px-2 py-2 rounded-2xl shadow-sm border border-slate-200 inline-flex items-center gap-1 overflow-x-auto max-w-full">
         {% if patients.has_previous %}
-        <button hx-get="?page={{ patients.previous_page_number }}" hx-target="#patient-grid" hx-push-url="true" class="h-10 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">
+        <button hx-get="?page={{ patients.previous_page_number }}&q={{ q }}&status={{ status }}&sort={{ sort }}" hx-target="#patient-grid" hx-push-url="true" class="h-10 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">
             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Prev
         </button>
         {% endif %}
@@ -64,12 +82,12 @@
             {% if patients.number == num %}
                 <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white font-bold flex items-center justify-center flex-shrink-0 shadow-md">{{ num }}</span>
             {% elif num > patients.number|add:'-3' and num < patients.number|add:'3' %}
-                <button hx-get="?page={{ num }}" hx-target="#patient-grid" hx-push-url="true" class="w-10 h-10 rounded-xl text-slate-600 font-bold hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">{{ num }}</button>
+                <button hx-get="?page={{ num }}&q={{ q }}&status={{ status }}&sort={{ sort }}" hx-target="#patient-grid" hx-push-url="true" class="w-10 h-10 rounded-xl text-slate-600 font-bold hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">{{ num }}</button>
             {% endif %}
         {% endfor %}
 
         {% if patients.has_next %}
-        <button hx-get="?page={{ patients.next_page_number }}" hx-target="#patient-grid" hx-push-url="true" class="h-10 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">
+        <button hx-get="?page={{ patients.next_page_number }}&q={{ q }}&status={{ status }}&sort={{ sort }}" hx-target="#patient-grid" hx-push-url="true" class="h-10 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center flex-shrink-0">
             Next <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </button>
         {% endif %}

@@ -7,6 +7,22 @@ class DoctorForm(forms.ModelForm):
         model = Doctor
         fields = ['name', 'specialization', 'experience_years', 'success_rate', 'bio', 'photo']
 
+    def clean_photo(self):
+        photo = self.cleaned_data.get('photo')
+        if photo:
+            from django.core.files.images import get_image_dimensions
+            try:
+                w, h = get_image_dimensions(photo)
+                if w and h:
+                    if w < 200 or h < 200:
+                        raise forms.ValidationError("Image resolution is too low. Minimum 200x200 pixels required.")
+                    ratio = w / h
+                    if ratio < 0.3 or ratio > 3.0:
+                        raise forms.ValidationError("Image aspect ratio is too extreme. Please upload a more balanced image.")
+            except Exception:
+                pass
+        return photo
+
 class TreatmentPackageForm(forms.ModelForm):
     treatment_name = forms.CharField(max_length=200, label="Treatment Name")
     category = forms.CharField(max_length=200, label="Category")
@@ -14,7 +30,7 @@ class TreatmentPackageForm(forms.ModelForm):
 
     class Meta:
         model = TreatmentPackage
-        fields = ['price', 'currency', 'stay_days', 'recovery_days', 'doctor']
+        fields = ['price', 'currency', 'stay_days', 'recovery_days', 'sittings_required', 'doctor']
 
     def __init__(self, *args, **kwargs):
         self.hospital = kwargs.pop('hospital')

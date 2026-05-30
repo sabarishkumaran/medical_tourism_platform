@@ -58,10 +58,14 @@
                     {% render_field form.currency class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
                 </div>
 
-                <!-- Stay & Recovery -->
                 <div class="group">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Hospital Stay (Days)</label>
                     {% render_field form.stay_days class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                </div>
+
+                <div class="group">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Sittings Required</label>
+                    {% render_field form.sittings_required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" min="1" placeholder="e.g. 1" %}
                 </div>
 
                 <div class="group">

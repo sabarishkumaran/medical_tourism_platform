@@ -423,6 +423,12 @@
                                         / Specialities <span class="text-red-600">*</span></label>
                                     {% render_field form.hospital_description rows="3" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" %}
                                 </div>
+                                <div class="group sm:col-span-2">
+                                    <label
+                                        class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600">Accreditation
+                                        Type <span class="text-red-600">*</span></label>
+                                    {% render_field form.hospital_accreditation class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none select-custom-arrow cursor-pointer" %}
+                                </div>
                                 <!-- Certificate Upload -->
                                 <div class="group sm:col-span-2">
                                     <label

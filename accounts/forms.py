@@ -1,5 +1,6 @@
 from django import forms
 from .models import User
+from hospitals.models import Hospital
 
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, PasswordChangeForm
 
@@ -29,6 +30,7 @@ class RegisterForm(UserCreationForm):
     hospital_description = forms.CharField(required=False, widget=forms.Textarea)
     hospital_established_year = forms.IntegerField(required=False)
     hospital_certificate = forms.FileField(required=False)
+    hospital_accreditation = forms.ChoiceField(choices=Hospital.ACCREDITATION_CHOICES, required=False)
 
     class Meta:
         model = User
@@ -82,6 +84,8 @@ class RegisterForm(UserCreationForm):
                 self.add_error('hospital_established_year', 'This field is required for hospitals.')
             if not self.files.get('hospital_certificate'):
                 self.add_error('hospital_certificate', 'Certificate document is mandatory for hospitals.')
+            if not cleaned_data.get('hospital_accreditation'):
+                self.add_error('hospital_accreditation', 'Please select your primary accreditation.')
         return cleaned_data
 
 
@@ -183,3 +187,19 @@ class ProfileForm(forms.ModelForm):
             profile.medical_history = self.cleaned_data.get('medical_history')
             profile.save()
         return user
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            from django.core.files.images import get_image_dimensions
+            try:
+                w, h = get_image_dimensions(avatar)
+                if w and h:
+                    if w < 200 or h < 200:
+                        raise forms.ValidationError("Image resolution is too low. Minimum 200x200 pixels required.")
+                    ratio = w / h
+                    if ratio < 0.3 or ratio > 3.0:
+                        raise forms.ValidationError("Image aspect ratio is too extreme. Please upload a more balanced image.")
+            except Exception:
+                pass
+        return avatar

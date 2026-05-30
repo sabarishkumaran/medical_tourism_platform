@@ -3,13 +3,13 @@
     <div class="divide-y divide-slate-100">
         {% for inquiry in inquiries %}
         <div x-data="{ openReview: false }" class="relative group animate-fade-in block border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
-            <a href="{% url 'view_inquiry' inquiry.id %}" class="p-6 sm:px-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4 w-full">
+            <a href="{% url 'view_inquiry' inquiry.uuid %}" class="p-6 sm:px-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4 w-full">
                 <div class="flex items-center gap-5">
                     <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-500 group-hover:text-white transition-all duration-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                     </div>
                     <div>
-                        <div class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">ID: #INQ-{{ inquiry.id|stringformat:"04d" }}</div>
+                        <div class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">ID: #INQ-{{ inquiry.uuid|stringformat:"04d" }}</div>
                         <h3 class="font-bold text-slate-800 text-lg group-hover:text-sky-600 transition-colors">{{ inquiry.treatment.name|default:"General Inquiry" }}</h3>
                         <p class="text-sm text-slate-500 mt-1 line-clamp-1 truncate max-w-xs sm:max-w-md">{{ inquiry.description|truncatechars:100 }}</p>
                     </div>
@@ -83,7 +83,7 @@
                         </div>
                         <button @click="openReview = false" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors">&times;</button>
                     </div>
-                    <form method="post" action="{% url 'submit_review' inquiry.id %}">
+                    <form method="post" action="{% url 'submit_review' inquiry.uuid %}">
                         {% csrf_token %}
                         <div class="p-6">
                             <div class="mb-6 flex flex-col items-center justify-center">

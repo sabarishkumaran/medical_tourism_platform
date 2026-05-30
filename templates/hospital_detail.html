@@ -157,8 +157,14 @@
           <!-- CTA Card -->
           <div class="rounded-2xl p-6 text-white shadow-xl"
                style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);">
-            <h3 class="font-extrabold mb-1 text-xl" style="font-family:'Outfit',sans-serif;">Ready to travel?</h3>
-            <p class="text-indigo-200 text-sm mb-5">Get a personalised plan & cost estimate in 24 hours.</p>
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-extrabold text-xl" style="font-family:'Outfit',sans-serif;">Ready to travel?</h3>
+                <span class="flex items-center gap-1.5 bg-indigo-500/20 text-indigo-200 text-[10px] font-bold px-2 py-1 rounded-md border border-indigo-500/30">
+                    <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    &lt; 24h Response
+                </span>
+            </div>
+            <p class="text-indigo-200 text-sm mb-5">Get a personalised plan & cost estimate.</p>
 
             <ul class="space-y-3 mb-6 text-sm text-indigo-100">
               {% for item in "abc" %}

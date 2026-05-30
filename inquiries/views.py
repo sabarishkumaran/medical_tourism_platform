@@ -6,11 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
+from django.urls import reverse
 
 @login_required
 @hospital_required
 def respond_inquiry(request, inquiry_id):
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
     hospital = request.user.hospital
 
     # Double check if this hospital should be responding
@@ -31,6 +32,37 @@ def respond_inquiry(request, inquiry_id):
             quote.inquiry = inquiry
             quote.hospital = hospital
             quote.save()
+
+            # Process dynamic sittings
+            from .models import QuoteSitting
+            QuoteSitting.objects.filter(quote=quote).delete()
+            
+            sitting_prices = request.POST.getlist('sitting_price[]')
+            sitting_descriptions = request.POST.getlist('sitting_desc[]')
+            
+            if sitting_prices and sitting_descriptions:
+                from decimal import Decimal
+                total_price = Decimal('0.00')
+                for i, (price, desc) in enumerate(zip(sitting_prices, sitting_descriptions)):
+                    if price.strip() and desc.strip():
+                        qs = QuoteSitting.objects.create(
+                            quote=quote,
+                            sitting_number=i+1,
+                            description=desc,
+                            price=price
+                        )
+                        total_price += Decimal(price)
+                # Update total quote price to sum of sittings if provided
+                if total_price > 0:
+                    quote.price = total_price
+                    quote.save()
+            else:
+                QuoteSitting.objects.create(
+                    quote=quote,
+                    sitting_number=1,
+                    description="Full Treatment",
+                    price=quote.price
+                )
 
             inquiry.status = "QUOTE_SENT"
             inquiry.save()
@@ -163,15 +195,62 @@ def inquiry_hub(request):
     if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
         raise PermissionDenied("Unauthorized access.")
         
-    inquiries_list = Inquiry.objects.all().order_by('-created_at')
+    inquiries_list = Inquiry.objects.select_related('patient', 'treatment', 'hospital').all().order_by('-created_at')
+    
+    q = request.GET.get('q', '').strip()
+    status = request.GET.get('status')
+    sort = request.GET.get('sort')
+    
+    if q:
+        from django.db.models import Q
+        inquiries_list = inquiries_list.filter(
+            Q(patient__first_name__icontains=q) |
+            Q(patient__last_name__icontains=q) |
+            Q(patient__username__icontains=q) |
+            Q(treatment__name__icontains=q) |
+            Q(hospital__name__icontains=q)
+        )
+        
+    if status:
+        inquiries_list = inquiries_list.filter(status=status)
+        
+    if sort == 'oldest':
+        inquiries_list = inquiries_list.order_by('created_at')
+    elif sort == 'patient_asc':
+        inquiries_list = inquiries_list.order_by('patient__first_name', 'patient__last_name', '-created_at')
+    elif sort == 'patient_desc':
+        inquiries_list = inquiries_list.order_by('-patient__first_name', '-patient__last_name', '-created_at')
+    elif sort == 'treatment_asc':
+        inquiries_list = inquiries_list.order_by('treatment__name', '-created_at')
+    elif sort == 'treatment_desc':
+        inquiries_list = inquiries_list.order_by('-treatment__name', '-created_at')
+    elif sort == 'hospital_asc':
+        inquiries_list = inquiries_list.order_by('hospital__name', '-created_at')
+    elif sort == 'hospital_desc':
+        inquiries_list = inquiries_list.order_by('-hospital__name', '-created_at')
+    elif sort == 'status_asc':
+        inquiries_list = inquiries_list.order_by('status', '-created_at')
+    elif sort == 'status_desc':
+        inquiries_list = inquiries_list.order_by('-status', '-created_at')
+    else:
+        inquiries_list = inquiries_list.order_by('-created_at')
+
     paginator = Paginator(inquiries_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    context = {
+        "page_obj": page_obj,
+        "q": q,
+        "status": status,
+        "sort": sort,
+        "STATUS_CHOICES": Inquiry.STATUS_CHOICES,
+    }
+    
     if request.headers.get('HX-Request'):
-        return render(request, "partials/admin_inquiry_grid.html", {"page_obj": page_obj})
+        return render(request, "partials/admin_inquiry_grid.html", context)
         
-    return render(request, "admin_inquiries_list.html", {"page_obj": page_obj})
+    return render(request, "admin_inquiries_list.html", context)
 
 @login_required
 def contact_messages_hub(request):
@@ -180,40 +259,100 @@ def contact_messages_hub(request):
 
     from .models import ContactMessage
     from django.contrib import messages
+    from accounts.models import User
 
-    messages_all = ContactMessage.objects.all().order_by('-created_at')
+    message_type = request.GET.get('type', 'guest')
+    patient_emails = User.objects.filter(role='PATIENT').values('email')
+    
+    if message_type == 'auth':
+        messages_all = ContactMessage.objects.filter(email__in=patient_emails)
+    else:
+        messages_all = ContactMessage.objects.exclude(email__in=patient_emails)
+        
+    q = request.GET.get('q', '').strip()
+    if q:
+        from django.db.models import Q
+        messages_all = messages_all.filter(
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(email__icontains=q) |
+            Q(message__icontains=q)
+        )
+        
+    sort = request.GET.get('sort')
+    if sort == 'oldest':
+        messages_all = messages_all.order_by('created_at')
+    elif sort == 'status_asc':
+        messages_all = messages_all.order_by('is_read', '-created_at')
+    elif sort == 'status_desc':
+        messages_all = messages_all.order_by('-is_read', '-created_at')
+    elif sort == 'sender_asc':
+        messages_all = messages_all.order_by('first_name', 'last_name', '-created_at')
+    elif sort == 'sender_desc':
+        messages_all = messages_all.order_by('-first_name', '-last_name', '-created_at')
+    else:
+        messages_all = messages_all.order_by('-created_at')
     
     if request.method == "POST":
         message_id = request.POST.get('message_id')
+        reply_text = request.POST.get('reply_text')
         try:
             msg = ContactMessage.objects.get(id=message_id)
-            msg.is_read = not msg.is_read
-            msg.save()
-            status_text = "Read" if msg.is_read else "Unread"
+            if reply_text:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                from django.utils import timezone
+                from django.template.loader import render_to_string
+                
+                msg.reply_text = reply_text
+                msg.replied_at = timezone.now()
+                msg.is_read = True
+                msg.save()
+                
+                html_message = render_to_string('contact_reply_email_html.html', {
+                    'first_name': msg.first_name,
+                    'original_message': msg.message,
+                    'reply_message': reply_text,
+                })
+                
+                send_mail(
+                    subject=f"Response to Your Inquiry - MedTour",
+                    message=f"Dear {msg.first_name},\n\nThank you for reaching out to us.\n\nYour message:\n\"{msg.message}\"\n\nOur Response:\n{reply_text}\n\nBest regards,\nThe MedTour Team",
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
+                    recipient_list=[msg.email],
+                    fail_silently=True,
+                    html_message=html_message,
+                )
         except ContactMessage.DoesNotExist:
             pass
             
         if request.headers.get('HX-Request'):
-            # For HTMX POST, we return the updated list
             paginator = Paginator(messages_all, 10)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
-            return render(request, "partials/inquiry_list.html", {"page_obj": page_obj})
+            return render(request, "partials/inquiry_list.html", {"page_obj": page_obj, "message_type": message_type, "q": q, "sort": sort})
         
-        return redirect('contact_messages_hub')
+        return redirect(f"{reverse('contact_messages_hub')}?type={message_type}")
 
-    paginator = Paginator(messages_all, 10) # 10 messages per page
+    paginator = Paginator(messages_all, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    context = {
+        "page_obj": page_obj, 
+        "message_type": message_type,
+        "q": q,
+        "sort": sort
+    }
+    
     if request.headers.get('HX-Request'):
-        return render(request, "partials/inquiry_list.html", {"page_obj": page_obj})
+        return render(request, "partials/inquiry_list.html", context)
         
-    return render(request, "inquiry_hub.html", {"page_obj": page_obj})
+    return render(request, "inquiry_hub.html", context)
 
 @login_required
 def inquiry_detail(request, inquiry_id):
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
     
     # Check permissions: only the patient themselves or staff can see it
     if inquiry.patient != request.user and request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
@@ -269,7 +408,7 @@ def accept_quote(request, inquiry_id):
     if request.user.role != 'PATIENT':
         raise PermissionDenied("Unauthorized access.")
         
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id, patient=request.user)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
     
     if request.method == "POST":
         quote_id = request.POST.get('quote_id')
@@ -285,16 +424,16 @@ def accept_quote(request, inquiry_id):
             
         from django.contrib import messages
         messages.success(request, "Congratulations! You have confirmed your treatment plan. Our team will contact you for the next steps.")
-        return redirect('view_inquiry', inquiry_id=inquiry.id)
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
         
     return HttpResponse("Method not allowed", status=405)
 
 @login_required
 def edit_confirmation(request, inquiry_id):
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id, patient=request.user)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
     
     if inquiry.status != "CONFIRMED":
-        return redirect('view_inquiry', inquiry_id=inquiry.id)
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
         
     from .forms import ConfirmedInquiryForm
     
@@ -304,18 +443,21 @@ def edit_confirmation(request, inquiry_id):
             form.save()
             if request.headers.get('HX-Request'):
                 return render(request, "partials/quote_accepted_success.html", {"inquiry": inquiry})
-            return redirect('view_inquiry', inquiry_id=inquiry.id)
+            return redirect('view_inquiry', inquiry_id=inquiry.uuid)
     else:
         form = ConfirmedInquiryForm(instance=inquiry)
         
-    return render(request, "edit_confirmation.html", {"form": form, "inquiry": inquiry})
+    from .models import Quote
+    quote = Quote.objects.filter(inquiry=inquiry).order_by('-created_at').first()
+        
+    return render(request, "edit_confirmation.html", {"form": form, "inquiry": inquiry, "quote": quote})
 
 @login_required
 def send_payment_link(request, inquiry_id):
     if request.user.role not in ['HOSPITAL', 'ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
         raise PermissionDenied("Unauthorized access.")
         
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
     
     if request.user.role == 'HOSPITAL' and inquiry.hospital != request.user.hospital:
         raise PermissionDenied("This inquiry belongs to a different hospital.")
@@ -339,7 +481,7 @@ def process_payment(request, inquiry_id):
     if request.method != "POST":
         return HttpResponse("Method not allowed", status=405)
         
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id, patient=request.user)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
     
     # In a real application, this would integrate with Stripe or a payment gateway
     # For now, we simulate a successful payment process
@@ -366,7 +508,8 @@ def process_payment(request, inquiry_id):
     base_price = 0
     quote = inquiry.quote_set.order_by('-created_at').first()
     if quote:
-        base_price = quote.price
+        sitting = quote.sittings.filter(sitting_number=inquiry.current_sitting_number).first()
+        base_price = sitting.price if sitting else quote.price
     elif inquiry.package:
         base_price = inquiry.package.price
     else:
@@ -389,21 +532,6 @@ def process_payment(request, inquiry_id):
     inquiry.status = "COMPLETED"
     inquiry.save()
     
-    # Process Automated Commission Deduction from Hospital Lead Wallet
-    if inquiry.commission_amount > 0:
-        hospital_acc = inquiry.hospital
-        from decimal import Decimal
-        commission_decimal = Decimal(str(inquiry.commission_amount))
-        hospital_acc.wallet_balance -= commission_decimal
-        hospital_acc.save()
-        from hospitals.models import WalletTransaction
-        WalletTransaction.objects.create(
-            hospital=hospital_acc,
-            amount=-inquiry.commission_amount,
-            transaction_type='COMMISSION_FEE',
-            description=f"Commission fee deduction for completed Inquiry #{inquiry.id}"
-        )
-    
     # Save payment details for records
     from payments.models import Payment
     Payment.objects.create(
@@ -418,7 +546,7 @@ def process_payment(request, inquiry_id):
         
     from django.contrib import messages
     messages.success(request, "Payment processed successfully! Your treatment is fully booked.")
-    return redirect('view_inquiry', inquiry_id=inquiry.id)
+    return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @login_required
 @hospital_required
@@ -427,7 +555,7 @@ def mark_treatment_completed(request, inquiry_id):
         return HttpResponse("Method not allowed", status=405)
         
     hospital = request.user.hospital
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id, hospital=hospital)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, hospital=hospital)
     
     # Must be paid/completed status
     if inquiry.status != "COMPLETED":
@@ -441,8 +569,48 @@ def mark_treatment_completed(request, inquiry_id):
         messages.error(request, "Cannot mark treatment as completed before the travel date.")
         return redirect('hospital_manage_inquiries')
         
-    inquiry.treatment_completed = True
+    # Check if there are more sittings
+    quote = Quote.objects.filter(inquiry=inquiry).first()
+    if quote:
+        total_sittings = quote.sittings.count()
+        if inquiry.current_sitting_number < total_sittings:
+            inquiry.status = "AWAITING_NEXT_SITTING"
+            inquiry.treatment_completed = False
+        else:
+            inquiry.treatment_completed = True
+    else:
+        inquiry.treatment_completed = True
+        
     inquiry.save()
+    
+    # Process payout: transfer the $100 initial payment to the hospital, and deduct commission
+    hospital_acc = inquiry.hospital
+    from decimal import Decimal
+    
+    # Add $100 Initial Payment
+    initial_payment = Decimal('100.00')
+    hospital_acc.wallet_balance += initial_payment
+    
+    from hospitals.models import WalletTransaction
+    WalletTransaction.objects.create(
+        hospital=hospital_acc,
+        amount=initial_payment,
+        transaction_type='DEPOSIT',
+        description=f"Initial Payment Transfer for completed Inquiry #{inquiry.id}"
+    )
+    
+    # Deduct Commission
+    if inquiry.commission_amount > 0:
+        commission_decimal = Decimal(str(inquiry.commission_amount))
+        hospital_acc.wallet_balance -= commission_decimal
+        WalletTransaction.objects.create(
+            hospital=hospital_acc,
+            amount=-inquiry.commission_amount,
+            transaction_type='COMMISSION_FEE',
+            description=f"Commission fee deduction for completed Inquiry #{inquiry.id}"
+        )
+        
+    hospital_acc.save()
     
     from django.contrib import messages
     messages.success(request, f"Treatment for {inquiry.patient.get_full_name()} marked as completed.")
@@ -454,7 +622,7 @@ def submit_review(request, inquiry_id):
     if request.user.role != 'PATIENT':
         raise PermissionDenied("Only patients can submit reviews.")
         
-    inquiry = get_object_or_404(Inquiry, id=inquiry_id, patient=request.user)
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
     
     if not inquiry.treatment_completed:
         raise PermissionDenied("Cannot review until treatment is marked as completed.")
@@ -495,3 +663,54 @@ def submit_review(request, inquiry_id):
         return redirect('patient_inquiries')
         
     return HttpResponse("Method not allowed", status=405)
+
+
+@login_required
+def cancel_and_refund_inquiry(request, inquiry_id):
+    if request.user.role != 'PATIENT':
+        raise PermissionDenied("Only patients can cancel/refund inquiries.")
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
+    
+    # Can only refund if it's paid but not completed
+    if inquiry.status == "COMPLETED" and not inquiry.treatment_completed:
+        if request.method == "POST":
+            inquiry.status = "CANCELLED_REFUNDED"
+            inquiry.save()
+            
+            # In a real app, integrate with Stripe to refund the 100 dollars here.
+            
+            from django.contrib import messages
+            messages.success(request, "Your treatment has been cancelled and your initial payment has been refunded.")
+            return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+            
+    return HttpResponse("Method not allowed", status=405)
+
+@login_required
+def book_next_sitting(request, inquiry_id):
+    if request.user.role != 'PATIENT':
+        raise PermissionDenied('Only patients can book sittings.')
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
+    
+    if inquiry.status != 'AWAITING_NEXT_SITTING':
+        from django.contrib import messages
+        messages.error(request, 'This inquiry is not awaiting a new sitting.')
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    from .models import Quote
+    quote = Quote.objects.filter(inquiry=inquiry).first()
+    if not quote or inquiry.current_sitting_number >= quote.sittings.count():
+        from django.contrib import messages
+        messages.error(request, 'No more sittings available.')
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    inquiry.current_sitting_number += 1
+    inquiry.status = 'CONFIRMED'
+    inquiry.travel_date = None
+    inquiry.save()
+    
+    from django.contrib import messages
+    messages.success(request, f'You are now booking Sitting {inquiry.current_sitting_number}. Please set your travel date.')
+    return redirect('edit_confirmation', inquiry_id=inquiry.uuid)
+

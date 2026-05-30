@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div x-data="{ showConfirmModal: false }">
+<div x-data="{ showConfirmModal: false, showRefundModal: false }">
     <div class="container mx-auto px-4 md:px-8 py-10">
         <div class="max-w-4xl mx-auto">
             <!-- Back Link -->
@@ -18,7 +18,7 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">
-                            Inquiry #INQ-{{ inquiry.id|stringformat:"04d" }}
+                            Inquiry #INQ-{{ inquiry.uuid|stringformat:"04d" }}
                         </div>
                         <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">
                             {{ inquiry.treatment.name|default:"General Inquiry" }}
@@ -36,6 +36,8 @@
                             <span class="px-6 py-2 rounded-2xl bg-indigo-50 text-indigo-600 font-bold text-sm border border-indigo-100">Quote Received</span>
                         {% elif inquiry.status == 'CONFIRMED' %}
                             <span class="px-6 py-2 rounded-2xl bg-emerald-50 text-emerald-600 font-bold text-sm border border-emerald-100">Case Confirmed</span>
+                        {% elif inquiry.status == 'CANCELLED_REFUNDED' %}
+                            <span class="px-6 py-2 rounded-2xl bg-rose-50 text-rose-600 font-bold text-sm border border-rose-100">Cancelled & Refunded</span>
                         {% else %}
                             <span class="px-6 py-2 rounded-2xl bg-slate-50 text-slate-600 font-bold text-sm border border-slate-100">{{ inquiry.status|title }}</span>
                         {% endif %}
@@ -57,16 +59,18 @@
                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                             </div>
                             <div>
-                                <h2 class="text-3xl md:text-4xl font-extrabold mb-2 text-white" style="font-family: 'Outfit', sans-serif;">Payment Required</h2>
-                                <p class="text-indigo-200 text-sm md:text-base max-w-xl mx-auto sm:mx-0">Your treatment plan has been confirmed! The hospital has requested payment to finalize your booking and secure your dates.</p>
+                                <h2 class="text-3xl md:text-4xl font-extrabold mb-2 text-white" style="font-family: 'Outfit', sans-serif;">
+                                    Deposit for Sitting {{ inquiry.current_sitting_number }}{% if quote and quote.sittings.count > 0 %} of {{ quote.sittings.count }}{% elif inquiry.package and inquiry.package.sittings_required %} of {{ inquiry.package.sittings_required }}{% endif %}
+                                </h2>
+                                <p class="text-indigo-200 text-sm md:text-base max-w-xl mx-auto sm:mx-0">Your treatment plan has been confirmed! Please pay the $100 deposit to secure your dates for Sitting {{ inquiry.current_sitting_number }}. The hospital will adjust this amount in your final bill.</p>
                             </div>
                         </div>
                         
-                        <form hx-post="{% url 'process_payment' inquiry.id %}" 
+                        <form hx-post="{% url 'process_payment' inquiry.uuid %}" 
                               hx-target="#payment-section" 
                               hx-swap="outerHTML"
                               x-data="{ 
-                                 basePrice: parseFloat('{% if quote %}{{ quote.price }}{% elif inquiry.package %}{{ inquiry.package.price }}{% else %}0{% endif %}') || 0,
+                                 basePrice: 100.00,
                                  visa: false, travel: false, concierge: false,
                                  get total() { return this.basePrice + (this.visa ? 99 : 0) + (this.travel ? 49 : 0) + (this.concierge ? 199 : 0); }
                               }"
@@ -136,6 +140,28 @@
                     </div>
                 </div>
             </div>
+            {% elif inquiry.status == 'AWAITING_NEXT_SITTING' %}
+            <!-- Awaiting Next Sitting State -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-3xl p-8 mb-8 text-center shadow-lg relative overflow-hidden animate-fade-unfold">
+                <div class="relative z-10 flex flex-col items-center justify-center">
+                    <div class="w-20 h-20 bg-indigo-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-indigo-500/30 mb-5">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-indigo-800 mb-2" style="font-family: 'Outfit', sans-serif;">Sitting Completed</h2>
+                    <p class="text-indigo-700 text-sm max-w-md mx-auto mb-6">Your previous sitting was completed successfully. You are now ready to book Sitting {{ inquiry.current_sitting_number }} of {{ quote.sittings.count }}.</p>
+                    
+                    {% if request.user.role == 'PATIENT' %}
+                    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto mt-4">
+                        <a href="{% url 'book_next_sitting' inquiry.uuid %}" class="flex-1 py-3 px-6 rounded-2xl bg-indigo-600 text-white font-black hover:bg-indigo-700 transition-all shadow-md flex items-center justify-center gap-2">
+                            Book Sitting {{ inquiry.current_sitting_number }}
+                        </a>
+                        <a href="{% url 'submit_inquiry' %}" class="flex-1 py-3 px-6 rounded-2xl bg-white text-indigo-600 border border-indigo-200 font-black hover:bg-indigo-50 transition-all shadow-sm flex items-center justify-center gap-2">
+                            Start New Inquiry
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
             {% elif inquiry.status == 'COMPLETED' %}
             <!-- Payment Successful State (Full Width) -->
             <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-8 mb-8 text-center shadow-lg relative overflow-hidden animate-fade-unfold">
@@ -153,6 +179,14 @@
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid</span>
                         <span class="text-lg font-black text-emerald-700">${{ inquiry.total_amount_paid|floatformat:2 }}</span>
                     </div>
+                    
+                    {% if request.user.role == 'PATIENT' and not inquiry.treatment_completed %}
+                    <div class="mt-6">
+                        <button type="button" @click="showRefundModal = true" class="px-6 py-3 bg-white text-rose-500 border border-rose-200 font-black rounded-2xl hover:bg-rose-50 transition-all shadow-sm flex items-center justify-center gap-2 text-sm">
+                            Cancel & Request Refund
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -212,7 +246,7 @@
                             
                             <div class="space-y-4">
                                 {% if request.user.role == 'PATIENT' %}
-                                <a href="{% url 'edit_confirmation' inquiry.id %}" class="w-full py-4 bg-white text-emerald-600 font-black rounded-2xl hover:bg-emerald-50 transition-all shadow-lg flex items-center justify-center gap-2 group">
+                                <a href="{% url 'edit_confirmation' inquiry.uuid %}" class="w-full py-4 bg-white text-emerald-600 font-black rounded-2xl hover:bg-emerald-50 transition-all shadow-lg flex items-center justify-center gap-2 group">
                                     Edit Appointment
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </a>
@@ -233,9 +267,22 @@
                                 Hospital Quote Received
                             </div>
                             
-                            <div class="mb-4">
-                                <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest mb-1">Estimated Cost</p>
-                                <h2 class="text-4xl font-black" style="font-family: 'Outfit', sans-serif;">${{ quote.price }}</h2>
+                            <div class="mb-6 border-b border-indigo-400/30 pb-4">
+                                <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest mb-1">Estimated Total Cost</p>
+                                <h2 class="text-4xl font-black mb-4" style="font-family: 'Outfit', sans-serif;">${{ quote.price }}</h2>
+                                <div class="space-y-2">
+                                    {% for sitting in quote.sittings.all %}
+                                    <div class="flex items-center justify-between bg-indigo-500/20 rounded-lg p-3 border border-indigo-400/20">
+                                        <div>
+                                            <span class="text-xs font-bold text-indigo-200 uppercase tracking-wider">Sitting {{ sitting.sitting_number }}</span>
+                                            <p class="text-sm text-white font-medium">{{ sitting.description }}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-emerald-300 font-bold">${{ sitting.price }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
                             </div>
 
                             <div class="space-y-4 mb-8">
@@ -343,7 +390,7 @@
                 
                 <!-- Details Card -->
                 <div class="bg-slate-50 rounded-2xl p-6 mb-10 text-left border border-slate-100">
-                    <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-3 gap-6">
                         <div>
                             <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Quote</p>
                             <p class="text-2xl font-black text-indigo-600">${{ quote.price }}</p>
@@ -351,6 +398,10 @@
                         <div>
                             <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Travel window</p>
                             <p class="text-sm font-bold text-slate-700">{{ inquiry.travel_date|default:"Flexible" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Sittings</p>
+                            <p class="text-sm font-bold text-slate-700">{{ quote.sittings.count }}</p>
                         </div>
                     </div>
                     <div class="mt-4 pt-4 border-t border-slate-200">
@@ -364,7 +415,7 @@
                         Wait, go back
                     </button>
                     <button 
-                        hx-post="{% url 'accept_quote' inquiry.id %}"
+                        hx-post="{% url 'accept_quote' inquiry.uuid %}"
                         hx-vals='{"quote_id": "{{ quote.id }}"}'
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-target="#quote-card"
@@ -383,6 +434,50 @@
                         </span>
                         <svg x-show="!confirming" class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Confirmation Modal -->
+    <div x-show="showRefundModal" 
+         x-cloak
+         class="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6"
+         style="display: none;">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
+             x-show="showRefundModal"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             @click="showRefundModal = false"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white opacity-100 rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200"
+             x-show="showRefundModal"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-8"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             @click.away="showRefundModal = false">
+            
+            <div class="pt-12 pb-8 px-8 text-center">
+                <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-6 shadow-sm">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.268 17c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                
+                <h3 class="text-2xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Cancel Treatment?</h3>
+                <p class="text-slate-500 font-medium mb-8 text-sm">Are you sure you want to cancel your journey? Your refund will be processed back to your original payment method within 5-7 business days.</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button @click="showRefundModal = false" class="flex-1 py-4 px-8 rounded-2xl bg-slate-100 text-slate-600 font-black hover:bg-slate-200 transition-colors">
+                        Keep Treatment
+                    </button>
+                    <form method="POST" action="{% url 'cancel_and_refund_inquiry' inquiry.uuid %}" class="flex-1 flex">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full py-4 px-8 rounded-2xl bg-rose-600 text-white font-black hover:bg-rose-700 transition-all shadow-xl shadow-rose-200 active:scale-95">
+                            Yes, Cancel & Refund
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

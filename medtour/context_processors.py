@@ -22,8 +22,8 @@ def global_destinations(request):
     Context processor to fetch unique countries from all approved hospitals.
     Available globally for header dropdowns.
     """
-    countries = Hospital.objects.filter(status='APPROVED').values_list('user__country', flat=True).distinct().order_by('user__country')
-    # Filter out empty strings if any
+    countries = Hospital.objects.filter(status='APPROVED').values_list('user__country__name', flat=True).distinct().order_by('user__country__name')
+    # Filter out empty strings and None values
     countries = [c for c in countries if c]
     return {
         'global_countries': countries

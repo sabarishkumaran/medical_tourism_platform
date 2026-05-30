@@ -114,6 +114,7 @@ class TreatmentPackage(models.Model):
     currency = models.CharField(max_length=10, default="USD")
     stay_days = models.IntegerField()
     recovery_days = models.IntegerField()
+    sittings_required = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.treatment.name} - {self.hospital.name}"

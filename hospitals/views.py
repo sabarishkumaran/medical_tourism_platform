@@ -66,9 +66,33 @@ def upload_hospital_photos(request):
     hospital = request.user.hospital
     if request.method == "POST":
         images = request.FILES.getlist('photos')
+        valid_images = []
+        errors = []
+        from django.core.files.images import get_image_dimensions
+        
         for img in images:
+            try:
+                w, h = get_image_dimensions(img)
+                if w and h:
+                    if w < 200 or h < 200:
+                        errors.append(f"{img.name}: Resolution too low (min 200x200).")
+                        continue
+                    ratio = w / h
+                    if ratio < 0.3 or ratio > 3.0:
+                        errors.append(f"{img.name}: Aspect ratio too extreme.")
+                        continue
+                valid_images.append(img)
+            except Exception:
+                errors.append(f"{img.name}: Invalid image file.")
+                
+        for img in valid_images:
             HospitalImage.objects.create(hospital=hospital, image=img)
-        messages.success(request, 'Hospital photos uploaded successfully.')
+            
+        if valid_images:
+            messages.success(request, f'Successfully uploaded {len(valid_images)} photos.')
+        if errors:
+            for error in errors:
+                messages.error(request, error)
         return redirect('hospital_dashboard')
     
     return render(request, "upload_hospital_photos.html", {"hospital": hospital})
@@ -873,11 +897,11 @@ def hospital_list(request):
         hospitals_all = hospitals_all.filter(
             Q(name__icontains=query) | 
             Q(city__icontains=query) | 
-            Q(user__country__icontains=query)
+            Q(user__country__name__icontains=query)
         )
     
     if country:
-        hospitals_all = hospitals_all.filter(user__country__icontains=country)
+        hospitals_all = hospitals_all.filter(user__country__name__icontains=country)
         
     if accreditation:
         hospitals_all = hospitals_all.filter(accreditation__iexact=accreditation)
@@ -887,7 +911,7 @@ def hospital_list(request):
     page_obj = paginator.get_page(page_number)
     
     # Get distinct countries for filter dropdown
-    countries = Hospital.objects.filter(status='APPROVED').values_list('user__country', flat=True).distinct()
+    countries = Hospital.objects.filter(status='APPROVED').exclude(user__country__isnull=True).values_list('user__country__name', flat=True).distinct()
     
     context = {
         'page_obj': page_obj,

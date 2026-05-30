@@ -4,7 +4,7 @@
 <div class="container mx-auto px-4 md:px-8 py-10">
     <div class="max-w-2xl mx-auto">
         <!-- Back Link -->
-        <a href="{% url 'view_inquiry' inquiry.id %}" class="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 mb-8 transition-colors group">
+        <a href="{% url 'view_inquiry' inquiry.uuid %}" class="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 mb-8 transition-colors group">
             <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             <span class="font-bold text-sm uppercase tracking-wider">Back to Inquiry</span>
         </a>
@@ -16,8 +16,18 @@
                 <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
                 </div>
-                <h1 class="text-3xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Edit Appointment</h1>
-                <p class="text-slate-500 font-medium">Update your confirmed details with {{ inquiry.hospital.name }}</p>
+                <h1 class="text-3xl font-black text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">
+                    Confirm Sitting {{ inquiry.current_sitting_number }}
+                </h1>
+                <p class="text-slate-500 font-medium">
+                    Schedule dates for Sitting {{ inquiry.current_sitting_number }} 
+                    {% if quote and quote.sittings.count > 0 %}
+                        of {{ quote.sittings.count }}
+                    {% elif inquiry.package and inquiry.package.sittings_required %}
+                        of {{ inquiry.package.sittings_required }}
+                    {% endif %}
+                    with {{ inquiry.hospital.name }}
+                </p>
             </div>
 
             <form method="POST" class="space-y-8">
@@ -43,7 +53,7 @@
                 </div>
 
                 <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
-                    <a href="{% url 'view_inquiry' inquiry.id %}" class="flex-1 py-4 px-8 rounded-2xl bg-slate-100 text-slate-600 font-black text-center hover:bg-slate-200 transition-colors">
+                    <a href="{% url 'view_inquiry' inquiry.uuid %}" class="flex-1 py-4 px-8 rounded-2xl bg-slate-100 text-slate-600 font-black text-center hover:bg-slate-200 transition-colors">
                         Cancel
                     </a>
                     <button type="submit" class="flex-1 py-4 px-8 rounded-2xl bg-indigo-600 text-white font-black hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95">

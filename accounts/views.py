@@ -175,7 +175,10 @@ def admin_dashboard(request):
     # Recent Activity
     recent_inquiries = Inquiry.objects.select_related('patient', 'treatment').order_by('-created_at')[:5]
     recent_hospitals = Hospital.objects.select_related('user').order_by('-user__date_joined')[:5]
-    recent_messages = ContactMessage.objects.order_by('-created_at')[:5]
+    
+    patient_emails = User.objects.filter(role='PATIENT').values('email')
+    auth_messages = ContactMessage.objects.filter(email__in=patient_emails).order_by('-created_at')[:5]
+    guest_messages = ContactMessage.objects.exclude(email__in=patient_emails).order_by('-created_at')[:5]
     
     # Report Drilldown Datasets
     from hospitals.models import WalletTransaction
@@ -188,7 +191,8 @@ def admin_dashboard(request):
         'stats': stats,
         'recent_inquiries': recent_inquiries,
         'recent_hospitals': recent_hospitals,
-        'recent_messages': recent_messages,
+        'auth_messages': auth_messages,
+        'guest_messages': guest_messages,
         'commission_transactions': commission_transactions,
         'subscription_hospitals': subscription_hospitals,
         'lead_transactions': lead_transactions,
@@ -257,6 +261,36 @@ def admin_revenue_services(request):
     })
 
 @login_required
+def admin_financial_ledger(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+        
+    from payments.models import Payment
+    from hospitals.models import WalletTransaction
+    from django.db.models import Sum
+    
+    # Patient Payments (Inflows)
+    patient_payments = Payment.objects.select_related('inquiry__patient', 'inquiry__hospital', 'inquiry__treatment').order_by('-payment_date')
+    total_inflows = patient_payments.filter(status__iexact='completed').aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Hospital Wallet Activity (Outflows and Deductions)
+    wallet_transactions = WalletTransaction.objects.select_related('hospital').order_by('-created_at')
+    
+    # Calculate Payouts (DEPOSIT to hospital wallets)
+    total_payouts = wallet_transactions.filter(transaction_type='DEPOSIT').aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Calculate Deductions (COMMISSION_FEE collected from hospital wallets)
+    total_deductions = wallet_transactions.filter(transaction_type='COMMISSION_FEE').aggregate(total=Sum('amount'))['total'] or 0
+    
+    return render(request, 'admin_financial_ledger.html', {
+        'patient_payments': patient_payments,
+        'wallet_transactions': wallet_transactions,
+        'total_inflows': total_inflows,
+        'total_payouts': total_payouts,
+        'total_deductions': abs(total_deductions),
+    })
+
+@login_required
 def patient_dashboard(request):
     if request.user.role == 'HOSPITAL':
         return redirect('hospital_dashboard')
@@ -321,6 +355,7 @@ def register(request):
                     description=form.cleaned_data.get('hospital_description'),
                     established_year=form.cleaned_data.get('hospital_established_year'),
                     certificate=form.cleaned_data.get('hospital_certificate'),
+                    accreditation=form.cleaned_data.get('hospital_accreditation'),
                     status='PENDING'
                 )
                 
@@ -520,22 +555,66 @@ def admin_patients(request):
     if not request.user.is_superuser and request.user.role not in ['ADMIN', 'COORDINATOR']:
         raise PermissionDenied
 
-    from django.db.models import Count
+    from django.db.models import Count, Q, Prefetch
     from django.core.paginator import Paginator
+    from inquiries.models import Inquiry
 
     # Get all users with PATIENT role and annotate them with total inquiries submitted
+    latest_inquiry_prefetch = Prefetch(
+        'inquiry_set',
+        queryset=Inquiry.objects.select_related('hospital', 'treatment').order_by('-created_at'),
+        to_attr='latest_inquiries'
+    )
+    
     patients_list = User.objects.filter(role='PATIENT').annotate(
         inquiry_count=Count('inquiry')
-    ).order_by('-date_joined')
+    ).prefetch_related(latest_inquiry_prefetch)
+
+    q = request.GET.get('q', '').strip()
+    status = request.GET.get('status')
+    sort = request.GET.get('sort')
+
+    if q:
+        patients_list = patients_list.filter(
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(username__icontains=q) |
+            Q(email__icontains=q) |
+            Q(inquiry__treatment__name__icontains=q) |
+            Q(inquiry__hospital__name__icontains=q)
+        ).distinct()
+
+    if status == 'active':
+        patients_list = patients_list.filter(inquiry__status__in=['QUOTE_SENT', 'PAYMENT_LINK_SENT']).distinct()
+    elif status == 'confirmed':
+        patients_list = patients_list.filter(inquiry__status__in=['CONFIRMED', 'COMPLETED']).distinct()
+    elif status == 'inactive':
+        patients_list = patients_list.filter(inquiry_count=0)
+
+    if sort == 'oldest':
+        patients_list = patients_list.order_by('date_joined')
+    elif sort == 'inquiries':
+        patients_list = patients_list.order_by('-inquiry_count', '-date_joined')
+    elif sort == 'name':
+        patients_list = patients_list.order_by('first_name', 'last_name', '-date_joined')
+    else:
+        patients_list = patients_list.order_by('-date_joined')
 
     paginator = Paginator(patients_list, 15)  # 15 patients per page
     page_number = request.GET.get('page', 1)
     patients = paginator.get_page(page_number)
 
-    if request.headers.get('HX-Request'):
-        return render(request, "partials/patient_grid.html", {"patients": patients})
+    context = {
+        "patients": patients,
+        "q": q,
+        "status": status,
+        "sort": sort,
+    }
 
-    return render(request, "admin_patients.html", {"patients": patients})
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/patient_grid.html", context)
+
+    return render(request, "admin_patients.html", context)
 
 @login_required
 def patient_detail(request, user_id):

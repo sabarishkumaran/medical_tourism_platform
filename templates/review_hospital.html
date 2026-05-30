@@ -67,7 +67,7 @@
                                 </div>
                                 <div>
                                     <p class="font-semibold text-slate-800">{{ hospital.certificate.name|cut:"hospital_certificates/" }}</p>
-                                    <p class="text-xs text-slate-400">Uploaded during registration</p>
+                                    <p class="text-xs text-slate-400">Uploaded for <strong>{{ hospital.get_accreditation_display|default:"Unspecified" }}</strong> accreditation</p>
                                 </div>
                             </div>
                             <a href="{{ hospital.certificate.url }}" target="_blank" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all transform hover:-translate-y-0.5 shadow-md">

@@ -18,7 +18,7 @@ def home(request):
         )
     ).order_by('-plan_rank', 'user__date_joined')[:6]
     
-    countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).exclude(user__country__exact="").values_list('user__country', flat=True).distinct()
+    countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).values_list('user__country__name', flat=True).distinct()
     categories = Treatment.objects.values_list('category', flat=True).distinct()
     
     # Fetch top patient reviews for "Patient Stories"
@@ -83,7 +83,7 @@ def treatment_list(request):
         else:
             packages = packages.filter(treatment__category__icontains=category)
     if country and country != "All Countries":
-        packages = packages.filter(hospital__user__country__icontains=country)
+        packages = packages.filter(hospital__user__country__name__icontains=country)
         
     from decimal import Decimal, InvalidOperation
     budget = request.GET.get('budget', '').strip()
@@ -136,7 +136,7 @@ def treatment_list(request):
     else:
         packages = packages.order_by('-plan_rank')
 
-    countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).exclude(user__country__exact="").values_list('user__country', flat=True).distinct()
+    countries = Hospital.objects.filter(status__iexact="APPROVED").exclude(user__country__isnull=True).values_list('user__country__name', flat=True).distinct()
     categories = Treatment.objects.values_list('category', flat=True).distinct()
 
     from django.core.paginator import Paginator
