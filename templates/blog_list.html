@@ -2,16 +2,16 @@
 {% load static %}
 
 {% block content %}
-<div class="bg-white min-h-screen font-sans text-slate-800">
+<div class="bg-white dark:bg-slate-900 min-h-screen font-sans text-slate-800 dark:text-slate-200">
 
     <!-- Header Section -->
-    <header class="border-b border-slate-100 bg-white pt-16 pb-12">
+    <header class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 pt-16 pb-12">
         <div class="container mx-auto px-4 md:px-8 max-w-[1440px]">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4"
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-4"
                 style="font-family: 'Outfit', sans-serif;">
                 Medical Tourism Insights.
             </h1>
-            <p class="text-lg text-slate-500 max-w-2xl">
+            <p class="text-lg text-slate-500 dark:text-slate-400 dark:text-slate-400 max-w-2xl">
                 Expert advice, patient stories, and tips for your international healthcare journey.
             </p>
         </div>
@@ -24,24 +24,24 @@
         <div class="flex-1 w-full lg:w-auto">
 
             <!-- Search & Filter Toolbar -->
-            <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm p-3 mb-10 flex flex-col md:flex-row items-center gap-4 animate-fade-up">
+            <div class="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm p-3 mb-10 flex flex-col md:flex-row items-center gap-4 animate-fade-up">
                 
                 <!-- Category Tabs -->
                 <div class="flex flex-wrap gap-2 items-center flex-1">
                     <a href="?{% if search_query %}q={{ search_query }}{% endif %}" 
-                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if not current_category %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if not current_category %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-white dark:bg-slate-900 hover:text-sky-600{% endif %}">
                         All Posts
                     </a>
                     <a href="?category=Treatments{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Treatments' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Treatments' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-white dark:bg-slate-900 hover:text-sky-600{% endif %}">
                         Treatments
                     </a>
                     <a href="?category=Country Guides{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Country Guides' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Country Guides' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-white dark:bg-slate-900 hover:text-sky-600{% endif %}">
                         Country Guides
                     </a>
                     <a href="?category=Health Tips{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Health Tips' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 text-slate-500 hover:bg-white hover:text-sky-600{% endif %}">
+                       class="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 {% if current_category == 'Health Tips' %}bg-sky-500 text-white shadow-md shadow-sky-100/50{% else %}bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-white dark:bg-slate-900 hover:text-sky-600{% endif %}">
                         Health Tips
                     </a>
                 </div>
@@ -51,11 +51,11 @@
                     {% if current_category %}
                         <input type="hidden" name="category" value="{{ current_category }}">
                     {% endif %}
-                    <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                     <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search articles..." 
-                           class="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-sm focus:outline-none focus:bg-white focus:border-sky-500 placeholder-slate-400 transition-all font-medium">
+                           class="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-sm focus:outline-none focus:bg-white dark:bg-slate-900 focus:border-sky-500 placeholder-slate-400 dark:placeholder-slate-500 dark:placeholder-slate-400 transition-all font-medium">
                 </form>
             </div>
 
@@ -64,10 +64,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
                 {% for post in posts %}
                 <a href="{{ post.get_absolute_url }}"
-                    class="group bg-white rounded-3xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border border-slate-100 block">
+                    class="group bg-white dark:bg-slate-900 rounded-3xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border border-slate-100 dark:border-slate-800 block">
 
                     <!-- Cover Image Container -->
-                    <div class="relative h-60 w-full overflow-hidden bg-slate-100 border-b border-slate-100">
+                    <div class="relative h-60 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
                         {% if post.image %}
                         <img src="{{ post.image.url }}" alt="{{ post.title }}"
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
@@ -84,7 +84,7 @@
 
                         <!-- Category Pill overlay -->
                         <div
-                            class="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-100 z-10">
+                            class="absolute top-4 left-4 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800 z-10">
                             <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#2f5c76]">
                                 {{ post.category }}
                             </span>
@@ -92,21 +92,21 @@
                     </div>
 
                     <!-- Text Content -->
-                    <div class="p-6 flex flex-col flex-1 bg-white">
+                    <div class="p-6 flex flex-col flex-1 bg-white dark:bg-slate-900">
 
                         <div
-                            class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+                            class="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-3">
                             <time datetime="{{ post.created_at|date:'Y-m-d' }}">{{ post.created_at|date:"M d, Y" }}</time>
                             <span class="w-1 h-1 rounded-full bg-slate-300"></span>
                             <span>{% widthratio post.content|wordcount|default:1 200 1 %} MIN READ</span>
                         </div>
 
-                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-3 group-hover:text-sky-600 transition-colors leading-tight"
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mb-3 group-hover:text-sky-600 transition-colors leading-tight"
                             style="font-family: 'Outfit', sans-serif;">
                             {{ post.title|safe }}
                         </h3>
 
-                        <p class="text-slate-500 text-sm leading-relaxed mb-4 font-medium line-clamp-3">
+                        <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm leading-relaxed mb-4 font-medium line-clamp-3">
                             {% if post.excerpt %}{{ post.excerpt }}{% else %}{{ post.content|striptags|truncatewords:20 }}{% endif %}
                         </p>
                     </div>
@@ -115,16 +115,16 @@
             </div>
             {% else %}
             <!-- Empty State -->
-            <div class="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100 max-w-2xl mx-auto w-full">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="text-center py-20 bg-slate-50 dark:bg-slate-950 rounded-3xl border border-slate-100 dark:border-slate-800 max-w-2xl mx-auto w-full">
+                <div class="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <svg class="w-8 h-8 text-slate-400 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z">
                         </path>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-slate-800 mb-2">No Articles Yet</h3>
-                <p class="text-slate-500 mb-6">We are currently preparing our first set of articles.</p>
+                <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">No Articles Yet</h3>
+                <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 mb-6">We are currently preparing our first set of articles.</p>
                 {% if user.is_authenticated %}
                 <a href="{% url 'blog_write' %}"
                     class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-colors">
@@ -141,21 +141,21 @@
 
             {% if user.is_authenticated %}
             <!-- Write Article CTA Box -->
-            <div class="bg-indigo-50 rounded-3xl p-6 border border-indigo-100 shadow-sm text-center">
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl p-6 border border-indigo-100 shadow-sm text-center">
                 <div
-                    class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 mx-auto mb-4">
+                    class="w-12 h-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 mx-auto mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
                         </path>
                     </svg>
                 </div>
-                <h3 class="text-lg font-bold text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">Contribute
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2" style="font-family: 'Outfit', sans-serif;">Contribute
                 </h3>
-                <p class="text-sm text-slate-500 mb-4 font-medium">Share your medical expertise or patient journey with
+                <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 mb-4 font-medium">Share your medical expertise or patient journey with
                     our community.</p>
                 <a href="{% url 'blog_write' %}"
-                    class="block w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl shadow-md transition-colors">
+                    class="block w-full bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold py-3 rounded-xl shadow-md transition-colors">
                     Write an Article
                 </a>
             </div>
@@ -183,7 +183,7 @@
                 <form id="blog-newsletter-form" class="flex flex-col gap-3 relative z-10">
                     {% csrf_token %}
                     <input type="email" id="blog-newsletter-email" name="email" placeholder="Email address" required
-                        class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors">
+                        class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-white placeholder-slate-400 dark:placeholder-slate-500 dark:placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors">
                     <button type="submit" id="blog-newsletter-btn"
                         class="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm py-3 px-4 rounded-xl shadow transition-all font-sans">
                         Subscribe to Newsletter
@@ -230,28 +230,28 @@
             </div>
 
             <!-- Trending Now Widget -->
-            <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100 shadow-sm mt-2">
+            <div class="bg-slate-50 dark:bg-slate-950 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm mt-2">
                 <div class="flex items-center gap-3 mb-6">
                     <div
-                        class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 flex-shrink-0">
+                        class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500 flex-shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                         </svg>
                     </div>
-                    <h3 class="font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Trending Now</h3>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Trending Now</h3>
                 </div>
 
                 <div class="flex flex-col gap-4">
                     {% for p in trending_posts %}
                     <a href="{{ p.get_absolute_url }}"
-                        class="group flex gap-4 items-center hover:bg-white p-2 -m-2 rounded-xl transition-colors">
-                        <div class="w-16 h-16 rounded-lg bg-slate-200 flex-shrink-0 overflow-hidden relative">
+                        class="group flex gap-4 items-center hover:bg-white dark:bg-slate-900 p-2 -m-2 rounded-xl transition-colors">
+                        <div class="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-800 flex-shrink-0 overflow-hidden relative">
                             {% if p.image %}
                             <img src="{{ p.image.url }}" class="w-full h-full object-cover">
                             {% else %}
-                            <div class="w-full h-full flex items-center justify-center bg-slate-200">
-                                <svg class="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="w-full h-full flex items-center justify-center bg-slate-200 dark:bg-slate-800">
+                                <svg class="w-6 h-6 text-slate-400 dark:text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
                                         clip-rule="evenodd"></path>
@@ -261,13 +261,13 @@
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-sm text-slate-800 line-clamp-2 leading-tight group-hover:text-sky-600 transition-colors">
+                                class="font-bold text-sm text-slate-800 dark:text-slate-200 line-clamp-2 leading-tight group-hover:text-sky-600 transition-colors">
                                 {{ p.title }}</h4>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">{{ p.category }}</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-400 font-bold uppercase mt-1 tracking-widest">{{ p.category }}</p>
                         </div>
                     </a>
                     {% empty %}
-                    <span class="text-sm text-slate-400 italic">No trending posts.</span>
+                    <span class="text-sm text-slate-400 dark:text-slate-400 italic">No trending posts.</span>
                     {% endfor %}
                 </div>
             </div>

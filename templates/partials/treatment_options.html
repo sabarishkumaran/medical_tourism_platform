@@ -1,4 +1,4 @@
-<select name="treatment" id="treatment-dropdown" @change="fetchPrice" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+<select name="treatment" id="treatment-dropdown" @change="fetchPrice" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
     <option value="" {% if not current_treatment %}selected{% endif %}>Select treatment...</option>
     {% for t in treatments %}
     <option value="{{ t.id }}" {% if current_treatment|stringformat:"s" == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>

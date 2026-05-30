@@ -14,10 +14,10 @@
         <!-- Left: Hospital Info -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Header Card -->
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                 <div class="bg-gradient-to-r from-indigo-900 to-slate-900 p-8 text-white">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20">
+                        <div class="w-16 h-16 rounded-2xl bg-white/10 dark:bg-slate-900/10 flex items-center justify-center border border-white/20">
                             <svg class="w-8 h-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                         </div>
                         <div>
@@ -31,43 +31,43 @@
                 </div>
                 <div class="p-8 space-y-6">
                     <div>
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Full Address</h3>
-                        <p class="text-slate-700">{{ hospital.address }}</p>
+                        <h3 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Full Address</h3>
+                        <p class="text-slate-700 dark:text-slate-300">{{ hospital.address }}</p>
                     </div>
                     <div>
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Description</h3>
-                        <p class="text-slate-700 leading-relaxed">{{ hospital.description }}</p>
+                        <h3 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Description</h3>
+                        <p class="text-slate-700 dark:text-slate-300 leading-relaxed">{{ hospital.description }}</p>
                     </div>
                     <div class="grid grid-cols-2 gap-6">
                         <div>
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Contact Email</h3>
-                            <p class="text-slate-700">{{ hospital.user.email }}</p>
+                            <h3 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Contact Email</h3>
+                            <p class="text-slate-700 dark:text-slate-300">{{ hospital.user.email }}</p>
                         </div>
                         <div>
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Contact Phone</h3>
-                            <p class="text-slate-700">{{ hospital.user.phone|default:"Not provided" }}</p>
+                            <h3 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Contact Phone</h3>
+                            <p class="text-slate-700 dark:text-slate-300">{{ hospital.user.phone|default:"Not provided" }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Certificate Card -->
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
-                <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3" style="font-family: 'Outfit', sans-serif;">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 p-8">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-3" style="font-family: 'Outfit', sans-serif;">
                     <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Uploaded Certificate
                 </h2>
 
                 {% if hospital.certificate %}
-                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6">
+                    <div class="bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
                                     <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-slate-800">{{ hospital.certificate.name|cut:"hospital_certificates/" }}</p>
-                                    <p class="text-xs text-slate-400">Uploaded for <strong>{{ hospital.get_accreditation_display|default:"Unspecified" }}</strong> accreditation</p>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">{{ hospital.certificate.name|cut:"hospital_certificates/" }}</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-400">Uploaded for <strong>{{ hospital.get_accreditation_display|default:"Unspecified" }}</strong> accreditation</p>
                                 </div>
                             </div>
                             <a href="{{ hospital.certificate.url }}" target="_blank" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all transform hover:-translate-y-0.5 shadow-md">
@@ -78,16 +78,16 @@
 
                         <!-- Inline Preview for Images -->
                         {% if hospital.certificate.name|lower|slice:"-4:" == ".jpg" or hospital.certificate.name|lower|slice:"-4:" == ".png" or hospital.certificate.name|lower|slice:"-5:" == ".jpeg" %}
-                        <div class="mt-4 rounded-xl overflow-hidden border border-slate-200">
-                            <img src="{{ hospital.certificate.url }}" alt="Certificate" class="w-full max-h-[500px] object-contain bg-white">
+                        <div class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                            <img src="{{ hospital.certificate.url }}" alt="Certificate" class="w-full max-h-[500px] object-contain bg-white dark:bg-slate-900">
                         </div>
                         {% endif %}
 
                         {% if hospital.certificate.name|lower|slice:"-4:" == ".pdf" %}
-                        <div class="mt-4 rounded-xl overflow-hidden border border-slate-200 bg-white relative">
+                        <div class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 relative">
                             <iframe src="{{ hospital.certificate.url }}" class="w-full h-[600px] border-none" title="Hospital Certificate" type="application/pdf"></iframe>
-                            <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-slate-200">
-                                <p class="text-xs text-slate-500 mb-1">If the PDF doesn't load:</p>
+                            <div class="absolute bottom-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mb-1">If the PDF doesn't load:</p>
                                 <a href="{{ hospital.certificate.url }}" target="_blank" class="text-sky-600 font-bold hover:underline text-sm flex items-center gap-1">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     Download File
@@ -107,23 +107,23 @@
 
             <!-- Reapproval Requests Card -->
             {% if reapproval_requests %}
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 pt-6">
-                <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3" style="font-family: 'Outfit', sans-serif;">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 p-8 pt-6">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-3" style="font-family: 'Outfit', sans-serif;">
                     <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Reapproval Requests
                 </h2>
                 <div class="space-y-4">
                     {% for req in reapproval_requests %}
-                    <div class="p-5 rounded-2xl border {% if req.status == 'PENDING' %}border-emerald-100 bg-emerald-50/30{% else %}border-slate-100 bg-slate-50{% endif %}">
+                    <div class="p-5 rounded-2xl border {% if req.status == 'PENDING' %}border-emerald-100 bg-emerald-50/30{% else %}border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950{% endif %}">
                         <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest {% if req.status == 'PENDING' %}text-emerald-600{% else %}text-slate-500{% endif %}">
+                            <span class="text-[10px] font-bold uppercase tracking-widest {% if req.status == 'PENDING' %}text-emerald-600{% else %}text-slate-500 dark:text-slate-400 dark:text-slate-400{% endif %}">
                                 Submitted {{ req.submitted_at|date:"M d, Y" }}
                             </span>
                             {% if req.status == 'PENDING' %}
                             <span class="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">New Request</span>
                             {% endif %}
                         </div>
-                        <p class="text-sm text-slate-700 mb-3 leading-relaxed italic">"{{ req.comment }}"</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed italic">"{{ req.comment }}"</p>
                         {% if req.document %}
                         <a href="{{ req.document.url }}" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold text-sky-600 hover:text-sky-800 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -140,14 +140,14 @@
         <!-- Right: Action Panel -->
         <div class="space-y-6">
             <!-- Approve Card -->
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
-                <h2 class="text-xl font-bold text-slate-800 mb-6" style="font-family: 'Outfit', sans-serif;">Review Decision</h2>
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 p-8">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6" style="font-family: 'Outfit', sans-serif;">Review Decision</h2>
 
                 <form method="POST" action="{% url 'approve_hospital' hospital.id %}">
                     {% csrf_token %}
                     <div class="mb-6">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Set Accreditation Status</label>
-                        <select name="accreditation" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-3">Set Accreditation Status</label>
+                        <select name="accreditation" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none">
                             {% for value, label in accreditation_choices %}
                             <option value="{{ value }}" {% if hospital.accreditation == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
@@ -159,7 +159,7 @@
                     </button>
                 </form>
 
-                <div class="my-6 border-t border-slate-100"></div>
+                <div class="my-6 border-t border-slate-100 dark:border-slate-800"></div>
 
                 {% if hospital.status == 'APPROVED' %}
                 <div class="mb-6" x-data="{ 
@@ -192,7 +192,7 @@
                     
                     <!-- Suspend Modal -->
                     <div x-show="showSuspend" style="display: none;" class="fixed inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in text-left" style="z-index: 99999;">
-                        <div @click.away="showSuspend = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+                        <div @click.away="showSuspend = false" class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
                             <div class="bg-amber-50 border-b border-amber-100 p-6 flex justify-between items-center">
                                 <h3 class="text-xl font-bold text-amber-800 flex items-center gap-2" style="font-family: 'Outfit', sans-serif;">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -210,24 +210,24 @@
                                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                     <span><strong>Action Required:</strong> The suspension reason must be at least 250 characters. You currently have <span x-text="charCount"></span> characters.</span>
                                 </div>
-                                <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
+                                <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
                                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <span x-text="serverError"></span>
                                 </div>
 
                                 <div>
                                     <div class="flex justify-between items-end mb-2">
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reason for Suspension</label>
+                                        <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Reason for Suspension</label>
                                         <span class="text-[10px] font-bold transition-colors" :class="charCount < 250 ? 'text-rose-500' : 'text-emerald-500'" x-text="charCount + ' / 250 min chars'"></span>
                                     </div>
-                                    <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all resize-none text-slate-700" rows="5" placeholder="Explain the policy violation in detail (minimum 250 characters)..."></textarea>
+                                    <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all resize-none text-slate-700 dark:text-slate-300" rows="5" placeholder="Explain the policy violation in detail (minimum 250 characters)..."></textarea>
                                 </div>
                                 <div x-data="{ showPass: false }">
-                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Admin Password</label>
+                                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2">Confirm Admin Password</label>
                                     <div style="position: relative; width: 100%;">
                                         <input :type="showPass ? 'text' : 'password'" name="password" @input="serverError = ''" required 
                                             style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 0.75rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 0.75rem; padding-bottom: 0.75rem; color: rgb(30 41 59); transition: all 0.2s;"
-                                            class="focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-slate-700 placeholder:text-slate-400" placeholder="Enter your password">
+                                            class="focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-slate-700 dark:text-slate-300 placeholder:text-slate-400 dark:text-slate-400" placeholder="Enter your password">
                                         <button type="button" 
                                             @mousedown="showPass = true" 
                                             @mouseup="showPass = false" 
@@ -243,7 +243,7 @@
                                 </div>
                                 
                                 <div class="pt-4 flex gap-3">
-                                    <button type="button" @click="showSuspend = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all text-sm">
+                                    <button type="button" @click="showSuspend = false" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 font-bold py-3 px-4 rounded-xl transition-all text-sm">
                                         Cancel
                                     </button>
                                     <button type="submit" :disabled="loading" :class="loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-amber-700 hover:-translate-y-0.5'" class="flex-1 bg-amber-600 text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-2">
@@ -280,15 +280,15 @@
                         }
                     }
                 }">
-                    <button @click="showReject = true" type="button" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold py-4 px-4 rounded-xl border border-rose-200 transition-all flex items-center justify-center gap-2">
+                    <button @click="showReject = true" type="button" class="w-full bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 text-rose-600 font-bold py-4 px-4 rounded-xl border border-rose-200 transition-all flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         Reject Hospital
                     </button>
                     
                     <!-- Reject Modal -->
                     <div x-show="showReject" style="display: none;" class="fixed inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in text-left" style="z-index: 99999;">
-                        <div @click.away="showReject = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
-                            <div class="bg-rose-50 border-b border-rose-100 p-6 flex justify-between items-center">
+                        <div @click.away="showReject = false" class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+                            <div class="bg-rose-50 dark:bg-rose-900/20 border-b border-rose-100 p-6 flex justify-between items-center">
                                 <h3 class="text-xl font-bold text-rose-800 flex items-center gap-2" style="font-family: 'Outfit', sans-serif;">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     Reject {{ hospital.name }}
@@ -305,24 +305,24 @@
                                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                     <span><strong>Action Required:</strong> The rejection reason must be at least 250 characters. You currently have <span x-text="charCount"></span> characters.</span>
                                 </div>
-                                <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
+                                <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
                                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <span x-text="serverError"></span>
                                 </div>
 
                                 <div>
                                     <div class="flex justify-between items-end mb-2">
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reason for Rejection</label>
+                                        <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Reason for Rejection</label>
                                         <span class="text-[10px] font-bold transition-colors" :class="charCount < 250 ? 'text-rose-500' : 'text-emerald-500'" x-text="charCount + ' / 250 min chars'"></span>
                                     </div>
-                                    <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700" rows="5" placeholder="Explain why the application is rejected in detail (minimum 250 characters)..."></textarea>
+                                    <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700 dark:text-slate-300" rows="5" placeholder="Explain why the application is rejected in detail (minimum 250 characters)..."></textarea>
                                 </div>
                                 <div x-data="{ showPass: false }">
-                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Admin Password</label>
+                                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2">Confirm Admin Password</label>
                                     <div style="position: relative; width: 100%;">
                                         <input :type="showPass ? 'text' : 'password'" name="password" @input="serverError = ''" required 
                                             style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 0.75rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 0.75rem; padding-bottom: 0.75rem; color: rgb(30 41 59); transition: all 0.2s;"
-                                            class="focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-slate-700 placeholder:text-slate-400" placeholder="Enter your password">
+                                            class="focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-slate-700 dark:text-slate-300 placeholder:text-slate-400 dark:text-slate-400" placeholder="Enter your password">
                                         <button type="button" 
                                             @mousedown="showPass = true" 
                                             @mouseup="showPass = false" 
@@ -338,7 +338,7 @@
                                 </div>
                                 
                                 <div class="pt-4 flex gap-3">
-                                    <button type="button" @click="showReject = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all text-sm">
+                                    <button type="button" @click="showReject = false" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 font-bold py-3 px-4 rounded-xl transition-all text-sm">
                                         Cancel
                                     </button>
                                     <button type="submit" :disabled="loading" :class="loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-rose-700 hover:-translate-y-0.5'" class="flex-1 bg-rose-600 text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-2">
@@ -353,7 +353,7 @@
             </div>
 
             <!-- Quick Info -->
-            <div class="bg-sky-50 rounded-3xl border border-sky-100 p-6">
+            <div class="bg-sky-50 dark:bg-sky-900/20 rounded-3xl border border-sky-100 p-6">
                 <h3 class="text-sm font-bold text-sky-800 mb-3">Review Checklist</h3>
                 <ul class="space-y-2 text-sm text-sky-700">
                     <li class="flex items-start gap-2">

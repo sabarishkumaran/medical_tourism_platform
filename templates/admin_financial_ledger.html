@@ -9,19 +9,19 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
             <div>
-                <a href="{% url 'admin_dashboard' %}" class="inline-flex items-center gap-2 text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors bg-sky-50 px-3 py-1.5 rounded-lg mb-4 active:scale-95">
+                <a href="{% url 'admin_dashboard' %}" class="inline-flex items-center gap-2 text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors bg-sky-50 dark:bg-sky-900/20 px-3 py-1.5 rounded-lg mb-4 active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     Back to Dashboard
                 </a>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight" style="font-family: 'Outfit', sans-serif;">Financial Ledger</h1>
-                <p class="text-slate-500 mt-1">Unified view of all platform inflows, hospital payouts, and commission deductions.</p>
+                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight" style="font-family: 'Outfit', sans-serif;">Financial Ledger</h1>
+                <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1">Unified view of all platform inflows, hospital payouts, and commission deductions.</p>
             </div>
             
-            <div class="flex bg-slate-100 p-1.5 rounded-2xl w-full md:w-auto">
-                <button @click="activeTab = 'inflows'" :class="{'bg-white text-emerald-600 shadow-sm border-slate-200': activeTab === 'inflows', 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50': activeTab !== 'inflows'}" class="flex-1 md:w-48 py-2.5 px-4 rounded-xl text-sm font-bold transition-all border border-transparent">
+            <div class="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl w-full md:w-auto">
+                <button @click="activeTab = 'inflows'" :class="{'bg-white dark:bg-slate-900 text-emerald-600 shadow-sm border-slate-200 dark:border-slate-700': activeTab === 'inflows', 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:bg-slate-800/50': activeTab !== 'inflows'}" class="flex-1 md:w-48 py-2.5 px-4 rounded-xl text-sm font-bold transition-all border border-transparent">
                     Patient Inflows
                 </button>
-                <button @click="activeTab = 'outflows'" :class="{'bg-white text-indigo-600 shadow-sm border-slate-200': activeTab === 'outflows', 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50': activeTab !== 'outflows'}" class="flex-1 md:w-48 py-2.5 px-4 rounded-xl text-sm font-bold transition-all border border-transparent">
+                <button @click="activeTab = 'outflows'" :class="{'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm border-slate-200 dark:border-slate-700': activeTab === 'outflows', 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:bg-slate-800/50': activeTab !== 'outflows'}" class="flex-1 md:w-48 py-2.5 px-4 rounded-xl text-sm font-bold transition-all border border-transparent">
                     Hospital Ledger
                 </button>
             </div>
@@ -32,44 +32,44 @@
             <!-- Total Inflows -->
             <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-[2rem] p-6 border border-emerald-100 shadow-sm relative overflow-hidden">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-200 rounded-full blur-2xl opacity-50"></div>
-                <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600 mb-4 relative z-10">
+                <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex items-center justify-center text-emerald-600 mb-4 relative z-10">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Total Patient Deposits</h3>
-                <p class="text-3xl font-black text-slate-900 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_inflows|floatformat:2 }}</p>
+                <h3 class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Total Patient Deposits</h3>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_inflows|floatformat:2 }}</p>
             </div>
 
             <!-- Total Payouts (Hospital Wallets) -->
             <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-[2rem] p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-200 rounded-full blur-2xl opacity-50"></div>
-                <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-600 mb-4 relative z-10">
+                <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex items-center justify-center text-indigo-600 mb-4 relative z-10">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                 </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Total Hospital Payouts</h3>
-                <p class="text-3xl font-black text-slate-900 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_payouts|floatformat:2 }}</p>
+                <h3 class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Total Hospital Payouts</h3>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_payouts|floatformat:2 }}</p>
             </div>
 
             <!-- Total Deductions (Commissions) -->
             <div class="bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-[2rem] p-6 border border-violet-100 shadow-sm relative overflow-hidden">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-violet-200 rounded-full blur-2xl opacity-50"></div>
-                <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-violet-600 mb-4 relative z-10">
+                <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex items-center justify-center text-violet-600 mb-4 relative z-10">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                 </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Total Commission Collected</h3>
-                <p class="text-3xl font-black text-slate-900 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_deductions|floatformat:2 }}</p>
+                <h3 class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Total Commission Collected</h3>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_deductions|floatformat:2 }}</p>
             </div>
         </div>
 
         <!-- Tab Content 1: Patient Inflows -->
         <div x-show="activeTab === 'inflows'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h2 class="text-lg font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Patient Payment Records</h2>
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Patient Payment Records</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">
                                 <th class="p-4 pl-6 font-bold">Transaction Date</th>
                                 <th class="p-4 font-bold">Patient</th>
                                 <th class="p-4 font-bold">Inquiry / Treatment</th>
@@ -77,24 +77,24 @@
                                 <th class="p-4 pr-6 font-bold text-right">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                             {% for payment in patient_payments %}
-                            <tr class="hover:bg-slate-50/50 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors">
                                 <td class="p-4 pl-6">
-                                    <div class="font-bold text-slate-700">{{ payment.payment_date|date:"M d, Y" }}</div>
-                                    <div class="text-[11px] text-slate-400 font-medium">{{ payment.payment_date|time:"H:i A" }}</div>
+                                    <div class="font-bold text-slate-700 dark:text-slate-300">{{ payment.payment_date|date:"M d, Y" }}</div>
+                                    <div class="text-[11px] text-slate-400 dark:text-slate-400 font-medium">{{ payment.payment_date|time:"H:i A" }}</div>
                                 </td>
                                 <td class="p-4">
-                                    <div class="font-bold text-slate-800">{{ payment.inquiry.patient.get_full_name|default:payment.inquiry.patient.username }}</div>
-                                    <div class="text-[11px] text-slate-400">{{ payment.inquiry.patient.email }}</div>
+                                    <div class="font-bold text-slate-800 dark:text-slate-200">{{ payment.inquiry.patient.get_full_name|default:payment.inquiry.patient.username }}</div>
+                                    <div class="text-[11px] text-slate-400 dark:text-slate-400">{{ payment.inquiry.patient.email }}</div>
                                 </td>
                                 <td class="p-4">
-                                    <div class="font-bold text-slate-700">INQ-#{{ payment.inquiry.uuid }}</div>
-                                    <div class="text-xs text-slate-500 truncate max-w-[200px]">{{ payment.inquiry.treatment.name }} at {{ payment.inquiry.hospital.name }}</div>
+                                    <div class="font-bold text-slate-700 dark:text-slate-300">INQ-#{{ payment.inquiry.uuid }}</div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 truncate max-w-[200px]">{{ payment.inquiry.treatment.name }} at {{ payment.inquiry.hospital.name }}</div>
                                 </td>
                                 <td class="p-4">
                                     <div class="font-black text-emerald-600 text-base">+${{ payment.amount }}</div>
-                                    <div class="text-[10px] font-bold text-slate-400 uppercase">{{ payment.currency }}</div>
+                                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase">{{ payment.currency }}</div>
                                 </td>
                                 <td class="p-4 pr-6 text-right">
                                     {% if payment.status|lower == 'completed' %}
@@ -102,7 +102,7 @@
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Completed
                                         </span>
                                     {% else %}
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-wider">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-[10px] font-black uppercase tracking-wider">
                                             {{ payment.status }}
                                         </span>
                                     {% endif %}
@@ -110,7 +110,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="p-8 text-center text-slate-400 italic">No patient payments recorded yet.</td>
+                                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-400 italic">No patient payments recorded yet.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -121,14 +121,14 @@
 
         <!-- Tab Content 2: Hospital Wallet Activity -->
         <div x-show="activeTab === 'outflows'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h2 class="text-lg font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Hospital Wallet Activity</h2>
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Hospital Wallet Activity</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">
                                 <th class="p-4 pl-6 font-bold">Transaction Date</th>
                                 <th class="p-4 font-bold">Hospital</th>
                                 <th class="p-4 font-bold">Type</th>
@@ -136,16 +136,16 @@
                                 <th class="p-4 pr-6 font-bold text-right">Amount</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                             {% for tx in wallet_transactions %}
-                            <tr class="hover:bg-slate-50/50 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors">
                                 <td class="p-4 pl-6">
-                                    <div class="font-bold text-slate-700">{{ tx.created_at|date:"M d, Y" }}</div>
-                                    <div class="text-[11px] text-slate-400 font-medium">{{ tx.created_at|time:"H:i A" }}</div>
+                                    <div class="font-bold text-slate-700 dark:text-slate-300">{{ tx.created_at|date:"M d, Y" }}</div>
+                                    <div class="text-[11px] text-slate-400 dark:text-slate-400 font-medium">{{ tx.created_at|time:"H:i A" }}</div>
                                 </td>
                                 <td class="p-4">
-                                    <div class="font-bold text-slate-800">{{ tx.hospital.name }}</div>
-                                    <div class="text-[11px] text-slate-400">{{ tx.hospital.city }}</div>
+                                    <div class="font-bold text-slate-800 dark:text-slate-200">{{ tx.hospital.name }}</div>
+                                    <div class="text-[11px] text-slate-400 dark:text-slate-400">{{ tx.hospital.city }}</div>
                                 </td>
                                 <td class="p-4">
                                     {% if tx.transaction_type == 'DEPOSIT' %}
@@ -155,11 +155,11 @@
                                     {% elif tx.transaction_type == 'SUBSCRIPTION' %}
                                         <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-bold uppercase tracking-wider">Subscription</span>
                                     {% else %}
-                                        <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[10px] font-bold uppercase tracking-wider">{{ tx.get_transaction_type_display }}</span>
+                                        <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[10px] font-bold uppercase tracking-wider">{{ tx.get_transaction_type_display }}</span>
                                     {% endif %}
                                 </td>
                                 <td class="p-4">
-                                    <div class="text-sm text-slate-600 truncate max-w-[250px]" title="{{ tx.description }}">{{ tx.description }}</div>
+                                    <div class="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 truncate max-w-[250px]" title="{{ tx.description }}">{{ tx.description }}</div>
                                 </td>
                                 <td class="p-4 pr-6 text-right">
                                     {% if tx.amount > 0 %}
@@ -171,7 +171,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="p-8 text-center text-slate-400 italic">No hospital wallet transactions found.</td>
+                                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-400 italic">No hospital wallet transactions found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>

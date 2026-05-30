@@ -6,12 +6,12 @@
 
         <!-- Header -->
         <div class="flex items-center gap-4 mb-8">
-            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:border-emerald-200 transition-all">
+            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-center text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </a>
             <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Admin · Revenue</p>
-                <h1 class="text-2xl font-extrabold text-slate-900" style="font-family:'Outfit',sans-serif;">Patient Services & Featured Ads</h1>
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-0.5">Admin · Revenue</p>
+                <h1 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100" style="font-family:'Outfit',sans-serif;">Patient Services & Featured Ads</h1>
             </div>
         </div>
 
@@ -22,57 +22,57 @@
                 <p class="text-5xl font-black" style="font-family:'Outfit',sans-serif;">${{ grand_total|floatformat:2 }}</p>
                 <p class="text-emerald-100 text-xs mt-2">Service add-ons (${{ service_total|floatformat:2 }}) + Featured Ads (${{ featured_total }})</p>
             </div>
-            <div class="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center">
+            <div class="w-20 h-20 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
             </div>
         </div>
 
         <!-- Patient Service Add-ons -->
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-6">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden mb-6">
             <div class="p-6 border-b border-slate-50 flex items-center justify-between">
-                <h2 class="font-bold text-slate-800">Patient Service Add-ons</h2>
+                <h2 class="font-bold text-slate-800 dark:text-slate-200">Patient Service Add-ons</h2>
                 <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full">${{ service_total|floatformat:2 }} total</span>
             </div>
             <div class="divide-y divide-slate-50">
                 {% for inq in inquiries %}
                 {% if inq.service_fees_total > 0 %}
-                <div class="p-5 hover:bg-slate-50/60 transition-colors flex items-center justify-between gap-4">
+                <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/60 transition-colors flex items-center justify-between gap-4">
                     <div class="flex items-center gap-4 flex-1 min-w-0">
                         <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-sm uppercase shrink-0">{{ inq.patient.username|slice:":1" }}</div>
                         <div class="flex-1 min-w-0">
-                            <p class="font-bold text-slate-800 text-sm truncate">{{ inq.patient.get_full_name|default:inq.patient.username }}</p>
-                            <p class="text-[11px] text-slate-400">{{ inq.created_at|date:"M d, Y" }} &bull; {{ inq.treatment.name }} &bull; {{ inq.hospital.name|default:"Unassigned" }}</p>
+                            <p class="font-bold text-slate-800 dark:text-slate-200 text-sm truncate">{{ inq.patient.get_full_name|default:inq.patient.username }}</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-400">{{ inq.created_at|date:"M d, Y" }} &bull; {{ inq.treatment.name }} &bull; {{ inq.hospital.name|default:"Unassigned" }}</p>
                         </div>
                     </div>
                     <span class="text-emerald-600 font-black text-lg shrink-0">+${{ inq.service_fees_total }}</span>
                 </div>
                 {% endif %}
                 {% empty %}
-                <div class="p-16 text-center text-slate-400 italic">No patient service add-ons recorded yet.</div>
+                <div class="p-16 text-center text-slate-400 dark:text-slate-400 italic">No patient service add-ons recorded yet.</div>
                 {% endfor %}
             </div>
         </div>
 
         <!-- Featured Hospitals -->
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
             <div class="p-6 border-b border-slate-50 flex items-center justify-between">
-                <h2 class="font-bold text-slate-800">Featured Hospital Listings</h2>
+                <h2 class="font-bold text-slate-800 dark:text-slate-200">Featured Hospital Listings</h2>
                 <span class="text-xs font-bold text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full">${{ featured_total }} total</span>
             </div>
             <div class="divide-y divide-slate-50">
                 {% for h in featured_hospitals %}
-                <div class="p-5 hover:bg-slate-50/60 transition-colors flex items-center justify-between gap-4">
+                <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/60 transition-colors flex items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold text-sm uppercase shrink-0">{{ h.name|slice:":1" }}</div>
                         <div>
-                            <p class="font-bold text-slate-800 text-sm">{{ h.name }}</p>
-                            <p class="text-[11px] text-slate-400">{{ h.city }}, {{ h.user.country }} &bull; {{ h.get_subscription_plan_display }}</p>
+                            <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ h.name }}</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-400">{{ h.city }}, {{ h.user.country }} &bull; {{ h.get_subscription_plan_display }}</p>
                         </div>
                     </div>
-                    <span class="text-teal-700 font-black text-lg">$299<span class="text-[10px] text-slate-400 font-bold">/listing</span></span>
+                    <span class="text-teal-700 font-black text-lg">$299<span class="text-[10px] text-slate-400 dark:text-slate-400 font-bold">/listing</span></span>
                 </div>
                 {% empty %}
-                <div class="p-12 text-center text-slate-400 italic">No featured hospitals currently.</div>
+                <div class="p-12 text-center text-slate-400 dark:text-slate-400 italic">No featured hospitals currently.</div>
                 {% endfor %}
             </div>
         </div>

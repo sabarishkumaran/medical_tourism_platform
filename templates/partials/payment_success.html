@@ -9,8 +9,8 @@
         <h2 class="text-3xl font-extrabold text-emerald-800 mb-2" style="font-family: 'Outfit', sans-serif;">Payment Successful!</h2>
         <p class="text-emerald-700 text-sm max-w-md mx-auto mb-6">Your payment has been processed securely. Your medical journey with {{ inquiry.hospital.name }} is fully booked and confirmed.</p>
         
-        <div class="bg-white/60 backdrop-blur-sm border border-emerald-100 rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs shadow-inner">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid</span>
+        <div class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm border border-emerald-100 rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs shadow-inner">
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Amount Paid</span>
             <span class="text-lg font-black text-emerald-700">${{ inquiry.total_amount_paid|floatformat:2 }}</span>
         </div>
     </div>

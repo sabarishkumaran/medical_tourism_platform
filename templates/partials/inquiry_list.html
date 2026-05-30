@@ -4,35 +4,35 @@
     <!-- Mobile Card View -->
     <div class="md:hidden space-y-4">
         {% for msg in page_obj %}
-        <div class="bg-white rounded-3xl p-6 border {% if not msg.is_read %}border-sky-100 shadow-sky-50 shadow-lg{% else %}border-slate-100 shadow-sm{% endif %} transition-all relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border {% if not msg.is_read %}border-sky-100 shadow-sky-50 shadow-lg{% else %}border-slate-100 dark:border-slate-800 shadow-sm{% endif %} transition-all relative overflow-hidden">
             {% if not msg.is_read %}
             <div class="absolute top-0 right-0 w-20 h-20 bg-sky-500/5 rounded-full -mr-10 -mt-10"></div>
             {% endif %}
             
             <div class="flex items-center justify-between mb-4">
-                <span class="text-[10px] font-bold uppercase tracking-widest {% if not msg.is_read %}text-sky-600{% else %}text-slate-400{% endif %}">
+                <span class="text-[10px] font-bold uppercase tracking-widest {% if not msg.is_read %}text-sky-600{% else %}text-slate-400 dark:text-slate-400{% endif %}">
                     {% if not msg.is_read %}New Message{% else %}Processed{% endif %}
                 </span>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ msg.created_at|date:"M d, Y" }}</p>
+                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">{{ msg.created_at|date:"M d, Y" }}</p>
             </div>
 
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-base shadow-inner">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 dark:text-slate-400 font-bold text-base shadow-inner">
                     {{ msg.first_name|first|upper }}
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-800">{{ msg.first_name }} {{ msg.last_name }}</h3>
-                    <p class="text-xs text-slate-400 font-medium">{{ msg.email }}</p>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200">{{ msg.first_name }} {{ msg.last_name }}</h3>
+                    <p class="text-xs text-slate-400 dark:text-slate-400 font-medium">{{ msg.email }}</p>
                 </div>
             </div>
 
-            <p class="text-sm text-slate-600 mb-6 bg-slate-50 p-4 rounded-2xl italic">
+            <p class="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 mb-6 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl italic">
                 "{{ msg.message|truncatechars:150 }}"
             </p>
 
             <div class="flex items-center justify-between gap-3">
                 <button @click="activeModal = {{ msg.id }}" 
-                        class="w-full bg-white border border-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors">
                     <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
                     {% if msg.is_read %}View Reply{% else %}Reply to Message{% endif %}
                 </button>
@@ -40,7 +40,7 @@
         </div>
         {% empty %}
         <div class="p-20 text-center">
-            <h2 class="text-2xl font-bold text-slate-400">Hub is empty</h2>
+            <h2 class="text-2xl font-bold text-slate-400 dark:text-slate-400">Hub is empty</h2>
         </div>
         {% endfor %}
     </div>
@@ -49,26 +49,26 @@
     <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-slate-50 border-b border-slate-100">
-                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer hover:text-sky-600 transition-colors"
+                <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest cursor-pointer hover:text-sky-600 transition-colors"
                         hx-get="?type={{ message_type }}&q={{ q }}&sort={% if sort == 'status_asc' %}status_desc{% else %}status_asc{% endif %}" hx-target="#inquiry-list-container" hx-swap="outerHTML">
                         Status {% if sort == 'status_asc' %}↑{% elif sort == 'status_desc' %}↓{% endif %}
                     </th>
-                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer hover:text-sky-600 transition-colors"
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest cursor-pointer hover:text-sky-600 transition-colors"
                         hx-get="?type={{ message_type }}&q={{ q }}&sort={% if sort == 'sender_asc' %}sender_desc{% else %}sender_asc{% endif %}" hx-target="#inquiry-list-container" hx-swap="outerHTML">
                         Sender {% if sort == 'sender_asc' %}↑{% elif sort == 'sender_desc' %}↓{% endif %}
                     </th>
-                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Message Extract</th>
-                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center cursor-pointer hover:text-sky-600 transition-colors"
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">Message Extract</th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest text-center cursor-pointer hover:text-sky-600 transition-colors"
                         hx-get="?type={{ message_type }}&q={{ q }}&sort={% if sort == 'oldest' %}newest{% else %}oldest{% endif %}" hx-target="#inquiry-list-container" hx-swap="outerHTML">
                         Received Date {% if sort == 'oldest' %}↑{% elif sort == 'newest' or not sort %}↓{% endif %}
                     </th>
-                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                    <th class="px-8 py-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
                 {% for msg in page_obj %}
-                <tr class="hover:bg-slate-50/50 transition-colors group cursor-pointer" @click="activeModal = {{ msg.id }}">
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors group cursor-pointer" @click="activeModal = {{ msg.id }}">
                     <td class="px-8 py-5 whitespace-nowrap">
                         {% if not msg.is_read %}
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold uppercase tracking-wider animate-pulse">
@@ -82,7 +82,7 @@
                     </td>
                     <td class="px-8 py-5 whitespace-nowrap">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm shadow-inner overflow-hidden">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 dark:text-slate-400 dark:text-slate-400 font-bold text-sm shadow-inner overflow-hidden">
                                 {% if not msg.is_read %}
                                 <div class="w-full h-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white">
                                     {{ msg.first_name|first|upper }}
@@ -92,22 +92,22 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-slate-800">{{ msg.first_name }} {{ msg.last_name }}</p>
-                                <p class="text-[11px] text-slate-400 font-medium">{{ msg.email }}</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ msg.first_name }} {{ msg.last_name }}</p>
+                                <p class="text-[11px] text-slate-400 dark:text-slate-400 font-medium">{{ msg.email }}</p>
                             </div>
                         </div>
                     </td>
                     <td class="px-8 py-5 max-w-xs xl:max-w-md">
-                        <p class="text-sm text-slate-600 truncate opacity-80 group-hover:opacity-100 transition-opacity">
+                        <p class="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 truncate opacity-80 group-hover:opacity-100 transition-opacity">
                             {{ msg.message }}
                         </p>
                     </td>
                     <td class="px-8 py-5 text-center whitespace-nowrap">
-                        <p class="text-xs font-bold text-slate-700">{{ msg.created_at|date:"M d, Y" }}</p>
-                        <p class="text-[10px] text-slate-500 font-medium mt-1">{{ msg.created_at|timesince }} ago</p>
+                        <p class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ msg.created_at|date:"M d, Y" }}</p>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium mt-1">{{ msg.created_at|timesince }} ago</p>
                     </td>
                     <td class="px-8 py-5 text-right whitespace-nowrap">
-                        <button class="bg-white border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-sky-300 transition-all shadow-sm">
+                        <button class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 hover:border-sky-300 transition-all shadow-sm">
                             {% if msg.is_read %}View Reply{% else %}Reply{% endif %}
                         </button>
                     </td>
@@ -119,19 +119,19 @@
 
     <!-- Desktop Pagination -->
     {% if page_obj.has_other_pages %}
-    <div class="mt-8 flex items-center justify-between px-8 py-6 bg-slate-50/50 rounded-[2rem]">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+    <div class="mt-8 flex items-center justify-between px-8 py-6 bg-slate-50/50 dark:bg-slate-950/50 rounded-[2rem]">
+        <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">
             Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
         </p>
         <div class="flex items-center gap-3">
             {% if page_obj.has_previous %}
             <a hx-get="?page={{ page_obj.previous_page_number }}{% if message_type %}&type={{ message_type }}{% endif %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" hx-push-url="true"
-               class="px-6 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 hover:text-sky-600 transition-all uppercase tracking-widest shadow-sm cursor-pointer">Previous</a>
+               class="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-[10px] font-bold hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 hover:text-sky-600 transition-all uppercase tracking-widest shadow-sm cursor-pointer">Previous</a>
             {% endif %}
             
             {% if page_obj.has_next %}
             <a hx-get="?page={{ page_obj.next_page_number }}{% if message_type %}&type={{ message_type }}{% endif %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" hx-push-url="true"
-               class="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-[10px] font-bold hover:bg-sky-600 transition-all uppercase tracking-widest shadow-lg cursor-pointer">Next</a>
+               class="px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 text-white text-[10px] font-bold hover:bg-sky-600 dark:hover:bg-sky-500 transition-all uppercase tracking-widest shadow-lg cursor-pointer">Next</a>
             {% endif %}
         </div>
     </div>
@@ -141,9 +141,9 @@
     {% for msg in page_obj %}
     <template x-teleport="body">
         <div x-show="activeModal === {{ msg.id }}" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden relative" @click.outside="activeModal = null">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden relative" @click.outside="activeModal = null">
                 <!-- Header -->
-                <div class="bg-slate-900 px-8 py-8 text-white relative overflow-hidden">
+                <div class="bg-slate-900 dark:bg-slate-700 px-8 py-8 text-white relative overflow-hidden">
                     <div class="absolute -right-20 -top-20 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl"></div>
                     <div class="relative z-10 flex items-center gap-6">
                         <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-2xl font-black shadow-xl shrink-0 border-2 border-white/10">
@@ -160,25 +160,25 @@
                 </div>
                 
                 <!-- Body -->
-                <div class="p-8 md:p-10 bg-slate-50">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Original Message</h4>
-                    <div class="bg-white p-5 rounded-2xl text-slate-700 text-sm leading-relaxed border border-slate-200 mb-8 shadow-sm">
+                <div class="p-8 md:p-10 bg-slate-50 dark:bg-slate-950">
+                    <h4 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-3">Original Message</h4>
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl text-slate-700 dark:text-slate-300 text-sm leading-relaxed border border-slate-200 dark:border-slate-700 mb-8 shadow-sm">
                         {{ msg.message }}
                     </div>
                     
                     {% if msg.is_read %}
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Reply Sent ({{ msg.replied_at|date:"M d, Y H:i" }})</h4>
-                        <div class="bg-sky-50 p-5 rounded-2xl text-slate-700 text-sm leading-relaxed border border-sky-100 shadow-inner">
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-3">Reply Sent ({{ msg.replied_at|date:"M d, Y H:i" }})</h4>
+                        <div class="bg-sky-50 dark:bg-sky-900/20 p-5 rounded-2xl text-slate-700 dark:text-slate-300 text-sm leading-relaxed border border-sky-100 shadow-inner">
                             {{ msg.reply_text }}
                         </div>
                     {% else %}
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Draft Reply</h4>
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-3">Draft Reply</h4>
                     <form hx-post="{% url 'contact_messages_hub' %}" hx-target="#inquiry-list-container" hx-swap="outerHTML" x-data="{ isSending: false }" @submit="isSending = true">
                         {% csrf_token %}
                         <input type="hidden" name="message_id" value="{{ msg.id }}">
-                        <textarea name="reply_text" rows="5" required class="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-sky-500 mb-6 shadow-sm" placeholder="Type your reply here... It will be sent directly to {{ msg.email }}"></textarea>
+                        <textarea name="reply_text" rows="5" required class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm focus:ring-2 focus:ring-sky-500 mb-6 shadow-sm" placeholder="Type your reply here... It will be sent directly to {{ msg.email }}"></textarea>
                         <div class="flex justify-end gap-4">
-                            <button type="button" @click="activeModal = null" class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition-colors text-sm" :disabled="isSending">Cancel</button>
+                            <button type="button" @click="activeModal = null" class="px-6 py-3 rounded-xl font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-200 dark:bg-slate-800 transition-colors text-sm" :disabled="isSending">Cancel</button>
                             <button type="submit" class="inline-flex items-center gap-2 bg-sky-600 text-white font-bold px-8 py-3 rounded-xl text-sm shadow-md hover:bg-sky-700 transition-all" :class="{ 'opacity-75 cursor-not-allowed': isSending }" :disabled="isSending">
                                 <span x-show="!isSending">Send Email Reply</span>
                                 <span x-show="isSending">Sending...</span>

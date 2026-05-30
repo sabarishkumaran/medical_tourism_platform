@@ -6,12 +6,12 @@
 
     <!-- Hospital Sidebar Navigation -->
     <aside class="w-full md:w-72 flex-shrink-0">
-        <div class="bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-700 p-6 sticky top-28 overflow-hidden relative">
+        <div class="bg-slate-900 dark:bg-slate-700 text-white rounded-3xl shadow-2xl border border-slate-700 p-6 sticky top-28 overflow-hidden relative">
             <!-- Decorative blur -->
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/20 rounded-full blur-2xl"></div>
             
             <div class="flex items-center gap-4 mb-8 relative z-10">
-                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center font-bold text-xl shadow-inner border border-white/10 backdrop-blur-sm overflow-hidden">
+                <div class="w-14 h-14 rounded-2xl bg-white/10 dark:bg-slate-900/10 flex items-center justify-center font-bold text-xl shadow-inner border border-white/10 backdrop-blur-sm overflow-hidden">
                     {% if user.avatar %}
                         <img src="{{ user.avatar.url }}" class="w-full h-full object-cover">
                     {% else %}
@@ -29,11 +29,11 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     Dashboard
                 </a>
-                <a href="{% url 'manage_treatment_packages' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <a href="{% url 'manage_treatment_packages' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 dark:text-slate-400 hover:bg-white/5 dark:bg-slate-900/5 hover:text-white rounded-xl font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     Treatments
                 </a>
-                <a href="#inquiries" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors justify-between">
+                <a href="#inquiries" class="flex items-center gap-3 px-4 py-3 text-slate-400 dark:text-slate-400 hover:bg-white/5 dark:bg-slate-900/5 hover:text-white rounded-xl font-medium transition-colors justify-between">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
                         Inquiries
@@ -42,11 +42,11 @@
                     <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pending_approvals }}</span>
                     {% endif %}
                 </a>
-                <a href="{% url 'upload_hospital_photos' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <a href="{% url 'upload_hospital_photos' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 dark:text-slate-400 hover:bg-white/5 dark:bg-slate-900/5 hover:text-white rounded-xl font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     Upload Photos
                 </a>
-                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors mt-6">
+                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 dark:text-slate-400 hover:bg-white/5 dark:bg-slate-900/5 hover:text-white rounded-xl font-medium transition-colors mt-6">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     Hospital Profile
                 </a>
@@ -60,12 +60,12 @@
         <div>
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h1 class="text-3xl font-extrabold text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Hospital Operations</h1>
-                    <p class="text-slate-500">Manage patient inquiries, treatment packages, and doctors.</p>
+                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-2" style="font-family: 'Outfit', sans-serif;">Hospital Operations</h1>
+                    <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400">Manage patient inquiries, treatment packages, and doctors.</p>
                 </div>
                 <div class="hidden sm:block">
-                    <span class="text-sm font-bold text-slate-400">Current Period:</span>
-                    <select class="ml-2 bg-white border border-slate-200 rounded-lg px-3 py-1 text-sm font-medium text-slate-700 focus:outline-none focus:border-sky-500">
+                    <span class="text-sm font-bold text-slate-400 dark:text-slate-400">Current Period:</span>
+                    <select class="ml-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-sky-500">
                         <option>This Month</option>
                         <option>Last Month</option>
                         <option>This Year</option>
@@ -75,20 +75,20 @@
 
             <!-- Metric Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-grid">
-                <a href="{% url 'hospital_manage_inquiries' %}?status=new" class="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-sky-200 transition-colors">
-                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-sky-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
-                    <div class="text-3xl font-black text-slate-800 mb-1">{{ pending_approvals|default:"0" }}</div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">New Inquiries</div>
+                <a href="{% url 'hospital_manage_inquiries' %}?status=new" class="block bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-center relative overflow-hidden group hover:border-sky-200 transition-colors">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-sky-50 dark:bg-sky-900/20 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
+                    <div class="text-3xl font-black text-slate-800 dark:text-slate-200 mb-1">{{ pending_approvals|default:"0" }}</div>
+                    <div class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wide">New Inquiries</div>
                 </a>
-                <a href="{% url 'hospital_manage_inquiries' %}?status=quotes" class="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-amber-200 transition-colors">
+                <a href="{% url 'hospital_manage_inquiries' %}?status=quotes" class="block bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-center relative overflow-hidden group hover:border-amber-200 transition-colors">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
-                    <div class="text-3xl font-black text-slate-800 mb-1">{{ pending_quotes|default:"0" }}</div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Pending Quotes</div>
+                    <div class="text-3xl font-black text-slate-800 dark:text-slate-200 mb-1">{{ pending_quotes|default:"0" }}</div>
+                    <div class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wide">Pending Quotes</div>
                 </a>
-                <a href="{% url 'manage_treatment_packages' %}" class="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:border-emerald-200 transition-colors">
+                <a href="{% url 'manage_treatment_packages' %}" class="block bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-center relative overflow-hidden group hover:border-emerald-200 transition-colors">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-10"></div>
-                    <div class="text-3xl font-black text-slate-800 mb-1">{{ packages|length|default:"0" }}</div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Active Packages</div>
+                    <div class="text-3xl font-black text-slate-800 dark:text-slate-200 mb-1">{{ packages|length|default:"0" }}</div>
+                    <div class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wide">Active Packages</div>
                 </a>
                 <a href="#" class="block bg-gradient-to-br from-indigo-600 to-sky-700 text-white rounded-2xl p-6 shadow-lg border border-indigo-500 flex flex-col justify-center group transform transition-all hover:scale-105 hover:shadow-indigo-500/30">
                     <div class="text-3xl font-black mb-1">{{ estimated_revenue }}</div>
@@ -99,25 +99,25 @@
 
         <div class="grid lg:grid-cols-2 gap-8">
             <!-- Recent Inquiries Section -->
-            <div id="inquiries" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
-                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Recent Inquiries Action</h2>
+            <div id="inquiries" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+                <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Recent Inquiries Action</h2>
                     <a href="{% url 'hospital_manage_inquiries' %}" class="text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors">View All</a>
                 </div>
                 
                 <div class="flex-1 overflow-auto">
                     {% if recent_inquiries %}
-                        <div class="divide-y divide-slate-100">
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800">
                             {% for inquiry in recent_inquiries %}
-                            <div class="p-5 hover:bg-slate-50 transition-colors group">
+                            <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors group">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
                                             {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
                                         </div>
                                         <div>
-                                            <h3 class="font-bold text-slate-800 text-sm">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
-                                            <p class="text-xs text-slate-500">{{ inquiry.created_at|date:"M d, Y" }}</p>
+                                            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">{{ inquiry.created_at|date:"M d, Y" }}</p>
                                         </div>
                                     </div>
                                     {% if inquiry.status == 'NEW' %}
@@ -127,20 +127,20 @@
                                     {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
                                         <span class="bg-indigo-100 text-indigo-800 text-[10px] uppercase font-bold px-2 py-1 rounded-full">Payment Pending</span>
                                     {% else %}
-                                        <span class="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold px-2 py-1 rounded-full">{{ inquiry.status }}</span>
+                                        <span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-[10px] uppercase font-bold px-2 py-1 rounded-full">{{ inquiry.status }}</span>
                                     {% endif %}
                                 </div>
-                                <div class="ml-13 pl-10 border-l-2 border-slate-100 mt-2">
-                                    <p class="text-sm font-semibold text-slate-700">{{ inquiry.treatment.name }}</p>
+                                <div class="ml-13 pl-10 border-l-2 border-slate-100 dark:border-slate-800 mt-2">
+                                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ inquiry.treatment.name }}</p>
                                     <div class="mt-3">
                                         {% if inquiry.status == 'NEW' %}
-                                            <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="inline-block bg-slate-900 hover:bg-sky-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">Review & Quote</a>
+                                            <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="inline-block bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">Review & Quote</a>
                                         {% elif inquiry.status == 'QUOTE_SENT' %}
-                                            <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="inline-block bg-slate-100 text-slate-500 text-xs font-bold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors shadow-sm cursor-pointer whitespace-nowrap">Awaiting Patient</a>
+                                            <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="inline-block bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs font-bold py-2 px-4 rounded-lg hover:bg-slate-200 dark:bg-slate-800 transition-colors shadow-sm cursor-pointer whitespace-nowrap">Awaiting Patient</a>
                                         {% elif inquiry.status == 'CONFIRMED' %}
                                             <button type="button" hx-post="{% url 'send_payment_link' inquiry.uuid %}" hx-swap="none" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">Send Payment Link</button>
                                         {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
-                                            <span class="inline-block bg-indigo-50 text-indigo-500 text-xs font-bold py-2 px-4 rounded-lg border border-indigo-200 shadow-sm cursor-default whitespace-nowrap">Payment Link Sent</span>
+                                            <span class="inline-block bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 text-xs font-bold py-2 px-4 rounded-lg border border-indigo-200 shadow-sm cursor-default whitespace-nowrap">Payment Link Sent</span>
                                         {% elif inquiry.status == 'COMPLETED' %}
                                             <span class="inline-block bg-emerald-50 text-emerald-600 text-xs font-bold py-2 px-4 rounded-lg border border-emerald-200 shadow-sm cursor-default whitespace-nowrap">Payment Confirmed</span>
                                         {% endif %}
@@ -151,11 +151,11 @@
                         </div>
                     {% else %}
                         <div class="p-10 text-center flex flex-col items-center justify-center h-full">
-                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3 text-slate-300">
+                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mb-3 text-slate-300">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                             </div>
-                            <h3 class="font-bold text-slate-800 mb-1">No pending inquiries</h3>
-                            <p class="text-sm text-slate-500">You're all caught up!</p>
+                            <h3 class="font-bold text-slate-800 dark:text-slate-200 mb-1">No pending inquiries</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">You're all caught up!</p>
                         </div>
                     {% endif %}
                 </div>
@@ -177,7 +177,7 @@
                                     Featured Listing
                                 </span>
                             {% else %}
-                                <a href="{% url 'hospital_billing' %}" class="bg-white/10 hover:bg-white text-white hover:text-indigo-900 border border-white/20 text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer">
+                                <a href="{% url 'hospital_billing' %}" class="bg-white/10 dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900 text-white hover:text-indigo-900 border border-white/20 text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer">
                                     Boost Profile
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 </a>
@@ -186,7 +186,7 @@
 
                         <div class="grid grid-cols-2 gap-4 mb-6">
                             <!-- Current Plan -->
-                            <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+                            <div class="bg-white/5 dark:bg-slate-900/5 rounded-2xl p-4 border border-white/10">
                                 <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mb-1">Current Plan</p>
                                 <div class="flex items-end justify-between">
                                     <p class="text-xl font-black text-white">{{ request.user.hospital.get_subscription_plan_display }}</p>
@@ -194,7 +194,7 @@
                                 </div>
                             </div>
                             <!-- Wallet Balance -->
-                            <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+                            <div class="bg-white/5 dark:bg-slate-900/5 rounded-2xl p-4 border border-white/10">
                                 <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mb-1">Lead Wallet</p>
                                 <div class="flex items-end justify-between">
                                     <p class="text-xl font-black text-white">${{ request.user.hospital.wallet_balance|floatformat:2 }}</p>
@@ -207,11 +207,11 @@
                 </div>
 
                 <!-- Treatment Packages Section -->
-                <div id="treatments" class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                <div id="treatments" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6">
                     <div class="flex justify-between items-center mb-6">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
-                            <a href="{% url 'manage_treatment_packages' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 px-2 py-0.5 rounded-full cursor-pointer">View All &rarr;</a>
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
+                            <a href="{% url 'manage_treatment_packages' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 dark:bg-sky-900/20 px-2 py-0.5 rounded-full cursor-pointer">View All &rarr;</a>
                         </div>
                         <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Package
@@ -220,23 +220,23 @@
                     
                     <div class="space-y-3">
                         {% for package in packages %}
-                        <div class="p-4 border border-slate-100 rounded-xl hover:border-sky-200 hover:shadow-md transition-all group flex justify-between items-center" id="package-{{ package.id }}">
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:border-sky-200 hover:shadow-md transition-all group flex justify-between items-center" id="package-{{ package.id }}">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h3 class="font-bold text-slate-800 text-sm opacity-{% if package.is_active %}100{% else %}50{% endif %}">{{ package.treatment.name }}</h3>
-                                    {% if not package.is_active %}<span class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Offline</span>{% endif %}
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm opacity-{% if package.is_active %}100{% else %}50{% endif %}">{{ package.treatment.name }}</h3>
+                                    {% if not package.is_active %}<span class="bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Offline</span>{% endif %}
                                 </div>
-                                <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ package.treatment.category }} • {{ package.doctor.name }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1 line-clamp-1">{{ package.treatment.category }} • {{ package.doctor.name }}</p>
                             </div>
                             <div class="flex items-center gap-4">
                                 <div class="text-right">
-                                    <div class="font-black text-slate-800">From ${{ package.price }}</div>
-                                    <div class="text-[10px] text-slate-400 font-bold uppercase">{{ package.stay_days }}d stay</div>
+                                    <div class="font-black text-slate-800 dark:text-slate-200">From ${{ package.price }}</div>
+                                    <div class="text-[10px] text-slate-400 dark:text-slate-400 font-bold uppercase">{{ package.stay_days }}d stay</div>
                                 </div>
                                 <a href="{% url 'edit_treatment_package' package.id %}" class="text-sky-500 hover:text-sky-700 p-2 ml-2 cursor-pointer transition-colors" title="Edit Package">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 </a>
-                                <button hx-post="{% url 'toggle_package_active' package.id %}" hx-swap="none" class="{% if package.is_active %}text-emerald-500 hover:text-emerald-700{% else %}text-slate-400 hover:text-slate-600{% endif %} p-2 cursor-pointer transition-colors" title="Toggle Visibility">
+                                <button hx-post="{% url 'toggle_package_active' package.id %}" hx-swap="none" class="{% if package.is_active %}text-emerald-500 hover:text-emerald-700{% else %}text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:text-slate-400{% endif %} p-2 cursor-pointer transition-colors" title="Toggle Visibility">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </button>
                                 <button hx-post="{% url 'delete_treatment_package' package.id %}" hx-target="#package-{{ package.id }}" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this treatment package?" class="text-red-500 hover:text-red-700 p-2 cursor-pointer transition-colors" title="Delete Package">
@@ -245,26 +245,26 @@
                             </div>
                         </div>
                         {% empty %}
-                        <p class="text-sm text-slate-500 p-4 bg-slate-50 rounded-xl text-center border border-slate-100 border-dashed">No treatment packages published yet. Create one to attract patients.</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl text-center border border-slate-100 dark:border-slate-800 border-dashed">No treatment packages published yet. Create one to attract patients.</p>
                         {% endfor %}
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex-1">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 flex-1">
                     <div class="flex justify-between items-center mb-6">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Medical Team</h2>
-                            <a href="{% url 'manage_doctors' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 px-2 py-0.5 rounded-full cursor-pointer">Manage All &rarr;</a>
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Medical Team</h2>
+                            <a href="{% url 'manage_doctors' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 dark:bg-sky-900/20 px-2 py-0.5 rounded-full cursor-pointer">Manage All &rarr;</a>
                         </div>
-                        <a href="{% url 'add_doctor' %}" class="text-sm font-bold bg-sky-50 text-sky-600 hover:bg-sky-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+                        <a href="{% url 'add_doctor' %}" class="text-sm font-bold bg-sky-50 dark:bg-sky-900/20 text-sky-600 hover:bg-sky-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add
                         </a>
                     </div>
                     
                     <div class="space-y-3">
                         {% for doctor in doctors %}
-                        <div class="p-3 border border-slate-100 rounded-xl flex items-center gap-3 hover:bg-slate-50 transition-colors" id="doctor-{{ doctor.id }}">
-                            <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0">
+                        <div class="p-3 border border-slate-100 dark:border-slate-800 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors" id="doctor-{{ doctor.id }}">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden flex-shrink-0">
                                 {% if doctor.photo %}
                                 <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
                                 {% else %}
@@ -272,14 +272,14 @@
                                 {% endif %}
                             </div>
                             <div class="flex-1">
-                                <h3 class="font-bold text-slate-800 text-sm">{{ doctor.name }}</h3>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ doctor.name }}</h3>
                                 <p class="text-xs text-sky-600 font-semibold">{{ doctor.specialization }}</p>
                             </div>
                             <div class="text-right flex flex-col items-end mr-2">
                                 <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ doctor.success_rate }}% Success</span>
-                                <span class="text-[10px] text-slate-400 mt-1">{{ doctor.experience_years }} yrs exp</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-400 mt-1">{{ doctor.experience_years }} yrs exp</span>
                             </div>
-                            <div class="flex flex-col gap-2 border-l border-slate-100 pl-3">
+                            <div class="flex flex-col gap-2 border-l border-slate-100 dark:border-slate-800 pl-3">
                                 <a href="{% url 'edit_doctor' doctor.id %}" class="text-sky-500 hover:text-sky-700 p-1" title="Edit Doctor">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 </a>
@@ -289,7 +289,7 @@
                             </div>
                         </div>
                         {% empty %}
-                        <p class="text-sm text-slate-500 p-4 bg-slate-50 rounded-xl text-center border border-slate-100 border-dashed">No doctors added to your roster.</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl text-center border border-slate-100 dark:border-slate-800 border-dashed">No doctors added to your roster.</p>
                         {% endfor %}
                     </div>
                 </div>

@@ -2,7 +2,7 @@
     {% if hospitals %}
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 stagger-grid">
         {% for hospital in hospitals %}
-        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col" id="hospital-card-{{ hospital.id }}">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col" id="hospital-card-{{ hospital.id }}">
             <div class="px-6 py-4 flex items-center justify-between text-white"
                 style="background: 
                 {% if hospital.status|upper == 'APPROVED' %}linear-gradient(to right, rgb(16, 185, 129), rgb(20, 184, 166))
@@ -19,9 +19,9 @@
                 <span class="text-white font-medium text-xs">{{ hospital.created_at|date:"M d, Y" }}</span>
             </div>
             <div class="p-6 flex-1 flex flex-col">
-                <h3 class="text-xl font-bold text-slate-800 mb-1" style="font-family: 'Outfit', sans-serif;">{{ hospital.name }}</h3>
-                <p class="text-slate-500 text-sm mb-4">{{ hospital.city }} · Est. {{ hospital.established_year }}</p>
-                <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-1">{{ hospital.description|truncatewords:30 }}</p>
+                <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-1" style="font-family: 'Outfit', sans-serif;">{{ hospital.name }}</h3>
+                <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm mb-4">{{ hospital.city }} · Est. {{ hospital.established_year }}</p>
+                <p class="text-slate-600 dark:text-slate-400 dark:text-slate-400 text-sm mb-6 line-clamp-3 flex-1">{{ hospital.description|truncatewords:30 }}</p>
 
                 <div class="flex items-center gap-3 mb-6">
                     {% if hospital.certificate %}
@@ -30,13 +30,13 @@
                         Certificate
                     </span>
                     {% endif %}
-                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-full border border-slate-200">
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-xs font-semibold rounded-full border border-slate-200 dark:border-slate-700">
                         {{ hospital.user.country }}
                     </span>
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <a href="{% if hospital.status|upper == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all text-center text-xs uppercase tracking-widest">
+                    <a href="{% if hospital.status|upper == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-3 px-4 rounded-xl transition-all text-center text-xs uppercase tracking-widest">
                         {% if hospital.status|upper == 'APPROVED' %}View Profile{% else %}Review Full Details{% endif %}
                     </a>
                     <div class="flex gap-2">
@@ -81,42 +81,42 @@
                             <!-- Reject Modal via Teleport to avoid overflow clipping -->
                             <template x-teleport="body">
                                 <div x-show="showGridReject" style="display: none;" class="fixed inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in text-left" style="z-index: 99999;">
-                                    <div @click.away="showGridReject = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
-                                        <div class="bg-rose-50 border-b border-rose-100 p-6 flex justify-between items-center">
+                                    <div @click.away="showGridReject = false" class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100 dark:border-slate-800">
+                                        <div class="bg-rose-50 dark:bg-rose-900/20 border-b border-rose-100 p-6 flex justify-between items-center">
                                             <h3 class="text-xl font-bold text-rose-800 flex items-center gap-2" style="font-family: 'Outfit', sans-serif;">
                                                 <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                                 {% if hospital.status|upper == 'APPROVED' %}Suspend{% else %}Reject{% endif %} {{ hospital.name }}
                                             </h3>
-                                            <button type="button" @click="showGridReject = false" class="text-rose-400 hover:text-rose-600 bg-white rounded-full p-1 border border-rose-100">
+                                            <button type="button" @click="showGridReject = false" class="text-rose-400 hover:text-rose-600 bg-white dark:bg-slate-900 rounded-full p-1 border border-rose-100">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                             </button>
                                         </div>
                                         
-                                        <form action="{% if hospital.status|upper == 'APPROVED' %}{% url 'suspend_hospital' hospital.id %}{% else %}{% url 'reject_hospital' hospital.id %}{% endif %}" method="POST" class="p-6 space-y-6 text-slate-800" @submit.prevent="submitForm($event)">
+                                        <form action="{% if hospital.status|upper == 'APPROVED' %}{% url 'suspend_hospital' hospital.id %}{% else %}{% url 'reject_hospital' hospital.id %}{% endif %}" method="POST" class="p-6 space-y-6 text-slate-800 dark:text-slate-200" @submit.prevent="submitForm($event)">
                                             {% csrf_token %}
                                             
                                             <div x-show="showError && charCount < 250" x-cloak style="display: none;" class="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-sm flex items-start gap-3 shadow-sm">
                                                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                                 <span><strong>Action Required:</strong> The reason must be at least 250 characters. You currently have <span x-text="charCount"></span> characters.</span>
                                             </div>
-                                            <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
+                                            <div x-show="serverError" x-cloak style="display: none;" class="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3 shadow-sm">
                                                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                 <span x-text="serverError"></span>
                                             </div>
 
                                             <div>
                                                 <div class="flex justify-between items-end mb-2">
-                                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reason for decision</label>
+                                                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Reason for decision</label>
                                                     <span class="text-[10px] font-bold transition-colors" :class="charCount < 250 ? 'text-rose-500' : 'text-emerald-500'" x-text="charCount + ' / 250 min chars'"></span>
                                                 </div>
-                                                <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700" rows="5" placeholder="Explain the decision in detail (minimum 250 characters)..."></textarea>
+                                                <textarea name="suspension_reason" x-model="reason" @input="if(charCount >= 250) showError = false; serverError = '';" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700 dark:text-slate-300" rows="5" placeholder="Explain the decision in detail (minimum 250 characters)..."></textarea>
                                             </div>
                                             <div x-data="{ showAdminPass: false }">
-                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Admin Password</label>
+                                                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2">Confirm Admin Password</label>
                                                 <div style="position: relative; width: 100%;">
                                                     <input :type="showAdminPass ? 'text' : 'password'" name="password" @input="serverError = ''" required 
                                                         style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 0.75rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 0.75rem; padding-bottom: 0.75rem; color: rgb(30 41 59); transition: all 0.2s;"
-                                                        class="focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-slate-700 placeholder:text-slate-400" 
+                                                        class="focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-slate-700 dark:text-slate-300 placeholder:text-slate-400 dark:text-slate-400" 
                                                         placeholder="Enter your password">
                                                     <button type="button" 
                                                         @mousedown="showAdminPass = true" 
@@ -133,7 +133,7 @@
                                             </div>
                                             
                                             <div class="pt-4 flex gap-3">
-                                                <button type="button" @click="showGridReject = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all text-sm">
+                                                <button type="button" @click="showGridReject = false" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 font-bold py-3 px-4 rounded-xl transition-all text-sm">
                                                     Cancel
                                                 </button>
                                                 <button type="submit" :disabled="loading" :class="loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-rose-700 hover:-translate-y-0.5'" class="flex-1 bg-rose-600 text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-2">
@@ -156,26 +156,26 @@
 
     <!-- Pagination -->
     {% if hospitals.has_other_pages %}
-    <div class="mt-10 flex items-center justify-between bg-white px-8 py-6 rounded-3xl border border-slate-100 shadow-sm">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+    <div class="mt-10 flex items-center justify-between bg-white dark:bg-slate-900 px-8 py-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">
             Page {{ hospitals.number }} of {{ hospitals.paginator.num_pages }}
         </p>
         <div class="flex items-center gap-2">
             {% if hospitals.has_previous %}
-            <a hx-get="?page={{ hospitals.previous_page_number }}&status={{ status_filter }}" hx-target="#pending-hospitals-container" hx-swap="outerHTML" hx-push-url="true" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all cursor-pointer">Previous</a>
+            <a hx-get="?page={{ hospitals.previous_page_number }}&status={{ status_filter }}" hx-target="#pending-hospitals-container" hx-swap="outerHTML" hx-push-url="true" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-[10px] font-bold hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-all cursor-pointer">Previous</a>
             {% endif %}
             
             {% if hospitals.has_next %}
-            <a hx-get="?page={{ hospitals.next_page_number }}&status={{ status_filter }}" hx-target="#pending-hospitals-container" hx-swap="outerHTML" hx-push-url="true" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50 transition-all cursor-pointer">Next</a>
+            <a hx-get="?page={{ hospitals.next_page_number }}&status={{ status_filter }}" hx-target="#pending-hospitals-container" hx-swap="outerHTML" hx-push-url="true" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-[10px] font-bold hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-all cursor-pointer">Next</a>
             {% endif %}
         </div>
     </div>
     {% endif %}
     {% else %}
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-16 text-center">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-16 text-center">
         <svg class="w-16 h-16 text-slate-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <h2 class="text-2xl font-bold text-slate-300 mb-2" style="font-family: 'Outfit', sans-serif;">Nothing found</h2>
-        <p class="text-slate-400">There are no hospitals matching the current filter criteria.</p>
+        <p class="text-slate-400 dark:text-slate-400">There are no hospitals matching the current filter criteria.</p>
     </div>
     {% endif %}
 </div>

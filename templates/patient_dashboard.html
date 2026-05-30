@@ -6,7 +6,7 @@
 
     <!-- Dashboard Sidebar Navigation -->
     <aside class="w-full md:w-64 flex-shrink-0">
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sticky top-28">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sticky top-28">
             <div class="flex items-center gap-4 mb-8">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden">
                     {% if user.avatar %}
@@ -16,21 +16,21 @@
                     {% endif %}
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-800">{{ user.first_name|default:user.username }}</h3>
-                    <p class="text-xs text-slate-500 uppercase tracking-wider">Patient Portal</p>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200">{{ user.first_name|default:user.username }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Patient Portal</p>
                 </div>
             </div>
 
             <nav class="space-y-2">
-                <a href="{% url 'patient_dashboard' %}" class="flex items-center gap-3 px-4 py-3 bg-sky-50 text-sky-700 rounded-xl font-bold transition-colors">
+                <a href="{% url 'patient_dashboard' %}" class="flex items-center gap-3 px-4 py-3 bg-sky-50 dark:bg-sky-900/20 text-sky-700 rounded-xl font-bold transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     Dashboard Overview
                 </a>
-                <a href="{% url 'patient_inquiries' %}" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition-colors">
+                <a href="{% url 'patient_inquiries' %}" class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 hover:text-slate-900 dark:hover:text-white dark:text-slate-100 rounded-xl font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     My Inquiries
                 </a>
-                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition-colors">
+                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 hover:text-slate-900 dark:hover:text-white dark:text-slate-100 rounded-xl font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Settings
                 </a>
@@ -41,15 +41,15 @@
     <!-- Main Dashboard Body -->
     <main class="flex-1">
         <div class="mb-10">
-            <h1 class="text-3xl font-extrabold text-slate-900 mb-2" style="font-family: 'Outfit', sans-serif;">Welcome Back!</h1>
-            <p class="text-slate-500">Track your medical inquiries and organize your upcoming journey.</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-2" style="font-family: 'Outfit', sans-serif;">Welcome Back!</h1>
+            <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400">Track your medical inquiries and organize your upcoming journey.</p>
         </div>
 
         <!-- Metric Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 stagger-grid">
-            <a href="{% url 'patient_inquiries' %}" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center hover:shadow-md hover:border-slate-200 transition-all group">
-                <div class="text-3xl font-black text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">{{ inquiries.paginator.count }}</div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Inquiries</div>
+            <a href="{% url 'patient_inquiries' %}" class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-center hover:shadow-md hover:border-slate-200 dark:border-slate-700 transition-all group">
+                <div class="text-3xl font-black text-slate-800 dark:text-slate-200 mb-1 group-hover:text-sky-600 transition-colors">{{ inquiries.paginator.count }}</div>
+                <div class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wide">Total Inquiries</div>
             </a>
             <a href="{% url 'patient_inquiries' %}?status=active" class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 shadow-sm border border-indigo-100 flex flex-col justify-center hover:shadow-md hover:border-indigo-200 transition-all group">
                 <div class="text-3xl font-black text-indigo-600 mb-1">{{ active_count }}</div>
@@ -68,9 +68,9 @@
         </div>
 
         <!-- Inquiries Table/List -->
-        <div id="inquiries" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Recent Inquiries</h2>
+        <div id="inquiries" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Recent Inquiries</h2>
                 <a href="{% url 'patient_inquiries' %}" class="text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors">View All</a>
             </div>
             
@@ -90,7 +90,7 @@
                     <p class="text-indigo-200 text-sm">Add your medical history to receive more accurate quotes.</p>
                 </div>
             </div>
-            <button class="bg-white text-indigo-900 font-bold px-6 py-2 rounded-xl text-sm hover:shadow-lg transition-shadow">Complete Now</button>
+            <button class="bg-white dark:bg-slate-900 text-indigo-900 font-bold px-6 py-2 rounded-xl text-sm hover:shadow-lg transition-shadow">Complete Now</button>
         </div>
     </main>
 

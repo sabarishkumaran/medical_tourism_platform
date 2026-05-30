@@ -4,7 +4,7 @@
 <div class="container mx-auto px-4 md:px-8 py-10">
 <div class="h-[85vh] -mt-10 mb-[-2.5rem] flex items-center justify-center p-4 animate-fade-up">
 
-    <div class="w-full max-w-5xl bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row h-full max-h-[700px]">
+    <div class="w-full max-w-5xl bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row h-full max-h-[700px]">
         
         <!-- Left Side: Image/Brand -->
         <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-indigo-900 to-slate-900 relative p-12 flex-col justify-between overflow-hidden">
@@ -17,7 +17,7 @@
 
             <div class="relative z-10">
                 <a href="{% url 'home' %}" class="inline-block mb-10">
-                    <div class="w-12 h-12 bg-white/10 rounded-xl backdrop-blur border border-white/20 flex items-center justify-center">
+                    <div class="w-12 h-12 bg-white/10 dark:bg-slate-900/10 rounded-xl backdrop-blur border border-white/20 flex items-center justify-center">
                         <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                     </div>
                 </a>
@@ -25,7 +25,7 @@
                 <p class="text-indigo-200 text-lg">Sign in to access your dashboard, review treatment plans, and connect with world-class hospitals.</p>
             </div>
             
-            <div class="relative z-10 flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur border border-white/10">
+            <div class="relative z-10 flex items-center gap-4 bg-white/10 dark:bg-slate-900/10 p-4 rounded-2xl backdrop-blur border border-white/10">
                 <div class="flex -space-x-2">
                     <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://ui-avatars.com/api/?name=SJ&background=38bdf8&color=fff" alt="">
                     <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://ui-avatars.com/api/?name=MT&background=818cf8&color=fff" alt="">
@@ -38,11 +38,11 @@
         </div>
 
         <!-- Right Side: Form -->
-        <div class="w-full md:w-1/2 p-8 md:p-14 lg:p-16 flex flex-col justify-center bg-white">
+        <div class="w-full md:w-1/2 p-8 md:p-14 lg:p-16 flex flex-col justify-center bg-white dark:bg-slate-900">
             <div class="w-full max-w-md mx-auto">
                 <div class="mb-10 text-center md:text-left">
-                    <h2 class="text-3xl font-bold text-slate-800 mb-2" style="font-family: 'Outfit', sans-serif;">Sign In</h2>
-                    <p class="text-slate-500">Please enter your credentials to proceed.</p>
+                    <h2 class="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2" style="font-family: 'Outfit', sans-serif;">Sign In</h2>
+                    <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400">Please enter your credentials to proceed.</p>
                 </div>
 
                 <form method="POST" class="space-y-6" id="loginForm">
@@ -59,17 +59,17 @@
                     
                     <div class="space-y-5">
                         <div class="group">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Username</label>
-                            <input type="text" name="username" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none placeholder:text-slate-400" required placeholder="Enter your username">
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Username</label>
+                            <input type="text" name="username" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none placeholder:text-slate-400 dark:text-slate-400" required placeholder="Enter your username">
                         </div>
 
                         <div class="group" x-data="{ show: false }">
                             <div class="flex justify-between items-center mb-2">
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider group-focus-within:text-sky-600 transition-colors">Password</label>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider group-focus-within:text-sky-600 transition-colors">Password</label>
                                 <a href="{% url 'password_reset' %}" class="text-xs font-bold text-sky-600 hover:text-sky-800 transition-colors">Forgot password?</a>
                             </div>
                             <div style="position: relative; width: 100%;">
-                                <input :type="show ? 'text' : 'password'" name="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-12 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none placeholder:text-slate-400" required placeholder="••••••••"
+                                <input :type="show ? 'text' : 'password'" name="password" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none placeholder:text-slate-400 dark:text-slate-400" required placeholder="••••••••"
                                     style="width: 100%; background-color: rgb(248 250 252); border: 1px solid rgb(226 232 240); border-radius: 0.75rem; padding-left: 1rem; padding-right: 3.5rem; padding-top: 0.75rem; padding-bottom: 0.75rem; color: rgb(30 41 59); transition: all 0.2s;">
                                 <button type="button" 
                                     @mousedown="show = true" 
@@ -86,7 +86,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" id="loginSubmitBtn" class="w-full bg-slate-900 hover:bg-sky-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer relative overflow-hidden flex items-center justify-center gap-2">
+                    <button type="submit" id="loginSubmitBtn" class="w-full bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer relative overflow-hidden flex items-center justify-center gap-2">
                         <span id="btnText">Log In to Account</span>
                         <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -111,7 +111,7 @@
                 </script>
 
                 <div class="mt-8 text-center">
-                    <p class="text-sm text-slate-500">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                         Don't have an account? 
                         <a href="{% url 'register' %}" class="text-sky-600 font-bold hover:text-sky-800 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-sky-800 hover:after:w-full after:transition-all after:duration-300">Create one now</a>
                     </p>

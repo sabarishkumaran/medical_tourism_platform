@@ -1,6 +1,6 @@
-<div class="bg-white rounded-[2.5rem] overflow-hidden max-w-4xl w-full mx-auto shadow-2xl animate-fade-up">
+<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden max-w-4xl w-full mx-auto shadow-2xl animate-fade-up">
     <!-- Modal Header -->
-    <div class="bg-slate-900 px-8 py-10 text-white relative overflow-hidden">
+    <div class="bg-slate-900 dark:bg-slate-700 px-8 py-10 text-white relative overflow-hidden">
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl"></div>
         <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
         
@@ -39,25 +39,25 @@
     </div>
 
     <!-- Modal Body -->
-    <div class="p-8 md:p-12 bg-slate-50">
+    <div class="p-8 md:p-12 bg-slate-50 dark:bg-slate-950">
         <div class="grid md:grid-cols-3 gap-8">
             <!-- Left Column: Details -->
             <div class="md:col-span-1 space-y-8">
                 <section>
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Personal Details</h3>
+                    <h3 class="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-[0.2em] mb-4">Personal Details</h3>
                     <div class="space-y-4">
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Date of Birth</p>
-                            <p class="text-slate-800 font-bold">{{ profile.date_of_birth|default:"Not specified" }}</p>
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase mb-1">Date of Birth</p>
+                            <p class="text-slate-800 dark:text-slate-200 font-bold">{{ profile.date_of_birth|default:"Not specified" }}</p>
                         </div>
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Status</p>
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase mb-1">Status</p>
                             {% if patient.is_active %}
                             <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active Account
                             </span>
                             {% else %}
-                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 px-2 py-0.5 rounded-full border border-rose-100">
                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Suspended
                             </span>
                             {% endif %}
@@ -66,10 +66,10 @@
                 </section>
 
                 <section>
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Medical History</h3>
-                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[150px]">
+                    <h3 class="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-[0.2em] mb-4">Medical History</h3>
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm min-h-[150px]">
                         {% if profile.medical_history %}
-                            <p class="text-sm text-slate-600 leading-relaxed italic">"{{ profile.medical_history }}"</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 leading-relaxed italic">"{{ profile.medical_history }}"</p>
                         {% else %}
                             <div class="flex flex-col items-center justify-center py-6 text-slate-300">
                                 <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -82,22 +82,22 @@
 
             <!-- Right Column: Inquiry History -->
             <div class="md:col-span-2">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Platform Engagement ({{ inquiries.count }} Inquiries)</h3>
-                <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="divide-y divide-slate-100">
+                <h3 class="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-[0.2em] mb-4">Platform Engagement ({{ inquiries.count }} Inquiries)</h3>
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="divide-y divide-slate-100 dark:divide-slate-800">
                         {% for inquiry in inquiries|slice:":3" %}
-                        <div class="p-6 hover:bg-slate-50 transition-colors group">
+                        <div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors group">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h4 class="text-slate-900 font-bold group-hover:text-sky-600 transition-colors">{{ inquiry.treatment.name }}</h4>
-                                    <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">{{ inquiry.hospital.name|default:"Awaiting Assignment" }}</p>
+                                    <h4 class="text-slate-900 dark:text-slate-100 font-bold group-hover:text-sky-600 transition-colors">{{ inquiry.treatment.name }}</h4>
+                                    <p class="text-[11px] text-slate-400 dark:text-slate-400 font-bold uppercase tracking-wider">{{ inquiry.hospital.name|default:"Awaiting Assignment" }}</p>
                                 </div>
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
                                     {% if inquiry.status == 'COMPLETED' %}bg-emerald-100 text-emerald-700{% elif inquiry.status == 'NEW' %}bg-amber-100 text-amber-700{% else %}bg-sky-100 text-sky-700{% endif %}">
                                     {{ inquiry.get_status_display }}
                                 </span>
                             </div>
-                            <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                            <div class="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                                 <span class="flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                     {{ inquiry.created_at|date:"M d, Y" }}
@@ -110,13 +110,21 @@
                         </div>
                         {% empty %}
                         <div class="p-20 text-center flex flex-col items-center justify-center">
-                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200">
+                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mb-4 text-slate-200">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                             </div>
-                            <p class="text-slate-400 font-bold">No platform engagement yet.</p>
+                            <p class="text-slate-400 dark:text-slate-400 font-bold">No platform engagement yet.</p>
                         </div>
                         {% endfor %}
                     </div>
+                    {% if inquiries.count > 3 %}
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 text-center">
+                        <a href="{% url 'inquiry_hub' %}?q={{ patient.username }}" target="_blank" class="text-sm font-bold text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 flex items-center justify-center gap-1.5 transition-colors">
+                            View All {{ inquiries.count }} Inquiries
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

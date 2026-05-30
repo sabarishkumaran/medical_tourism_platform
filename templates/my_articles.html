@@ -2,15 +2,15 @@
 {% load static %}
 
 {% block content %}
-<div class="bg-slate-50 min-h-screen py-10 md:py-16">
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-10 md:py-16">
   <div class="container mx-auto px-4 max-w-5xl">
 
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 animate-fade-up">
       <div>
         <p class="text-xs font-bold text-sky-600 uppercase tracking-widest mb-1">My Writing</p>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900" style="font-family:'Outfit',sans-serif;">My Articles</h1>
-        <p class="text-slate-500 mt-1 text-sm">Manage your drafts and published posts.</p>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-slate-100" style="font-family:'Outfit',sans-serif;">My Articles</h1>
+        <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1 text-sm">Manage your drafts and published posts.</p>
       </div>
       <a href="{% url 'blog_write' %}" class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 flex-shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -21,29 +21,29 @@
     {% if posts %}
     <!-- Stats Bar -->
     <div style="display:flex; gap:1rem; margin-bottom:2rem;">
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm text-center flex-1">
-        <p class="text-2xl font-extrabold text-slate-900">{{ posts.count }}</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Total</p>
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm text-center flex-1">
+        <p class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">{{ posts.count }}</p>
+        <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mt-1">Total</p>
       </div>
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm text-center flex-1">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm text-center flex-1">
         <p class="text-2xl font-extrabold text-amber-500">{{ draft_count }}</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Drafts</p>
+        <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mt-1">Drafts</p>
       </div>
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm text-center flex-1">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm text-center flex-1">
         <p class="text-2xl font-extrabold text-emerald-500">{{ published_count }}</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Published</p>
+        <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mt-1">Published</p>
       </div>
     </div>
 
     <!-- Article List -->
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
       {% for post in posts %}
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 {% if not forloop.last %}border-b border-slate-50{% endif %} hover:bg-slate-50/60 transition-colors group">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 {% if not forloop.last %}border-b border-slate-50{% endif %} hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/60 transition-colors group">
 
         <!-- Left: Info -->
         <div class="flex items-start gap-4 flex-1 min-w-0">
           <!-- Cover thumbnail -->
-          <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+          <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
             {% if post.image %}
             <img src="{{ post.image.url }}" class="w-full h-full object-cover">
             {% else %}
@@ -65,14 +65,14 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Pending Review
               </span>
               {% else %}
-              <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">
                 <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Draft
               </span>
               {% endif %}
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ post.category }}</span>
+              <span class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{{ post.category }}</span>
             </div>
-            <h3 class="font-bold text-slate-800 text-sm leading-snug truncate group-hover:text-sky-600 transition-colors">{{ post.title|safe }}</h3>
-            <p class="text-xs text-slate-400 mt-1">{{ post.created_at|date:"M d, Y" }} &bull; {{ post.views_count }} views</p>
+            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm leading-snug truncate group-hover:text-sky-600 transition-colors">{{ post.title|safe }}</h3>
+            <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">{{ post.created_at|date:"M d, Y" }} &bull; {{ post.views_count }} views</p>
           </div>
         </div>
 
@@ -80,7 +80,7 @@
         <div class="flex items-center gap-2 flex-shrink-0">
           {% if post.status == 'Published' %}
           <a href="{{ post.get_absolute_url }}" target="_blank"
-             class="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors">
+             class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-700 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors">
             View Live
           </a>
           {% endif %}
@@ -97,12 +97,12 @@
 
     {% else %}
     <!-- Empty state -->
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm py-20 text-center">
-      <div class="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm py-20 text-center">
+      <div class="w-16 h-16 bg-sky-50 dark:bg-sky-900/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
         <svg class="w-8 h-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
       </div>
-      <h3 class="text-xl font-bold text-slate-800 mb-2">No articles yet</h3>
-      <p class="text-slate-500 text-sm mb-6">Start writing and share your expertise with our readers.</p>
+      <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">No articles yet</h3>
+      <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm mb-6">Start writing and share your expertise with our readers.</p>
       <a href="{% url 'blog_write' %}" class="inline-block bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-8 rounded-xl shadow transition-all">Write Your First Article</a>
     </div>
     {% endif %}

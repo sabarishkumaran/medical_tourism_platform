@@ -6,69 +6,69 @@
 
         <!-- Header -->
         <div class="flex items-center gap-4 mb-8">
-            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-500 hover:text-sky-600 hover:border-sky-200 transition-all">
+            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-center text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-sky-600 hover:border-sky-200 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </a>
             <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Admin · Settings</p>
-                <h1 class="text-2xl font-extrabold text-slate-900" style="font-family:'Outfit',sans-serif;">Subscription Plan Settings</h1>
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-0.5">Admin · Settings</p>
+                <h1 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100" style="font-family:'Outfit',sans-serif;">Subscription Plan Settings</h1>
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 mb-8">
-            <p class="text-slate-600 mb-6 font-medium">Configure the pricing and features available to hospitals. These changes propagate directly to the hospital billing screens immediately.</p>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-8 mb-8">
+            <p class="text-slate-600 dark:text-slate-400 dark:text-slate-400 mb-6 font-medium">Configure the pricing and features available to hospitals. These changes propagate directly to the hospital billing screens immediately.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for plan in plans %}
-                <div class="border {% if plan.plan_type == 'ELITE' %}border-amber-300 bg-amber-50 rounded-2xl p-6 {% elif plan.plan_type == 'PREMIUM' %}border-sky-300 bg-sky-50 rounded-2xl p-6{% else %}border-slate-200 bg-slate-50 rounded-2xl p-6{% endif %} shadow-sm">
+                <div class="border {% if plan.plan_type == 'ELITE' %}border-amber-300 bg-amber-50 rounded-2xl p-6 {% elif plan.plan_type == 'PREMIUM' %}border-sky-300 bg-sky-50 dark:bg-sky-900/20 rounded-2xl p-6{% else %}border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 rounded-2xl p-6{% endif %} shadow-sm">
                     <form method="POST" action="{% url 'admin_subscription_settings' %}">
                         {% csrf_token %}
                         <input type="hidden" name="plan_type" value="{{ plan.plan_type }}">
                         
                         <div class="mb-4 flex items-center justify-between">
-                            <span class="text-xs font-black uppercase tracking-widest {% if plan.plan_type == 'ELITE' %}text-amber-600{% elif plan.plan_type == 'PREMIUM' %}text-sky-600{% else %}text-slate-500{% endif %}">
+                            <span class="text-xs font-black uppercase tracking-widest {% if plan.plan_type == 'ELITE' %}text-amber-600{% elif plan.plan_type == 'PREMIUM' %}text-sky-600{% else %}text-slate-500 dark:text-slate-400 dark:text-slate-400{% endif %}">
                                 {{ plan.get_plan_type_display }}
                             </span>
                         </div>
 
                         <!-- Display Title -->
                         <div class="space-y-1 mb-4">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Public Display Title</label>
-                            <input type="text" name="display_title" value="{{ plan.display_title }}" class="w-full text-sm font-bold bg-white border border-slate-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">Public Display Title</label>
+                            <input type="text" name="display_title" value="{{ plan.display_title }}" class="w-full text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                         </div>
                         
                         <!-- Price -->
                         <div class="space-y-1 mb-4">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Price ($/mo)</label>
-                            <input type="number" step="0.01" name="price" value="{{ plan.price }}" class="w-full text-sm bg-white border border-slate-200 px-3 py-2 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">Price ($/mo)</label>
+                            <input type="number" step="0.01" name="price" value="{{ plan.price }}" class="w-full text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                         </div>
                         
                         <!-- Max Packages -->
                         <div class="space-y-1 mb-4">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Max Treatment Packages</label>
-                            <div class="text-[10px] text-slate-400 mb-1 leading-tight">Enter -1 for infinite (unlimited) packages.</div>
-                            <input type="number" name="max_packages" value="{{ plan.max_packages }}" class="w-full text-sm bg-white border border-slate-200 px-3 py-2 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">Max Treatment Packages</label>
+                            <div class="text-[10px] text-slate-400 dark:text-slate-400 mb-1 leading-tight">Enter -1 for infinite (unlimited) packages.</div>
+                            <input type="number" name="max_packages" value="{{ plan.max_packages }}" class="w-full text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                         </div>
 
                         <!-- Commission Free Leads -->
                         <div class="space-y-1 mb-4">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Commission-Free Leads / mo</label>
-                            <input type="number" name="commission_free_leads" value="{{ plan.commission_free_leads }}" class="w-full text-sm bg-white border border-slate-200 px-3 py-2 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">Commission-Free Leads / mo</label>
+                            <input type="number" name="commission_free_leads" value="{{ plan.commission_free_leads }}" class="w-full text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                         </div>
                         
                         <!-- Ranking Bonus -->
                         <div class="space-y-1 mb-6">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Algorithm Points (Ranking)</label>
-                            <input type="number" name="ranking_bonus" value="{{ plan.ranking_bonus }}" class="w-full text-sm bg-white border border-slate-200 px-3 py-2 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">Algorithm Points (Ranking)</label>
+                            <input type="number" name="ranking_bonus" value="{{ plan.ranking_bonus }}" class="w-full text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                         </div>
 
-                        <button type="submit" class="w-full py-2.5 rounded-xl font-bold text-white shadow-md transition-all {% if plan.plan_type == 'ELITE' %}bg-amber-500 hover:bg-amber-600{% elif plan.plan_type == 'PREMIUM' %}bg-sky-500 hover:bg-sky-600{% else %}bg-slate-800 hover:bg-slate-900{% endif %}">
+                        <button type="submit" class="w-full py-2.5 rounded-xl font-bold text-white shadow-md transition-all {% if plan.plan_type == 'ELITE' %}bg-amber-500 hover:bg-amber-600{% elif plan.plan_type == 'PREMIUM' %}bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-500{% else %}bg-slate-800 hover:bg-slate-900 dark:bg-slate-700{% endif %}">
                             Save Changes
                         </button>
                     </form>
                 </div>
                 {% empty %}
-                    <p class="col-span-full text-center text-slate-400 py-10">No subscription plans found. Please check database migrations.</p>
+                    <p class="col-span-full text-center text-slate-400 dark:text-slate-400 py-10">No subscription plans found. Please check database migrations.</p>
                 {% endfor %}
             </div>
             

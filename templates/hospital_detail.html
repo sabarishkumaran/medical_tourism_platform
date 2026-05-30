@@ -65,7 +65,7 @@
   <!-- ====================================================
        PAGE BODY
        ==================================================== -->
-  <div class="bg-slate-50 pb-16">
+  <div class="bg-slate-50 dark:bg-slate-950 pb-16">
     <div class="max-w-6xl mx-auto px-4 md:px-6 pt-6 md:pt-10">
 
       <!-- ------------------------------------------------
@@ -83,14 +83,14 @@
 
           {% if user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
           <!-- Admin panel -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm mb-4" style="border: 1px solid #fecaca;" x-data="{ showSuspendAdmin: false }">
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2 mb-2">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm mb-4" style="border: 1px solid #fecaca;" x-data="{ showSuspendAdmin: false }">
+            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2 mb-2">
               <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
               Admin Moderation
             </h3>
-            <p class="text-slate-500 text-xs mb-4">You can suspend this hospital's access to the platform.</p>
+            <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs mb-4">You can suspend this hospital's access to the platform.</p>
             
             <button @click="showSuspendAdmin = true" type="button"
                     class="w-full flex justify-center items-center gap-2 font-bold py-2.5 px-4 rounded-xl transition-all text-sm"
@@ -105,13 +105,13 @@
             
             <!-- Suspend Modal -->
             <div x-show="showSuspendAdmin" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in text-left">
-                <div @click.away="showSuspendAdmin = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
-                    <div class="bg-rose-50 border-b border-rose-100 p-6 flex justify-between items-center">
+                <div @click.away="showSuspendAdmin = false" class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100 dark:border-slate-800">
+                    <div class="bg-rose-50 dark:bg-rose-900/20 border-b border-rose-100 p-6 flex justify-between items-center">
                         <h3 class="text-xl font-bold text-rose-800 flex items-center gap-2" style="font-family: 'Outfit', sans-serif;">
                             <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             Suspend Hospital
                         </h3>
-                        <button type="button" @click="showSuspendAdmin = false" class="text-rose-400 hover:text-rose-600 bg-white rounded-full p-1 border border-rose-100">
+                        <button type="button" @click="showSuspendAdmin = false" class="text-rose-400 hover:text-rose-600 bg-white dark:bg-slate-900 rounded-full p-1 border border-rose-100">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -119,13 +119,13 @@
                     <form method="POST" action="{% url 'suspend_hospital' hospital.id %}" class="p-6 space-y-6">
                         {% csrf_token %}
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Reason for Suspension</label>
-                            <textarea name="suspension_reason" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700" rows="3" placeholder="Explain the policy violation..."></textarea>
+                            <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2">Reason for Suspension</label>
+                            <textarea name="suspension_reason" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none text-slate-700 dark:text-slate-300" rows="3" placeholder="Explain the policy violation..."></textarea>
                         </div>
                         <div x-data="{ showPass: false }">
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Admin Password</label>
+                            <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2">Confirm Admin Password</label>
                             <div class="relative">
-                                <input :type="showPass ? 'text' : 'password'" name="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all text-slate-700" placeholder="Enter your password">
+                                <input :type="showPass ? 'text' : 'password'" name="password" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all text-slate-700 dark:text-slate-300" placeholder="Enter your password">
                                     <button type="button" 
                                         @mousedown="showPass = true" 
                                         @mouseup="showPass = false" 
@@ -133,7 +133,7 @@
                                         @touchstart="showPass = true" 
                                         @touchend="showPass = false"
                                         style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);"
-                                        class="text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
+                                        class="text-slate-400 dark:text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
                                         <svg x-show="!showPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         <svg x-show="showPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.04m4.227-4.227A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-4.29 5.728M4.472 4.472l15.056 15.056M9.88 9.88a3 3 0 104.24 4.24l-4.24-4.24z"/></svg>
                                     </button>
@@ -141,7 +141,7 @@
                         </div>
                         
                         <div class="pt-4 flex gap-3">
-                            <button type="button" @click="showSuspendAdmin = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all text-sm">
+                            <button type="button" @click="showSuspendAdmin = false" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 font-bold py-3 px-4 rounded-xl transition-all text-sm">
                                 Cancel
                             </button>
                             <button type="submit" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-md">
@@ -199,26 +199,26 @@
         <div class="flex-1 min-w-0" style="order: 2;">
 
           <!-- Tab Navigation -->
-          <div class="bg-white rounded-2xl p-1.5 shadow-sm mb-5 overflow-x-auto"
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-sm mb-5 overflow-x-auto"
                style="border:1px solid #f1f5f9; -webkit-overflow-scrolling:touch; scrollbar-width:none; white-space:nowrap;">
             <div class="inline-flex gap-1 min-w-full">
               <button @click="tab='overview'"
-                      :class="tab==='overview' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      :class="tab==='overview' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-600 dark:bg-slate-950 hover:text-slate-700 dark:text-slate-300'"
                       class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
                 Overview
               </button>
               <button @click="tab='doctors'"
-                      :class="tab==='doctors' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      :class="tab==='doctors' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-600 dark:bg-slate-950 hover:text-slate-700 dark:text-slate-300'"
                       class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
                 Doctors &amp; Team
               </button>
               <button @click="tab='treatments'"
-                      :class="tab==='treatments' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      :class="tab==='treatments' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-600 dark:bg-slate-950 hover:text-slate-700 dark:text-slate-300'"
                       class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
                 Treatments &amp; Pricing
               </button>
               <button @click="tab='reviews'"
-                      :class="tab==='reviews' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'"
+                      :class="tab==='reviews' ? 'bg-slate-900 text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-600 dark:bg-slate-950 hover:text-slate-700 dark:text-slate-300'"
                       class="px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap">
                 Patient Reviews
               </button>
@@ -226,7 +226,7 @@
           </div>
 
           <!-- Tab Panels -->
-          <div class="bg-white rounded-2xl shadow-sm" style="border:1px solid #f1f5f9;">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm" style="border:1px solid #f1f5f9;">
 
             <!-- ====== OVERVIEW ====== -->
             <div x-show="tab==='overview'" x-transition:enter="transition ease-out duration-200"
@@ -235,10 +235,10 @@
 
               <!-- About -->
               <div>
-                <h2 class="font-bold text-slate-800 mb-3" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+                <h2 class="font-bold text-slate-800 dark:text-slate-200 mb-3" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
                   About {{ hospital.name|title }}
                 </h2>
-                <p class="text-slate-600 text-sm leading-relaxed">
+                <p class="text-slate-600 dark:text-slate-400 dark:text-slate-400 text-sm leading-relaxed">
                   {{ hospital.description|default:"A premier healthcare facility offering world-class treatments and specialized medical care. Dedicated to patient safety, comfort, and state-of-the-art medical technology." }}
                 </p>
               </div>
@@ -246,7 +246,7 @@
               <!-- Gallery -->
               {% if hospital.images.all|length > 1 %}
               <div>
-                <h3 class="font-bold text-slate-700 text-sm mb-3">Hospital Gallery</h3>
+                <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-3">Hospital Gallery</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {% for img in hospital.images.all %}
                   <div class="rounded-xl overflow-hidden" style="height:100px;">
@@ -260,42 +260,41 @@
 
               <!-- Stats -->
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                   <p class="font-extrabold text-sky-600" style="font-size:1.7rem;">{{ hospital.years_active }}+</p>
-                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Years Active</p>
+                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Years Active</p>
                 </div>
-                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                   <p class="font-extrabold text-indigo-600" style="font-size:1.7rem;">{{ hospital.international_patients }}+</p>
-                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Intl Patients</p>
+                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Intl Patients</p>
                 </div>
-                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                   <p class="font-extrabold text-emerald-600" style="font-size:1.7rem;">{{ hospital.beds_count }}+</p>
-                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Beds</p>
+                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Beds</p>
                 </div>
-                <div class="rounded-2xl p-4 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                   <p class="font-extrabold text-amber-500" style="font-size:1.7rem;">
                     {% if hospital.average_rating and hospital.average_rating > 0 %}{{ hospital.average_rating }}{% else %}New{% endif %}
                   </p>
-                  <p class="text-slate-500 uppercase text-xs tracking-wide mt-0.5">Rating</p>
+                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Rating</p>
                 </div>
               </div>
 
               <!-- Certifications -->
               <div>
-                <h3 class="font-bold text-slate-700 text-sm mb-3">Certifications &amp; Accreditations</h3>
+                <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-3">Certifications &amp; Accreditations</h3>
                 {% if hospital.accreditation %}
-                <div class="inline-flex items-center gap-3 px-4 py-3 rounded-xl"
-                     style="background:#fff; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                <div class="inline-flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <svg class="w-7 h-7 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/>
                   </svg>
                   <div>
-                    <p class="font-bold text-slate-800 text-sm">{{ hospital.get_accreditation_display }}</p>
-                    <p class="text-slate-500 text-xs">Verified Medical Facility</p>
+                    <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ hospital.get_accreditation_display }}</p>
+                    <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs">Verified Medical Facility</p>
                   </div>
                 </div>
                 {% else %}
-                <p class="text-slate-500 text-sm">No certifications listed yet.</p>
+                <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm">No certifications listed yet.</p>
                 {% endif %}
               </div>
             </div>
@@ -307,7 +306,7 @@
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  class="p-5 md:p-7">
-              <h2 class="font-bold text-slate-800 mb-5" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+              <h2 class="font-bold text-slate-800 dark:text-slate-200 mb-5" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
                 Medical Specialists
               </h2>
 
@@ -315,10 +314,9 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {% for doctor in doctors %}
                 <a href="{% url 'doctor_detail' doctor.id %}"
-                   class="flex items-center gap-4 p-4 rounded-2xl hover:shadow-md transition-all group"
-                   style="background:#fff; border:1px solid #e2e8f0;">
+                   class="flex items-center gap-4 p-4 rounded-2xl hover:shadow-md transition-all group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                   <!-- Avatar -->
-                  <div class="w-14 h-14 rounded-full overflow-hidden flex-shrink-0" style="background:#e0f2fe;">
+                  <div class="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-sky-50 dark:bg-sky-900/20">
                     {% if doctor.photo %}
                       <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
                     {% else %}
@@ -328,12 +326,12 @@
                   </div>
                   <!-- Info -->
                   <div class="min-w-0">
-                    <p class="font-bold text-slate-800 text-sm group-hover:text-sky-600 transition-colors truncate">
+                    <p class="font-bold text-slate-800 dark:text-slate-200 text-sm group-hover:text-sky-600 transition-colors truncate">
                       {{ doctor.name|title }}
                     </p>
                     <p class="text-sky-600 text-xs font-semibold mt-0.5 truncate">{{ doctor.specialization }}</p>
                     <div class="flex items-center gap-3 mt-1.5">
-                      <span class="text-slate-500 text-xs">{{ doctor.experience_years }}+ yrs</span>
+                      <span class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs">{{ doctor.experience_years }}+ yrs</span>
                       <span class="text-emerald-600 text-xs font-semibold">{{ doctor.success_rate }}% success</span>
                     </div>
                   </div>
@@ -345,7 +343,7 @@
                 <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <p class="text-slate-400 text-sm">No doctors listed yet.</p>
+                <p class="text-slate-400 dark:text-slate-400 text-sm">No doctors listed yet.</p>
               </div>
               {% endif %}
             </div>
@@ -357,20 +355,19 @@
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  class="p-5 md:p-7">
-              <h2 class="font-bold text-slate-800 mb-5" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+              <h2 class="font-bold text-slate-800 dark:text-slate-200 mb-5" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
                 Treatment Packages &amp; Pricing
               </h2>
 
               {% if treatments %}
               <div class="space-y-3">
                 {% for t in treatments %}
-                <div class="rounded-2xl p-4 md:p-5 transition-all hover:shadow-md"
-                     style="background:#fff; border:1px solid #e2e8f0;">
+                <div class="rounded-2xl p-4 md:p-5 transition-all hover:shadow-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <!-- Treatment info -->
                     <div class="flex-1 min-w-0">
-                      <h3 class="font-bold text-slate-800 text-sm">{{ t.treatment.name|title }}</h3>
-                      <p class="text-slate-500 text-xs mt-1">
+                      <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ t.treatment.name|title }}</h3>
+                      <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs mt-1">
                         Includes {{ t.stay_days }} day stay &bull; {{ t.recovery_days }} day recovery
                       </p>
                       {% if t.doctor %}
@@ -379,10 +376,10 @@
                     </div>
                     <!-- Price + CTA -->
                     <div class="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0
-                                border-t sm:border-t-0 sm:border-l border-slate-100 pt-3 sm:pt-0 sm:pl-5">
+                                border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800 pt-3 sm:pt-0 sm:pl-5">
                       <div>
-                        <p class="text-xs text-slate-400 uppercase tracking-wide font-medium">From</p>
-                        <p class="font-extrabold text-slate-900" style="font-size:1.3rem;">
+                        <p class="text-xs text-slate-400 dark:text-slate-400 uppercase tracking-wide font-medium">From</p>
+                        <p class="font-extrabold text-slate-900 dark:text-slate-100" style="font-size:1.3rem;">
                           {{ t.currency }} {{ t.price }}
                         </p>
                       </div>
@@ -403,7 +400,7 @@
                 <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
-                <p class="text-slate-400 text-sm">No treatment packages listed yet.</p>
+                <p class="text-slate-400 dark:text-slate-400 text-sm">No treatment packages listed yet.</p>
               </div>
               {% endif %}
             </div>
@@ -417,15 +414,15 @@
                  class="p-5 md:p-7">
 
               <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                <h2 class="font-bold text-slate-800" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
+                <h2 class="font-bold text-slate-800 dark:text-slate-200" style="font-family:'Outfit',sans-serif; font-size:1.15rem;">
                   Patient Reviews
                 </h2>
                 <div class="text-right">
-                  <p class="font-extrabold text-slate-800 text-2xl">
+                  <p class="font-extrabold text-slate-800 dark:text-slate-200 text-2xl">
                     {% if hospital.average_rating and hospital.average_rating > 0 %}
-                      {{ hospital.average_rating }}<span class="text-base text-slate-400 font-normal">/5</span>
+                      {{ hospital.average_rating }}<span class="text-base text-slate-400 dark:text-slate-400 font-normal">/5</span>
                     {% else %}
-                      <span class="text-base text-slate-400 font-normal">No reviews yet</span>
+                      <span class="text-base text-slate-400 dark:text-slate-400 font-normal">No reviews yet</span>
                     {% endif %}
                   </p>
                 </div>
@@ -433,7 +430,7 @@
 
               <!-- Placeholder review -->
               <div class="space-y-4">
-                <div class="p-5 rounded-2xl" style="background:#f8fafc;">
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
                   <div class="flex items-center gap-0.5 mb-3">
                     {% for i in "12345" %}
                     <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
@@ -441,15 +438,15 @@
                     </svg>
                     {% endfor %}
                   </div>
-                  <p class="text-slate-700 text-sm italic mb-4">
+                  <p class="text-slate-700 dark:text-slate-300 text-sm italic mb-4">
                     "The care I received here was exceptionally good. The facilities are modern and the international patient department handled everything perfectly."
                   </p>
                   <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
                          style="background:#64748b;">M</div>
                     <div>
-                      <p class="font-bold text-slate-800 text-sm">Michael R.</p>
-                      <p class="text-slate-500 text-xs">Cardiology Patient</p>
+                      <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">Michael R.</p>
+                      <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs">Cardiology Patient</p>
                     </div>
                   </div>
                 </div>

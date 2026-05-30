@@ -4,56 +4,56 @@
 {% block content %}
 <div class="container mx-auto px-4 md:px-8 py-10">
     <div class="max-w-4xl mx-auto animate-fade-up">
-        <nav class="flex mb-8 text-sm font-medium text-slate-400" aria-label="Breadcrumb">
+        <nav class="flex mb-8 text-sm font-medium text-slate-400 dark:text-slate-400" aria-label="Breadcrumb">
             <a href="{% url 'hospital_dashboard' %}" class="hover:text-sky-600 transition-colors">Dashboard</a>
             <svg class="w-5 h-5 mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 11 7.293 7.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-            <span class="text-slate-900">Review Inquiry</span>
+            <span class="text-slate-900 dark:text-slate-100">Review Inquiry</span>
         </nav>
 
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- Left: Inquiry Details -->
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                    <h3 class="text-lg font-bold text-slate-900 mb-6" style="font-family: 'Outfit', sans-serif;">Patient Profile</h3>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-6" style="font-family: 'Outfit', sans-serif;">Patient Profile</h3>
                     
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
                             {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
                         </div>
                         <div>
-                            <h4 class="font-bold text-slate-900">{{ inquiry.patient.get_full_name|default:"Valued Patient" }}</h4>
-                            <p class="text-xs text-slate-500">Inquiry #{{ inquiry.uuid }}</p>
+                            <h4 class="font-bold text-slate-900 dark:text-slate-100">{{ inquiry.patient.get_full_name|default:"Valued Patient" }}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">Inquiry #{{ inquiry.uuid }}</p>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Requested Treatment</p>
-                            <p class="text-sm font-semibold text-slate-900">{{ inquiry.treatment.name }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Requested Treatment</p>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ inquiry.treatment.name }}</p>
                         </div>
                         {% if inquiry.preferred_country %}
                         <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Preferred Destination</p>
-                            <p class="text-sm font-semibold text-slate-900">{{ inquiry.preferred_country }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Preferred Destination</p>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ inquiry.preferred_country }}</p>
                         </div>
                         {% endif %}
                         {% if inquiry.budget %}
                         <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Est. Budget</p>
+                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Est. Budget</p>
                             <p class="text-sm font-semibold text-emerald-600">${{ inquiry.budget }}</p>
                         </div>
                         {% endif %}
                         {% if inquiry.travel_date %}
                         <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Travel Date</p>
-                            <p class="text-sm font-semibold text-slate-900">{{ inquiry.travel_date|date:"M d, Y" }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Travel Date</p>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ inquiry.travel_date|date:"M d, Y" }}</p>
                         </div>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                    <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                    <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 dark:bg-slate-900/10 rounded-full blur-2xl"></div>
                     <h4 class="font-bold mb-2">Patient Notes</h4>
                     <p class="text-sm text-indigo-100 leading-relaxed italic mb-4">"{{ inquiry.description }}"</p>
                     
@@ -63,8 +63,8 @@
                         <ul class="space-y-2">
                             {% for doc in inquiry.documents.all %}
                             <li>
-                                <a href="{{ doc.file.url }}" target="_blank" class="flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors group">
-                                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-500 transition-colors">
+                                <a href="{{ doc.file.url }}" target="_blank" class="flex items-center gap-2 p-2 hover:bg-white/10 dark:bg-slate-900/10 rounded-lg transition-colors group">
+                                    <div class="w-8 h-8 rounded-full bg-white/20 dark:bg-slate-900/20 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-500 transition-colors">
                                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                                     </div>
                                     <span class="text-sm text-indigo-100 truncate group-hover:text-white">{{ doc.file.name|slice:"16:" }}</span>
@@ -79,19 +79,19 @@
 
             <!-- Right: Quote Form -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 md:p-10">
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-8 md:p-10">
                     <div class="flex items-center gap-3 mb-8">
-                        <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600">
+                        <div class="w-12 h-12 bg-sky-50 dark:bg-sky-900/20 rounded-2xl flex items-center justify-center text-sky-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h2 class="text-2xl font-extrabold text-slate-900" style="font-family: 'Outfit', sans-serif;">Prepare Treatment Proposal</h2>
+                                <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100" style="font-family: 'Outfit', sans-serif;">Prepare Treatment Proposal</h2>
                                 {% if quote_already_sent %}
                                 <span class="bg-sky-100 text-sky-700 text-[10px] uppercase font-bold px-3 py-1 rounded-full border border-sky-200">Quote Sent</span>
                                 {% endif %}
                             </div>
-                            <p class="text-sm text-slate-500">{% if quote_already_sent %}Review the proposal you submitted to the patient.{% else %}Submit a detailed plan and fixed price to the patient.{% endif %}</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">{% if quote_already_sent %}Review the proposal you submitted to the patient.{% else %}Submit a detailed plan and fixed price to the patient.{% endif %}</p>
                         </div>
                     </div>
 
@@ -99,12 +99,12 @@
                         {% csrf_token %}
                         
                         <div class="group">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Proposed Treatment Plan</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Proposed Treatment Plan</label>
                             {% if quote_already_sent %}
-                                <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-600 text-sm min-h-[150px] whitespace-pre-wrap">{{ quote.treatment_plan }}</div>
+                                <div class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-sm min-h-[150px] whitespace-pre-wrap">{{ quote.treatment_plan }}</div>
                             {% else %}
                                 {% render_field form.treatment_plan %}
-                                <p class="mt-2 text-[10px] text-slate-400">Be as detailed as possible to increase approval rates.</p>
+                                <p class="mt-2 text-[10px] text-slate-400 dark:text-slate-400">Be as detailed as possible to increase approval rates.</p>
                             {% endif %}
                         </div>
 
@@ -115,35 +115,35 @@
                             get total() { return this.sittings.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0); }
                         }">
                             <div class="flex items-center justify-between mb-4">
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider group-focus-within:text-sky-600 transition-colors">Treatment Sittings & Pricing</label>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider group-focus-within:text-sky-600 transition-colors">Treatment Sittings & Pricing</label>
                                 {% if not quote_already_sent %}
-                                <button type="button" @click="addSitting()" class="text-xs font-bold text-sky-600 hover:text-sky-700 bg-sky-50 px-3 py-1 rounded-full">+ Add Sitting</button>
+                                <button type="button" @click="addSitting()" class="text-xs font-bold text-sky-600 hover:text-sky-700 bg-sky-50 dark:bg-sky-900/20 px-3 py-1 rounded-full">+ Add Sitting</button>
                                 {% endif %}
                             </div>
                             
                             <div class="space-y-4">
                                 <template x-for="(sitting, index) in sittings" :key="index">
-                                    <div class="flex items-start gap-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl relative">
+                                    <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl relative">
                                         <div class="flex-1 space-y-4">
                                             <div class="flex items-center gap-2 mb-2">
-                                                <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold" x-text="index + 1"></div>
-                                                <span class="text-sm font-bold text-slate-700">Sitting <span x-text="index + 1"></span></span>
+                                                <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 flex items-center justify-center text-xs font-bold" x-text="index + 1"></div>
+                                                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Sitting <span x-text="index + 1"></span></span>
                                             </div>
                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div class="md:col-span-2">
-                                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Description</label>
+                                                    <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Description</label>
                                                     {% if quote_already_sent %}
-                                                        <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-slate-600 text-sm font-medium min-h-[42px]" x-text="sitting.desc"></div>
+                                                        <div class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-sm font-medium min-h-[42px]" x-text="sitting.desc"></div>
                                                     {% else %}
-                                                        <input type="text" name="sitting_desc[]" x-model="sitting.desc" required placeholder="e.g. Initial Consultation & Procedure" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm transition-all focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                                                        <input type="text" name="sitting_desc[]" x-model="sitting.desc" required placeholder="e.g. Initial Consultation & Procedure" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 text-sm transition-all focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
                                                     {% endif %}
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Price ($)</label>
+                                                    <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Price ($)</label>
                                                     {% if quote_already_sent %}
-                                                        <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-slate-900 font-bold text-sm min-h-[42px]">$<span x-text="sitting.price"></span></div>
+                                                        <div class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-slate-100 font-bold text-sm min-h-[42px]">$<span x-text="sitting.price"></span></div>
                                                     {% else %}
-                                                        <input type="number" step="0.01" name="sitting_price[]" x-model="sitting.price" required placeholder="e.g. 1500" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 font-bold text-sm transition-all focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                                                        <input type="number" step="0.01" name="sitting_price[]" x-model="sitting.price" required placeholder="e.g. 1500" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 font-bold text-sm transition-all focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -158,8 +158,8 @@
                                 </template>
                             </div>
                             
-                            <div class="mt-6 flex justify-end items-center gap-4 pt-4 border-t border-slate-100">
-                                <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Quote Price:</span>
+                            <div class="mt-6 flex justify-end items-center gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <span class="text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Total Quote Price:</span>
                                 <span class="text-2xl font-black text-emerald-600">$<span x-text="total.toFixed(2)"></span></span>
                             </div>
                             
@@ -168,13 +168,13 @@
                         </div>
 
                         <div class="pt-4 flex items-center justify-between gap-4">
-                            <a href="{% url 'hospital_dashboard' %}" class="px-6 py-4 rounded-xl text-slate-500 font-bold hover:bg-slate-50 transition-colors">Cancel</a>
+                            <a href="{% url 'hospital_dashboard' %}" class="px-6 py-4 rounded-xl text-slate-500 dark:text-slate-400 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors">Cancel</a>
                             {% if not quote_already_sent %}
-                            <button type="submit" class="flex-1 bg-slate-900 hover:bg-sky-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-sky-500/25 transition-all duration-300 transform hover:-translate-y-1">
+                            <button type="submit" class="flex-1 bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-sky-500/25 transition-all duration-300 transform hover:-translate-y-1">
                                 Send Quote to Patient
                             </button>
                             {% else %}
-                            <button type="button" disabled class="flex-1 bg-slate-200 text-slate-400 font-bold py-4 px-8 rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                            <button type="button" disabled class="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-400 font-bold py-4 px-8 rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 Quote Already Sent
                             </button>

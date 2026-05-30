@@ -35,16 +35,16 @@
         </div>
 
         <div class="space-y-4">
-            <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight" style="font-family: 'Outfit', sans-serif;">Lost in the Cloud?</h1>
-            <p class="text-lg text-slate-500 font-medium max-w-md mx-auto">The page you're searching for seems to have drifted away. Let's get you back on track.</p>
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight" style="font-family: 'Outfit', sans-serif;">Lost in the Cloud?</h1>
+            <p class="text-lg text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium max-w-md mx-auto">The page you're searching for seems to have drifted away. Let's get you back on track.</p>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-            <a href="{% url 'home' %}" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-10 rounded-2xl transition-all shadow-lg hover:shadow-slate-500/30 flex items-center justify-center gap-2 group">
+            <a href="{% url 'home' %}" class="w-full sm:w-auto bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold py-4 px-10 rounded-2xl transition-all shadow-lg hover:shadow-slate-500/30 flex items-center justify-center gap-2 group">
                 <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Return to Home
             </a>
-            <a href="{% url 'contact' %}" class="w-full sm:w-auto bg-sky-50 text-sky-600 font-bold py-4 px-10 rounded-2xl hover:bg-sky-100 transition-all border border-sky-100 flex items-center justify-center gap-2">
+            <a href="{% url 'contact' %}" class="w-full sm:w-auto bg-sky-50 dark:bg-sky-900/20 text-sky-600 font-bold py-4 px-10 rounded-2xl hover:bg-sky-100 transition-all border border-sky-100 flex items-center justify-center gap-2">
                 Need Help?
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
             </a>

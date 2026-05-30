@@ -11,12 +11,12 @@
             <h1 class="text-3xl font-extrabold mb-1" style="font-family: 'Outfit', sans-serif;">Add Treatment Package</h1>
             <p class="text-emerald-100">Create a comprehensive care package to offer international patients.</p>
         </div>
-        <div class="hidden sm:flex w-16 h-16 bg-white/10 rounded-2xl items-center justify-center backdrop-blur text-white border border-white/20">
+        <div class="hidden sm:flex w-16 h-16 bg-white/10 dark:bg-slate-900/10 rounded-2xl items-center justify-center backdrop-blur text-white border border-white/20">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
         </div>
     </div>
 
-    <div class="bg-white shadow-xl rounded-[2rem] p-8 border border-slate-100">
+    <div class="bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800">
 
         <form method="POST" class="space-y-6">
             {% csrf_token %}
@@ -24,61 +24,61 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Treatment Info -->
                 <div class="group md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Treatment Name</label>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Treatment Name</label>
                     {% render_field form.treatment_name placeholder="e.g. Dental Implants" %}
                 </div>
 
                 <div class="group md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Category</label>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Category</label>
                     {% render_field form.category placeholder="e.g. Dentistry" %}
                 </div>
 
                 <div class="group md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Description</label>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Description</label>
                     {% render_field form.description rows="3" placeholder="Briefly describe the treatment..." %}
                 </div>
 
                 <!-- Doctor Select -->
                 <div class="group md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Assign Primary Doctor</label>
-                    {% render_field form.doctor class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Assign Primary Doctor</label>
+                    {% render_field form.doctor class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
                 </div>
 
                 <!-- Price & Currency -->
                 <div class="group">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Starting Price</label>
-                    {% render_field form.price class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 5000" %}
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Starting Price</label>
+                    {% render_field form.price class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" placeholder="e.g. 5000" %}
                     {% if form.price.help_text %}
-                    <p class="text-xs text-slate-400 mt-1">{{ form.price.help_text }}</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">{{ form.price.help_text }}</p>
                     {% endif %}
                 </div>
 
                 <div class="group">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Currency</label>
-                    {% render_field form.currency class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Currency</label>
+                    {% render_field form.currency class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
                 </div>
 
                 <div class="group">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Hospital Stay (Days)</label>
-                    {% render_field form.stay_days class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Hospital Stay (Days)</label>
+                    {% render_field form.stay_days class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
                 </div>
 
                 <div class="group">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Sittings Required</label>
-                    {% render_field form.sittings_required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" min="1" placeholder="e.g. 1" %}
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Sittings Required</label>
+                    {% render_field form.sittings_required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" min="1" placeholder="e.g. 1" %}
                 </div>
 
                 <div class="group">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Recovery Time (Days)</label>
-                    {% render_field form.recovery_days class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Recovery Time (Days)</label>
+                    {% render_field form.recovery_days class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none" %}
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-slate-100 flex gap-4 justify-end">
-                <a href="{% url 'hospital_dashboard' %}" class="bg-slate-100 text-slate-600 font-bold py-3 px-6 rounded-xl hover:bg-slate-200 transition-colors">
+            <div class="pt-6 border-t border-slate-100 dark:border-slate-800 flex gap-4 justify-end">
+                <a href="{% url 'hospital_dashboard' %}" class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 font-bold py-3 px-6 rounded-xl hover:bg-slate-200 dark:bg-slate-800 transition-colors">
                     Cancel
                 </a>
-                <button type="submit" class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all hover:bg-sky-600 transform hover:-translate-y-0.5">
+                <button type="submit" class="bg-slate-900 dark:bg-slate-700 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all hover:bg-sky-600 dark:hover:bg-sky-500 transform hover:-translate-y-0.5">
                     Save Package
                 </button>
             </div>

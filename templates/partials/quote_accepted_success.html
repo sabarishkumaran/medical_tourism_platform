@@ -1,6 +1,6 @@
 <div id="quote-card" class="bg-emerald-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-200 animate-fade-in">
     <div class="flex items-center gap-4 mb-6">
-        <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+        <div class="w-16 h-16 rounded-full bg-white/20 dark:bg-slate-900/20 flex items-center justify-center flex-shrink-0">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
         </div>
         <div>
@@ -11,11 +11,11 @@
     <p class="text-emerald-50 text-sm leading-relaxed mb-8 font-medium">Your treatment is confirmed with <strong>{{ inquiry.hospital.name }}</strong>. Our coordination team is now preparing for your arrival.</p>
     
     <div class="space-y-4">
-        <a href="{% url 'edit_confirmation' inquiry.uuid %}" class="w-full py-4 bg-white text-emerald-600 font-black rounded-2xl hover:bg-emerald-50 transition-all shadow-lg flex items-center justify-center gap-2 group">
+        <a href="{% url 'edit_confirmation' inquiry.uuid %}" class="w-full py-4 bg-white dark:bg-slate-900 text-emerald-600 font-black rounded-2xl hover:bg-emerald-50 transition-all shadow-lg flex items-center justify-center gap-2 group">
             Edit Appointment
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
         </a>
-        <div class="p-4 bg-white/10 rounded-2xl border border-white/20">
+        <div class="p-4 bg-white/10 dark:bg-slate-900/10 rounded-2xl border border-white/20">
             <p class="text-[10px] font-black uppercase tracking-widest mb-1 text-emerald-200">Next Step</p>
             <p class="text-xs font-bold leading-tight">A care coordinator will call you within 24 hours to finalize travel details.</p>
         </div>
@@ -25,5 +25,5 @@
 <!-- Out of Band Updates -->
 <div id="inquiry-status-badge" hx-swap-oob="true" class="flex flex-col items-end gap-3">
     <span class="px-6 py-2 rounded-2xl bg-emerald-50 text-emerald-600 font-bold text-sm border border-emerald-100 animate-bounce">Case Confirmed</span>
-    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Submitted {{ inquiry.created_at|date:"M d, Y" }}</p>
+    <p class="text-xs text-slate-400 dark:text-slate-400 font-bold uppercase tracking-wider">Submitted {{ inquiry.created_at|date:"M d, Y" }}</p>
 </div>

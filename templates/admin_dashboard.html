@@ -7,8 +7,8 @@
         <!-- Welcome Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
-                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight" style="font-family: 'Outfit', sans-serif;">Platform Insights</h1>
-                <p class="text-slate-600 mt-2 text-xl font-medium">Welcome back, {{ user.first_name|default:user.username }}. Here's what's happening today.</p>
+                <h1 class="text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight" style="font-family: 'Outfit', sans-serif;">Platform Insights</h1>
+                <p class="text-slate-600 dark:text-slate-400 dark:text-slate-400 mt-2 text-xl font-medium">Welcome back, {{ user.first_name|default:user.username }}. Here's what's happening today.</p>
             </div>
         </div>
 
@@ -22,21 +22,21 @@
         </style>
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-10 custom-grid-6">
             <!-- Total Patients -->
-            <a href="{% url 'admin_patients' %}" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all group">
+            <a href="{% url 'admin_patients' %}" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all group">
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>
-                <p class="text-3xl font-black text-slate-900 leading-none mb-2">{{ stats.total_patients }}</p>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Patients</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none mb-2">{{ stats.total_patients }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Total Patients</p>
             </a>
 
             <!-- Total Hospitals -->
-            <a href="{% url 'pending_hospitals' %}" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-sky-200 transition-all group relative">
-                <div class="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center text-sky-600 group-hover:bg-sky-500 group-hover:text-white transition-colors mb-4">
+            <a href="{% url 'pending_hospitals' %}" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-sky-200 transition-all group relative">
+                <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center text-sky-600 group-hover:bg-sky-500 group-hover:text-white transition-colors mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 </div>
-                <p class="text-3xl font-black text-slate-900 leading-none mb-2">{{ stats.total_hospitals }}</p>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Total Hospitals</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none mb-2">{{ stats.total_hospitals }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-3">Total Hospitals</p>
                 <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     {{ stats.approved_hospitals }} Approved
@@ -44,39 +44,39 @@
             </a>
 
             <!-- Pending Approvals -->
-            <a href="{% url 'pending_hospitals' %}" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-amber-200 transition-all group">
+            <a href="{% url 'pending_hospitals' %}" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-amber-200 transition-all group">
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-                <p class="text-3xl font-black text-slate-900 leading-none mb-2">{{ stats.pending_hospitals }}</p>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pending Approvals</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none mb-2">{{ stats.pending_hospitals }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Pending Approvals</p>
             </a>
 
             <!-- Total Inquiries -->
-            <a href="{% url 'inquiry_hub' %}" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white transition-colors mb-4">
+            <a href="{% url 'inquiry_hub' %}" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white transition-colors mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012-2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
                 </div>
-                <p class="text-3xl font-black text-slate-900 leading-none mb-2">{{ stats.total_inquiries }}</p>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Patient Inquiries</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none mb-2">{{ stats.total_inquiries }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Patient Inquiries</p>
             </a>
 
             <!-- Unread Messages -->
-            <a href="{% url 'contact_messages_hub' %}" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-rose-200 transition-all group">
-                <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-colors mb-4">
+            <a href="{% url 'contact_messages_hub' %}" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-rose-200 transition-all group">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-colors mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
-                <p class="text-3xl font-black text-slate-900 leading-none mb-2">{{ stats.unread_contacts }}</p>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Guest Messages</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none mb-2">{{ stats.unread_contacts }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Guest Messages</p>
             </a>
 
             <!-- Pending Blogs -->
-            <a href="{% url 'admin_pending_blogs' %}" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-fuchsia-200 transition-all group">
+            <a href="{% url 'admin_pending_blogs' %}" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-fuchsia-200 transition-all group">
                 <div class="w-12 h-12 rounded-2xl bg-fuchsia-50 flex items-center justify-center text-fuchsia-600 group-hover:bg-fuchsia-500 group-hover:text-white transition-colors mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </div>
-                <p class="text-3xl font-black text-slate-900 leading-none mb-2">{{ stats.pending_blogs }}</p>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pending Articles</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none mb-2">{{ stats.pending_blogs }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">Pending Articles</p>
             </a>
 
         </div>
@@ -86,9 +86,9 @@
         <!-- Revenue Dashboard Grid -->
         <div class="mb-12">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Financial Overview</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Financial Overview</h2>
                 <div class="flex items-center gap-3">
-                    <a href="{% url 'admin_financial_ledger' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm">
+                    <a href="{% url 'admin_financial_ledger' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         View Financial Ledger
                     </a>
@@ -112,7 +112,7 @@
                             <p class="text-xs text-indigo-300 font-medium">Aggregated across 5 distinct revenue streams</p>
                         </div>
                         
-                        <div class="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                        <div class="mt-8 bg-white/10 dark:bg-slate-900/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
                             <div class="flex justify-between items-center text-sm font-bold text-white mb-2">
                                 <span>Monthly Target</span>
                                 <span>85%</span>
@@ -127,63 +127,63 @@
                 <!-- Revenue Streams Breakdown -->
                 <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Total Volume (Spans 2 cols) -->
-                    <div class="sm:col-span-2 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-100 shadow-sm flex items-center justify-between hover:border-emerald-300 transition-colors">
+                    <div class="sm:col-span-2 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/40 dark:to-teal-900/40 rounded-3xl p-6 border border-emerald-100 dark:border-emerald-800/50 shadow-sm flex items-center justify-between hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors">
                         <div class="flex items-center gap-5">
-                            <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 flex-shrink-0 shadow-inner">
+                            <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400 flex-shrink-0 shadow-inner">
                                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                             </div>
                             <div>
-                                <h4 class="text-emerald-800 text-[10px] font-bold uppercase tracking-widest mb-1">Platform Gross Volume</h4>
-                                <p class="text-2xl font-black text-slate-900">${{ stats.revenue.total_volume|floatformat:2 }}</p>
+                                <h4 class="text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-1">Platform Gross Volume</h4>
+                                <p class="text-2xl font-black text-slate-900 dark:text-slate-100">${{ stats.revenue.total_volume|floatformat:2 }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Commissions -->
-                    <a href="{% url 'admin_revenue_commissions' %}" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-5 hover:border-sky-200 hover:shadow-md transition-all cursor-pointer group">
-                        <div class="w-14 h-14 rounded-2xl bg-sky-50 group-hover:bg-sky-100 flex items-center justify-center text-sky-600 flex-shrink-0 transition-colors">
+                    <a href="{% url 'admin_revenue_commissions' %}" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:border-sky-200 hover:shadow-md transition-all cursor-pointer group">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-50 dark:bg-sky-900/20 group-hover:bg-sky-100 flex items-center justify-center text-sky-600 flex-shrink-0 transition-colors">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0-2.08.402-2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Treatment Commissions</h4>
-                            <p class="text-2xl font-black text-slate-800">${{ stats.revenue.commissions|floatformat:2 }}</p>
+                            <h4 class="text-slate-400 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Treatment Commissions</h4>
+                            <p class="text-2xl font-black text-slate-800 dark:text-slate-200">${{ stats.revenue.commissions|floatformat:2 }}</p>
                         </div>
                         <svg class="w-4 h-4 text-slate-300 group-hover:text-sky-400 ml-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                     
                     <!-- Subscriptions -->
-                    <a href="{% url 'admin_revenue_subscriptions' %}" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-5 hover:border-violet-200 hover:shadow-md transition-all cursor-pointer group">
+                    <a href="{% url 'admin_revenue_subscriptions' %}" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:border-violet-200 hover:shadow-md transition-all cursor-pointer group">
                         <div class="w-14 h-14 rounded-2xl bg-violet-50 group-hover:bg-violet-100 flex items-center justify-center text-violet-600 flex-shrink-0 transition-colors">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Premium Subscriptions</h4>
-                            <p class="text-2xl font-black text-slate-800">${{ stats.revenue.subscriptions|floatformat:2 }}</p>
+                            <h4 class="text-slate-400 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Premium Subscriptions</h4>
+                            <p class="text-2xl font-black text-slate-800 dark:text-slate-200">${{ stats.revenue.subscriptions|floatformat:2 }}</p>
                         </div>
                         <svg class="w-4 h-4 text-slate-300 group-hover:text-violet-400 ml-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
 
                     <!-- Lead Generation -->
-                    <a href="{% url 'admin_revenue_leads' %}" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-5 hover:border-amber-200 hover:shadow-md transition-all cursor-pointer group">
+                    <a href="{% url 'admin_revenue_leads' %}" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:border-amber-200 hover:shadow-md transition-all cursor-pointer group">
                         <div class="w-14 h-14 rounded-2xl bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0 transition-colors">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Lead Generation Fees</h4>
-                            <p class="text-2xl font-black text-slate-800">${{ stats.revenue.leads|floatformat:2 }}</p>
+                            <h4 class="text-slate-400 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Lead Generation Fees</h4>
+                            <p class="text-2xl font-black text-slate-800 dark:text-slate-200">${{ stats.revenue.leads|floatformat:2 }}</p>
                         </div>
                         <svg class="w-4 h-4 text-slate-300 group-hover:text-amber-400 ml-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
 
                     <!-- Patient Services -->
-                    <a href="{% url 'admin_revenue_services' %}" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-5 hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
+                    <a href="{% url 'admin_revenue_services' %}" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
                         <div class="w-14 h-14 rounded-2xl bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0 transition-colors">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
                         </div>
                         <div class="flex-1">
-                            <h4 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Patient Service Add-ons</h4>
+                            <h4 class="text-slate-400 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Patient Service Add-ons</h4>
                             <div class="flex items-end justify-between">
-                                <p class="text-2xl font-black text-slate-800">${{ stats.revenue.services|add:stats.revenue.featured|floatformat:2 }}</p>
+                                <p class="text-2xl font-black text-slate-800 dark:text-slate-200">${{ stats.revenue.services|add:stats.revenue.featured|floatformat:2 }}</p>
                                 <span class="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">+ Featured Ads</span>
                             </div>
                         </div>
@@ -195,55 +195,55 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <!-- Recent Inquiries -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
                 <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">Recent Inquiries</h2>
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Recent Inquiries</h2>
                     <a href="{% url 'inquiry_hub' %}" class="text-sky-600 text-xs font-bold hover:underline">View All</a>
                 </div>
                 <div class="divide-y divide-slate-50">
                     {% for inquiry in recent_inquiries %}
-                    <div class="p-6 hover:bg-slate-50/50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs uppercase shrink-0">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 dark:text-slate-400 font-bold text-xs uppercase shrink-0">
                                 {{ inquiry.patient.username|slice:":2" }}
                             </div>
                             <div>
-                                <a href="{% url 'view_inquiry' inquiry.uuid %}" class="text-sm font-bold text-slate-800 hover:text-sky-600 transition-colors">
+                                <a href="{% url 'view_inquiry' inquiry.uuid %}" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-sky-600 transition-colors">
                                     {{ inquiry.treatment.name }}
                                 </a>
-                                <p class="text-[11px] text-slate-400">
-                                {% if inquiry.hospital %}<span class="font-bold text-slate-500">To: {{ inquiry.hospital.name }}</span> • {% endif %}
-                                {{ inquiry.patient.get_full_name|default:inquiry.patient.username }} • <span class="text-slate-500 font-medium">{{ inquiry.created_at|timesince }} ago</span></p>
+                                <p class="text-[11px] text-slate-400 dark:text-slate-400">
+                                {% if inquiry.hospital %}<span class="font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">To: {{ inquiry.hospital.name }}</span> • {% endif %}
+                                {{ inquiry.patient.get_full_name|default:inquiry.patient.username }} • <span class="text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">{{ inquiry.created_at|timesince }} ago</span></p>
                             </div>
                         </div>
-                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider self-start sm:self-auto">
+                        <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider self-start sm:self-auto">
                             {{ inquiry.get_status_display }}
                         </span>
                     </div>
                     {% empty %}
-                    <div class="p-10 text-center text-slate-400 italic text-sm">No recent inquiries found.</div>
+                    <div class="p-10 text-center text-slate-400 dark:text-slate-400 italic text-sm">No recent inquiries found.</div>
                     {% endfor %}
                 </div>
             </div>
 
             <!-- Recent Hospital Registrations -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
                 <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-slate-800" style="font-family: 'Outfit', sans-serif;">New Hospital Signups</h2>
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">New Hospital Signups</h2>
                     <a href="{% url 'pending_hospitals' %}" class="text-sky-600 text-xs font-bold hover:underline">View Directory</a>
                 </div>
                 <div class="divide-y divide-slate-50">
                     {% for hospital in recent_hospitals %}
-                    <div class="p-6 hover:bg-slate-50/50 transition-colors flex items-center justify-between">
+                    <div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors flex items-center justify-between">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">
                                 {{ hospital.name|slice:":1" }}
                             </div>
                             <div>
-                                <a href="{% if hospital.status == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="text-sm font-bold text-slate-800 hover:text-sky-600 transition-colors">
+                                <a href="{% if hospital.status == 'APPROVED' %}{% url 'hospital_detail' hospital.id %}{% else %}{% url 'review_hospital' hospital.id %}{% endif %}" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-sky-600 transition-colors">
                                     {{ hospital.name }}
                                 </a>
-                                <p class="text-[11px] text-slate-500 font-medium">{{ hospital.city }}, {{ hospital.user.country }} • Joined {{ hospital.user.date_joined|date:"M d" }}</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">{{ hospital.city }}, {{ hospital.user.country }} • Joined {{ hospital.user.date_joined|date:"M d" }}</p>
                             </div>
                         </div>
                         <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
@@ -252,7 +252,7 @@
                         </span>
                     </div>
                     {% empty %}
-                    <div class="p-10 text-center text-slate-400 italic text-sm">No recent signups found.</div>
+                    <div class="p-10 text-center text-slate-400 dark:text-slate-400 italic text-sm">No recent signups found.</div>
                     {% endfor %}
                 </div>
             </div>
@@ -262,8 +262,8 @@
         <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {% if user.is_superuser or user.role == 'ADMIN' %}
 
-            <a href="{% url 'manage_staff' %}" class="flex items-center gap-4 p-4 bg-slate-900 rounded-3xl text-white hover:bg-sky-600 transition-all shadow-lg hover:shadow-sky-500/30 transform hover:-translate-y-1">
-                <div class="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+            <a href="{% url 'manage_staff' %}" class="flex items-center gap-4 p-4 bg-slate-900 dark:bg-slate-700 rounded-3xl text-white hover:bg-sky-600 dark:hover:bg-sky-500 transition-all shadow-lg hover:shadow-sky-500/30 transform hover:-translate-y-1">
+                <div class="w-10 h-10 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
                 <div>
@@ -273,33 +273,33 @@
             </a>
             {% endif %}
             
-            <a href="{% url 'contact_messages_hub' %}" class="flex items-center gap-4 p-4 bg-white rounded-3xl text-slate-800 border border-slate-100 hover:border-sky-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
-                <div class="w-10 h-10 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600 shrink-0">
+            <a href="{% url 'contact_messages_hub' %}" class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-3xl text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 hover:border-sky-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
+                <div class="w-10 h-10 bg-sky-50 dark:bg-sky-900/20 rounded-2xl flex items-center justify-center text-sky-600 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
                 </div>
                 <div>
                     <h4 class="font-bold text-sm">Guest Messages</h4>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Contact Form</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-400 uppercase tracking-widest">Contact Form</p>
                 </div>
             </a>
 
-            <a href="{% url 'pending_hospitals' %}" class="flex items-center gap-4 p-4 bg-white rounded-3xl text-slate-800 border border-slate-100 hover:border-amber-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
+            <a href="{% url 'pending_hospitals' %}" class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-3xl text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 hover:border-amber-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
                 <div class="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 </div>
                 <div>
                     <h4 class="font-bold text-sm">Hospital Directory</h4>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Manage All</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-400 uppercase tracking-widest">Manage All</p>
                 </div>
             </a>
 
-            <a href="{% url 'admin_patients' %}" class="flex items-center gap-4 p-4 bg-white rounded-3xl text-slate-800 border border-slate-100 hover:border-emerald-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
+            <a href="{% url 'admin_patients' %}" class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-3xl text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 hover:border-emerald-500 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-1">
                 <div class="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>
                 <div>
                     <h4 class="font-bold text-sm">Patient Directory</h4>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">User CRM</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-400 uppercase tracking-widest">User CRM</p>
                 </div>
             </a>
         </div>
