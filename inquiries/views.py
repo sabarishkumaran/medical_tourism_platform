@@ -66,6 +66,9 @@ def respond_inquiry(request, inquiry_id):
 
             inquiry.status = "QUOTE_SENT"
             inquiry.save()
+            
+            from .utils import log_inquiry_event
+            log_inquiry_event(inquiry, request.user, "Quote Sent", f"Hospital sent a quote for ${quote.price}.")
 
             return redirect('hospital_dashboard')
     else:
@@ -119,6 +122,9 @@ def submit_inquiry(request):
                 inquiry.patient = request.user
             
             inquiry.save()
+            
+            from .utils import log_inquiry_event
+            log_inquiry_event(inquiry, request.user if request.user.is_authenticated else None, "Inquiry Submitted", "Patient submitted a new inquiry.")
 
             files = request.FILES.getlist("documents")
             for file in files:
@@ -419,6 +425,9 @@ def accept_quote(request, inquiry_id):
         inquiry.status = "CONFIRMED"
         inquiry.save()
         
+        from .utils import log_inquiry_event
+        log_inquiry_event(inquiry, request.user, "Plan Confirmed", "Patient confirmed the treatment plan.")
+        
         if request.headers.get('HX-Request'):
             return render(request, "partials/quote_accepted_success.html", {"inquiry": inquiry})
             
@@ -465,6 +474,9 @@ def send_payment_link(request, inquiry_id):
     if request.method == "POST":
         inquiry.status = "PAYMENT_LINK_SENT"
         inquiry.save()
+        
+        from .utils import log_inquiry_event
+        log_inquiry_event(inquiry, request.user, "Payment Link Sent", "Hospital requested a deposit payment.")
         
         from django.contrib import messages
         messages.success(request, f"Payment link successfully sent to {inquiry.patient.get_full_name()}!")
@@ -531,6 +543,9 @@ def process_payment(request, inquiry_id):
     
     inquiry.status = "COMPLETED"
     inquiry.save()
+    
+    from .utils import log_inquiry_event
+    log_inquiry_event(inquiry, request.user, "Payment Successful", "Patient paid the deposit successfully.")
     
     # Save payment details for records
     from payments.models import Payment
@@ -678,6 +693,9 @@ def cancel_and_refund_inquiry(request, inquiry_id):
             inquiry.status = "CANCELLED_REFUNDED"
             inquiry.save()
             
+            from .utils import log_inquiry_event
+            log_inquiry_event(inquiry, request.user, "Cancelled & Refunded", "Patient cancelled the inquiry and requested a refund.")
+            
             # In a real app, integrate with Stripe to refund the 100 dollars here.
             
             from django.contrib import messages
@@ -709,6 +727,9 @@ def book_next_sitting(request, inquiry_id):
     inquiry.status = 'CONFIRMED'
     inquiry.travel_date = None
     inquiry.save()
+    
+    from .utils import log_inquiry_event
+    log_inquiry_event(inquiry, request.user, "Next Sitting Booked", f"Patient started booking Sitting {inquiry.current_sitting_number}.")
     
     from django.contrib import messages
     messages.success(request, f'You are now booking Sitting {inquiry.current_sitting_number}. Please set your travel date.')
