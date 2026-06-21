@@ -486,28 +486,36 @@
                 </div>
               </div>
 
-              <!-- Placeholder review -->
+              <!-- Reviews List -->
               <div class="space-y-4">
+                {% for review in hospital.review_set.all %}
                 <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
                   <div class="flex items-center gap-0.5 mb-3">
                     {% for i in "12345" %}
-                    <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4 {% if forloop.counter <= review.rating %}text-amber-400{% else %}text-slate-200 dark:text-slate-800{% endif %}" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/>
                     </svg>
                     {% endfor %}
                   </div>
                   <p class="text-slate-700 dark:text-slate-300 text-sm italic mb-4">
-                    "The care I received here was exceptionally good. The facilities are modern and the international patient department handled everything perfectly."
+                    "{{ review.comment }}"
                   </p>
                   <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
-                         style="background:#64748b;">M</div>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0 uppercase"
+                         style="background:#64748b;">
+                      {{ review.patient.username|slice:":1" }}
+                    </div>
                     <div>
-                      <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">Michael R.</p>
-                      <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs">Cardiology Patient</p>
+                      <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ review.patient.get_full_name|default:review.patient.username }}</p>
+                      <p class="text-slate-500 dark:text-slate-400 text-xs">{{ review.created_at|date:"M d, Y" }}</p>
                     </div>
                   </div>
                 </div>
+                {% empty %}
+                <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                  <p class="text-slate-500 dark:text-slate-400 text-sm">No reviews yet for this hospital.</p>
+                </div>
+                {% endfor %}
               </div>
             </div>
             <!-- END REVIEWS -->
