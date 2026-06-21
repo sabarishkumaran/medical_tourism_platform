@@ -23,13 +23,55 @@
     <div class="absolute bottom-0 left-0 right-0 px-4 py-5 md:px-10 md:py-8">
       <!-- Badges -->
       <div class="flex flex-wrap gap-2 mb-2">
+        {% if hospital.accreditation == 'JCI' %}
         <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
               style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
-          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
-          {% if hospital.accreditation %}{{ hospital.get_accreditation_display }}{% else %}Verified Hospital{% endif %}
+          JCI Accredited
         </span>
+        {% elif hospital.accreditation == 'NABH' %}
+        <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          NABH Accredited
+        </span>
+        {% elif hospital.accreditation == 'ISO' %}
+        <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          ISO Certified
+        </span>
+        {% elif hospital.accreditation == 'JACHO' %}
+        <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          JACHO Accredited
+        </span>
+        {% elif hospital.accreditation == 'OTHER' %}
+        <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Accredited
+        </span>
+        {% else %}
+        <span class="inline-flex items-center gap-1 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full"
+              style="background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Verified Facility
+        </span>
+        {% endif %}
         <span class="text-sky-200 text-xs font-bold px-2.5 py-1 rounded-full"
               style="background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.35);">
           Top Rated
@@ -181,11 +223,17 @@
               {% endfor %}
             </ul>
 
+            {% if not user.is_authenticated or user.role == 'PATIENT' %}
             <a href="{% url 'submit_inquiry' %}?hospital_id={{ hospital.id }}"
                class="w-full block text-center font-bold py-3.5 rounded-xl transition-all mb-3"
                style="background:#fff; color:#1e1b4b;">
               Request Free Quote
             </a>
+            {% else %}
+            <div class="w-full block text-center font-bold py-3.5 rounded-xl bg-white/10 text-white/50 text-xs mb-3">
+              Quote request disabled for {{ user.get_role_display }}s
+            </div>
+            {% endif %}
             <p class="text-xs text-center text-indigo-400">Your medical data is 100% secure.</p>
           </div>
         </aside>
@@ -259,44 +307,54 @@
               {% endif %}
 
               <!-- Stats -->
+              <style>
+                .metric-blue {
+                  color: #0284c7 !important;
+                }
+                .dark .metric-blue {
+                  color: #38bdf8 !important;
+                }
+              </style>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <p class="font-extrabold text-sky-600" style="font-size:1.7rem;">{{ hospital.years_active }}+</p>
-                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Years Active</p>
+                  <p class="font-extrabold metric-blue" style="font-size:1.7rem;">{{ hospital.years_active }}+</p>
+                  <p class="text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Years Active</p>
                 </div>
                 <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <p class="font-extrabold text-indigo-600" style="font-size:1.7rem;">{{ hospital.international_patients }}+</p>
-                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Intl Patients</p>
+                  <p class="font-extrabold metric-blue" style="font-size:1.7rem;">{{ hospital.international_patients }}+</p>
+                  <p class="text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">International Patients</p>
                 </div>
                 <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <p class="font-extrabold text-emerald-600" style="font-size:1.7rem;">{{ hospital.beds_count }}+</p>
-                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Beds</p>
+                  <p class="font-extrabold metric-blue" style="font-size:1.7rem;">{{ hospital.beds_count }}+</p>
+                  <p class="text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Beds</p>
                 </div>
-                <div class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <p class="font-extrabold text-amber-500" style="font-size:1.7rem;">
-                    {% if hospital.average_rating and hospital.average_rating > 0 %}{{ hospital.average_rating }}{% else %}New{% endif %}
+                <div @click="tab='reviews'; document.getElementById('hospital-sidebar').scrollIntoView({behavior: 'smooth'})"
+                     class="rounded-2xl p-4 text-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors group">
+                  <p class="font-extrabold metric-blue transition-colors" style="font-size:1.7rem;">
+                    {% if hospital.average_rating and hospital.average_rating > 0 %}{{ hospital.average_rating }}{% else %}Not Rated{% endif %}
                   </p>
-                  <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5">Rating</p>
+                  <p class="text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wide mt-0.5 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex items-center justify-center gap-1">
+                    Rating
+                    <svg class="w-3 h-3 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </p>
                 </div>
               </div>
 
               <!-- Certifications -->
+              {% if hospital.accreditation %}
               <div>
                 <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-3">Certifications &amp; Accreditations</h3>
-                {% if hospital.accreditation %}
                 <div class="inline-flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <svg class="w-7 h-7 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/>
                   </svg>
                   <div>
                     <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ hospital.get_accreditation_display }}</p>
-                    <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs">Verified Medical Facility</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs">Verified Medical Facility</p>
                   </div>
                 </div>
-                {% else %}
-                <p class="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm">No certifications listed yet.</p>
-                {% endif %}
               </div>
+              {% endif %}
             </div>
             <!-- END OVERVIEW -->
 

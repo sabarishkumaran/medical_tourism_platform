@@ -64,7 +64,7 @@
                 {% for inquiry in page_obj %}
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors group">
                     <td class="px-8 py-5 whitespace-nowrap">
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">#{{ inquiry.uuid|stringformat:"s"|slice:":8" }}</p>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 cursor-help" title="{{ inquiry.uuid }}">#{{ inquiry.uuid|stringformat:"s"|slice:":8" }}</p>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium mt-1">{{ inquiry.created_at|date:"M d, Y h:i A" }}</p>
                     </td>
                     <td class="px-8 py-5 whitespace-nowrap">

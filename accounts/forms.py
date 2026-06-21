@@ -88,6 +88,15 @@ class RegisterForm(UserCreationForm):
                 self.add_error('hospital_accreditation', 'Please select your primary accreditation.')
         return cleaned_data
 
+    def clean_hospital_certificate(self):
+        certificate = self.cleaned_data.get('hospital_certificate')
+        if certificate:
+            import os
+            ext = os.path.splitext(certificate.name)[1].lower()
+            valid_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
+            if ext not in valid_extensions:
+                raise forms.ValidationError("Unsupported file format. Only PDF, JPG, JPEG, and PNG are allowed.")
+        return certificate
 
 class StaffInvitationForm(forms.ModelForm):
     class Meta:

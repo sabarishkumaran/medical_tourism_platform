@@ -35,7 +35,12 @@ class TreatmentPackageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.hospital = kwargs.pop('hospital')
         super().__init__(*args, **kwargs)
-        self.fields['doctor'].queryset = Doctor.objects.filter(hospital=self.hospital)
+        doctors_qs = Doctor.objects.filter(hospital=self.hospital)
+        self.fields['doctor'].queryset = doctors_qs
+        if not doctors_qs.exists():
+            self.fields['doctor'].empty_label = "No records found (Please add a doctor first)"
+        else:
+            self.fields['doctor'].empty_label = "Select a Primary Doctor"
         
         # Pre-populate treatment-related fields if editing an existing package
         if self.instance and self.instance.pk and self.instance.treatment:
@@ -52,6 +57,34 @@ class TreatmentPackageForm(forms.ModelForm):
             field.widget.attrs.update({
                 'class': 'w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none'
             })
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is not None:
+            if price <= 0 or price > 1000000:
+                raise forms.ValidationError("Price must be between 1 and 1,000,000.")
+        return price
+
+    def clean_stay_days(self):
+        stay_days = self.cleaned_data.get('stay_days')
+        if stay_days is not None:
+            if stay_days < 0 or stay_days > 365:
+                raise forms.ValidationError("Hospital stay days must be between 0 and 365.")
+        return stay_days
+
+    def clean_recovery_days(self):
+        recovery_days = self.cleaned_data.get('recovery_days')
+        if recovery_days is not None:
+            if recovery_days < 0 or recovery_days > 365:
+                raise forms.ValidationError("Recovery time days must be between 0 and 365.")
+        return recovery_days
+
+    def clean_sittings_required(self):
+        sittings = self.cleaned_data.get('sittings_required')
+        if sittings is not None:
+            if sittings <= 0 or sittings > 100:
+                raise forms.ValidationError("Sittings required must be between 1 and 100.")
+        return sittings
 
     def save(self, commit=True):
         name = self.cleaned_data['treatment_name']

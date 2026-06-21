@@ -123,11 +123,13 @@ def my_articles(request):
     Author dashboard: shows all posts written by the logged-in user.
     """
     posts = BlogPost.objects.filter(author=request.user).order_by('-created_at')
-    draft_count = posts.filter(status='Draft').count()
+    draft_count = posts.filter(status='Draft', submitted_for_review=False).count()
+    pending_count = posts.filter(status='Draft', submitted_for_review=True).count()
     published_count = posts.filter(status='Published').count()
     return render(request, 'my_articles.html', {
         'posts': posts,
         'draft_count': draft_count,
+        'pending_count': pending_count,
         'published_count': published_count,
     })
 

@@ -116,6 +116,13 @@
                 this.otpTimer = 0;
             }
         });
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('tab')) {
+            const requestedTab = params.get('tab');
+            if (requestedTab === 'personal' || requestedTab === 'details' || requestedTab === 'security') {
+                this.activeTab = requestedTab;
+            }
+        }
     },
 
     async requestOtp() {

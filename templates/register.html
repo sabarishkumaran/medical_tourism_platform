@@ -151,7 +151,6 @@
             } else { 
                 this.formErrors = data.errors || {}; 
                 this.showErrorModal = true; 
-                window.scrollTo({ top: 0, behavior: 'smooth' }); 
             } 
         } catch (error) { 
             console.error('Form submission error:', error); 
@@ -436,9 +435,21 @@
                                         Certificate (Required) *</label>
                                     <div class="relative">
                                         <input type="file" name="hospital_certificate"
-                                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            @change="
+                                                const file = $event.target.files[0];
+                                                if (file) {
+                                                    const ext = file.name.split('.').pop().toLowerCase();
+                                                    const allowed = ['pdf', 'jpg', 'jpeg', 'png'];
+                                                    if (!allowed.includes(ext)) {
+                                                        formErrors = { 'Accreditation Certificate': ['Unsupported file format. Only PDF, JPG, JPEG, and PNG are allowed.'] };
+                                                        showErrorModal = true;
+                                                        $event.target.value = '';
+                                                    }
+                                                }
+                                             "
                                             class="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-indigo-300 rounded-xl px-4 py-6 text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:bg-indigo-900/20 file:text-indigo-700 hover:file:bg-indigo-100 transition-all">
-                                        <p class="text-xs text-slate-400 dark:text-slate-400 mt-2">Upload PDF, JPG, PNG, or DOC. This is
+                                        <p class="text-xs text-slate-400 dark:text-slate-400 mt-2">Upload PDF, JPG, or PNG. This is
                                             mandatory for hospital verification.</p>
                                         {% if form.hospital_certificate.errors %}
                                         <p class="text-xs text-red-500 mt-1 font-semibold">{{
@@ -558,83 +569,86 @@
                     </form>
 
                     <!-- Error Modal Popup -->
-                    <div x-show="showErrorModal"
-                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-                        @click.self="showErrorModal = false">
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-fade-up">
-                            <!-- Header with Icon and Close Button -->
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path>
+                    <template x-teleport="body">
+                        <div x-show="showErrorModal"
+                            class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/40 p-4"
+                            @click.self="showErrorModal = false"
+                            style="display: none;">
+                            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-fade-up">
+                                <!-- Header with Icon and Close Button -->
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path>
+                                            </svg>
+                                        </div>
+                                        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Registration Error</h2>
+                                    </div>
+                                    <button @click="showErrorModal = false"
+                                        class="text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors flex-shrink-0 p-1">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
-                                    </div>
-                                    <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Registration Error</h2>
+                                    </button>
                                 </div>
-                                <button @click="showErrorModal = false"
-                                    class="text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors flex-shrink-0 p-1">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
 
-                            <!-- Error Messages -->
-                            <div class="mb-8 space-y-3 max-h-96 overflow-y-auto">
-                                <!-- Display AJAX errors if present, otherwise show initial form errors -->
-                                <template x-if="Object.keys(formErrors).length > 0">
-                                    <div>
-                                        <template x-for="[label, errors_list] in Object.entries(formErrors)">
-                                            <div>
-                                                <template x-for="error in errors_list">
-                                                    <div
-                                                        class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
-                                                        <p x-show="label !== '__all__'"
-                                                            class="font-bold text-slate-900 dark:text-slate-100 text-sm" x-text="label">
-                                                        </p>
-                                                        <p class="text-slate-700 dark:text-slate-300 text-sm mt-1" x-text="error"></p>
-                                                    </div>
-                                                </template>
+                                <!-- Error Messages -->
+                                <div class="mb-8 space-y-3 max-h-96 overflow-y-auto">
+                                    <!-- Display AJAX errors if present, otherwise show initial form errors -->
+                                    <template x-if="Object.keys(formErrors).length > 0">
+                                        <div>
+                                            <template x-for="[label, errors_list] in Object.entries(formErrors)">
+                                                <div>
+                                                    <template x-for="error in errors_list">
+                                                        <div
+                                                            class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                            <p x-show="label !== '__all__'"
+                                                                class="font-bold text-slate-900 dark:text-slate-100 text-sm" x-text="label">
+                                                            </p>
+                                                            <p class="text-slate-700 dark:text-slate-300 text-sm mt-1" x-text="error"></p>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Fallback to initial form errors if no AJAX errors -->
+                                    <template x-if="Object.keys(formErrors).length === 0">
+                                        <div>
+                                            {% if form.non_field_errors %}
+                                            {% for error in form.non_field_errors %}
+                                            <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                <p class="text-slate-700 dark:text-slate-300 text-sm">{{ error }}</p>
                                             </div>
-                                        </template>
-                                    </div>
-                                </template>
-
-                                <!-- Fallback to initial form errors if no AJAX errors -->
-                                <template x-if="Object.keys(formErrors).length === 0">
-                                    <div>
-                                        {% if form.non_field_errors %}
-                                        {% for error in form.non_field_errors %}
-                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
-                                            <p class="text-slate-700 dark:text-slate-300 text-sm">{{ error }}</p>
+                                            {% endfor %}
+                                            {% endif %}
+                                            {% for field in form %}
+                                            {% for error in field.errors %}
+                                            <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
+                                                <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">{{ field.label }}</p>
+                                                <p class="text-slate-700 dark:text-slate-300 text-sm mt-1">{{ error }}</p>
+                                            </div>
+                                            {% endfor %}
+                                            {% endfor %}
                                         </div>
-                                        {% endfor %}
-                                        {% endif %}
-                                        {% for field in form %}
-                                        {% for error in field.errors %}
-                                        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg mb-3">
-                                            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">{{ field.label }}</p>
-                                            <p class="text-slate-700 dark:text-slate-300 text-sm mt-1">{{ error }}</p>
-                                        </div>
-                                        {% endfor %}
-                                        {% endfor %}
-                                    </div>
-                                </template>
-                            </div>
+                                    </template>
+                                </div>
 
-                            <!-- Action Buttons -->
-                            <div class="flex gap-4">
-                                <button
-                                    @click="showErrorModal = false; document.querySelector('form').scrollIntoView({ behavior: 'smooth' })"
-                                    class="w-full bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer">
-                                    Close
-                                </button>
+                                <!-- Action Buttons -->
+                                <div class="flex gap-4">
+                                    <button
+                                        @click="showErrorModal = false; document.querySelector('form').scrollIntoView({ behavior: 'smooth' })"
+                                        class="w-full bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer">
+                                        Close
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
 
                     <div class="mt-8 text-center">
                         <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">

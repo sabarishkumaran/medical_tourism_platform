@@ -18,7 +18,7 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">
-                            Inquiry #INQ-{{ inquiry.uuid|stringformat:"04d" }}
+                            Inquiry #INQ-{{ inquiry.uuid }}
                         </div>
                         <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-slate-100 mb-2" style="font-family: 'Outfit', sans-serif;">
                             {{ inquiry.treatment.name|default:"General Inquiry" }}

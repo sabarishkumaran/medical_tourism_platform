@@ -143,6 +143,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 p-8">
                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6" style="font-family: 'Outfit', sans-serif;">Review Decision</h2>
 
+                {% if hospital.status == 'PENDING' or hospital.status == 'APPROVED' or has_pending_request %}
                 <form method="POST" action="{% url 'approve_hospital' hospital.id %}">
                     {% csrf_token %}
                     <div class="mb-6">
@@ -158,6 +159,17 @@
                         {% if hospital.status == 'APPROVED' %}Update Accreditation{% else %}Approve / Reinstate{% endif %}
                     </button>
                 </form>
+                {% else %}
+                <div class="p-5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl text-center">
+                    <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400 dark:text-slate-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Approval / Reinstatement Locked</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                        This hospital is currently <strong>{{ hospital.get_status_display|lower }}</strong>. It must submit a reapproval request with updated details before it can be reviewed and approved again.
+                    </p>
+                </div>
+                {% endif %}
 
                 <div class="my-6 border-t border-slate-100 dark:border-slate-800"></div>
 

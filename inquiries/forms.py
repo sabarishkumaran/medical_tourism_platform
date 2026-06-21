@@ -65,6 +65,35 @@ class InquiryForm(forms.ModelForm):
                 raise forms.ValidationError("Travel date cannot be in the past.")
         return travel_date
 
+    def clean_budget(self):
+        budget = self.cleaned_data.get('budget')
+        if budget is not None:
+            if budget <= 0 or budget > 1000000:
+                raise forms.ValidationError("Budget must be between 1 and 1,000,000.")
+        return budget
+
+    def clean_documents(self):
+        files = self.cleaned_data.get('documents')
+        if not files:
+            return files
+        
+        import os
+        allowed_extensions = ['.png', '.jpg', '.jpeg', '.pdf']
+        
+        # files can be a single file or list of files
+        files_list = files if isinstance(files, list) else [files]
+        
+        for file in files_list:
+            ext = os.path.splitext(file.name)[1].lower()
+            if ext not in allowed_extensions:
+                raise forms.ValidationError(
+                    f"Only PNG, JPG, JPEG, and PDF files are allowed. '{file.name}' is invalid."
+                )
+            if file.size > 10 * 1024 * 1024:
+                raise forms.ValidationError(f"File '{file.name}' exceeds the 10MB size limit.")
+                
+        return files
+
 from .models import Quote
 
 class QuoteForm(forms.ModelForm):
@@ -81,6 +110,13 @@ class QuoteForm(forms.ModelForm):
             field.widget.attrs.update({
                 "class": "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none"
             })
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is not None:
+            if price <= 0 or price > 1000000:
+                raise forms.ValidationError("Price must be between 1 and 1,000,000.")
+        return price
 
 class ConfirmedInquiryForm(forms.ModelForm):
     class Meta:

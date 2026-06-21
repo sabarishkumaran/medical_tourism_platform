@@ -152,7 +152,7 @@
         {% elif user.role == 'HOSPITAL' %}
           {% if user.hospital.status == 'APPROVED' %}
           <a href="{% url 'hospital_dashboard' %}"
-            class="nav-link text-sky-600 hover:text-sky-700 transition-colors{% if current_url == 'hospital_dashboard' %} active{% endif %}">Operations
+            class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'hospital_dashboard' %} active{% endif %}">Operations
             Dashboard</a>
           <a href="{% url 'manage_treatment_packages' %}"
             class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'manage_treatment_packages' %} active{% endif %}">Active
@@ -167,7 +167,7 @@
           {% endif %}
         {% elif user.role == 'PATIENT' %}
         <a href="{% url 'patient_dashboard' %}"
-          class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors{% if current_url == 'patient_dashboard' %} active{% endif %}">Care
+          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'patient_dashboard' %} active{% endif %}">Care
           Dashboard</a>
         <a href="{% url 'treatments' %}"
           class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'treatments' %} active{% endif %}">Find
@@ -218,13 +218,13 @@
         <a href="{% url 'blog_list' %}"
           class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'blog_list' %} active{% endif %}">Blog</a>
         <a href="{% url 'pending_hospitals' %}"
-          class="nav-link text-amber-600 hover:text-amber-700 transition-colors{% if current_url == 'pending_hospitals' %} active{% endif %}">Hospitals</a>
+          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'pending_hospitals' %} active{% endif %}">Hospitals</a>
         {% if user.role == 'ADMIN' or user.is_superuser %}
         <a href="{% url 'manage_staff' %}"
-          class="nav-link text-indigo-600 hover:text-indigo-700 transition-colors{% if current_url == 'manage_staff' %} active{% endif %}">Manage
+          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'manage_staff' %} active{% endif %}">Manage
           Team</a>
         <a href="{% url 'admin_subscription_settings' %}"
-          class="nav-link text-sky-600 hover:text-sky-700 transition-colors{% if current_url == 'admin_subscription_settings' %} active{% endif %}">Subscription Settings</a>
+          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_subscription_settings' %} active{% endif %}">Subscription Settings</a>
         {% endif %}
         <a href="{% url 'inquiry_hub' %}"
           class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors flex items-center gap-1{% if current_url == 'inquiry_hub' %} active{% endif %}">

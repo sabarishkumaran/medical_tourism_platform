@@ -58,9 +58,15 @@
                         </div>
                     </div>
 
+                    {% if not user.is_authenticated or user.role == 'PATIENT' %}
                     <a href="{% url 'submit_inquiry' %}" class="inline-block bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-4 px-10 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.4)] transition-all duration-300 transform hover:-translate-y-1 w-full text-center">
                         Request Consultation
                     </a>
+                    {% else %}
+                    <div class="inline-block bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold py-4 px-10 rounded-xl w-full text-center text-xs">
+                        Consultation requests disabled for {{ user.get_role_display }}s
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -105,11 +105,13 @@ def review_hospital(request, hospital_id):
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
     reapproval_requests = hospital.reapproval_requests.all()
+    has_pending_request = reapproval_requests.filter(status='PENDING').exists()
 
     return render(request, "review_hospital.html", {
         "hospital": hospital,
         "accreditation_choices": Hospital.ACCREDITATION_CHOICES,
         "reapproval_requests": reapproval_requests,
+        "has_pending_request": has_pending_request,
     })
 
 @login_required
@@ -123,6 +125,12 @@ def approve_hospital(request, hospital_id):
 
     hospital = get_object_or_404(Hospital, id=hospital_id)
     previous_status = hospital.status
+
+    if previous_status in ['REJECTED', 'SUSPENDED']:
+        has_pending = hospital.reapproval_requests.filter(status='PENDING').exists()
+        if not has_pending:
+            messages.error(request, "This hospital must submit a reapproval request before it can be approved.")
+            return redirect("review_hospital", hospital_id=hospital_id)
 
     accreditation = request.POST.get("accreditation", "")
     hospital.accreditation = accreditation

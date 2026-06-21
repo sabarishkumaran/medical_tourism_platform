@@ -50,9 +50,15 @@
                 <a href="{% url 'hospital_detail' package.hospital.id %}" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-3 px-4 rounded-xl transition-all duration-300 transform active:scale-95 text-sm">
                     Details
                 </a>
+                {% if not user.is_authenticated or user.role == 'PATIENT' %}
                 <a href="{% url 'submit_inquiry' %}?package_id={{ package.id }}" class="bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105 active:scale-95 text-sm">
                     Book Now
                 </a>
+                {% else %}
+                <span class="bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold py-3 px-4 rounded-xl text-xs flex items-center" title="Booking is only available for patient accounts.">
+                    Unavailable
+                </span>
+                {% endif %}
             </div>
         </div>
     </article>

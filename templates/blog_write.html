@@ -27,7 +27,8 @@
             </div>
             {% endif %}
 
-            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8"
+                onsubmit="const form = this; setTimeout(() => { form.querySelectorAll('button[type=submit]').forEach(b => b.disabled = true); }, 0);">
                 {% csrf_token %}
 
                 <div class="space-y-6">
