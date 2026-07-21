@@ -922,3 +922,67 @@ def staff_accept_invite(request, token):
         'email': invitation.email,
         'role': invitation.get_role_display()
     })
+
+@login_required
+def admin_global_config(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        messages.error(request, "Access denied. Admin or Coordinator permissions required.")
+        return redirect('home')
+
+    from .models import Country
+    from hospitals.models import Accreditation
+
+    if request.method == "POST":
+        action = request.POST.get('action')
+        
+        # 1. Add Country
+        if action == 'add_country':
+            name = request.POST.get('name', '').strip()
+            code = request.POST.get('code', '').strip()
+            if name:
+                c, created = Country.objects.get_or_create(name=name, defaults={'code': code})
+                if created:
+                    messages.success(request, f"Country '{name}' added successfully.")
+                else:
+                    messages.info(request, f"Country '{name}' already exists.")
+            else:
+                messages.error(request, "Country name is required.")
+
+        # 2. Delete Country
+        elif action == 'delete_country':
+            country_id = request.POST.get('country_id')
+            c = get_object_or_404(Country, id=country_id)
+            name = c.name
+            c.delete()
+            messages.success(request, f"Country '{name}' deleted.")
+
+        # 3. Add Accreditation
+        elif action == 'add_accreditation':
+            name = request.POST.get('name', '').strip()
+            code = request.POST.get('code', '').strip()
+            if name and code:
+                acc, created = Accreditation.objects.get_or_create(code=code, defaults={'name': name})
+                if created:
+                    messages.success(request, f"Accreditation '{name} ({code})' added successfully.")
+                else:
+                    messages.info(request, f"Accreditation code '{code}' already exists.")
+            else:
+                messages.error(request, "Both Accreditation code and name are required.")
+
+        # 4. Delete Accreditation
+        elif action == 'delete_accreditation':
+            acc_id = request.POST.get('accreditation_id')
+            acc = get_object_or_404(Accreditation, id=acc_id)
+            code = acc.code
+            acc.delete()
+            messages.success(request, f"Accreditation '{code}' deleted.")
+
+        return redirect('admin_global_config')
+
+    countries = Country.objects.all().order_by('name')
+    accreditations = Accreditation.objects.all().order_by('name')
+
+    return render(request, 'admin_global_config.html', {
+        'countries': countries,
+        'accreditations': accreditations,
+    })

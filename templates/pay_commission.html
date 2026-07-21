@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="max-w-xl mx-auto">
+        <!-- Back Link -->
+        <a href="{% url 'view_inquiry' inquiry.uuid %}" class="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 mb-8 transition-colors group">
+            <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <span class="font-bold text-sm uppercase tracking-wider">Back to Inquiry</span>
+        </a>
+
+        <!-- Main Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-50"></div>
+            
+            <div class="relative z-10 text-center mb-10">
+                <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <!-- PayPal Icon Simulation -->
+                    <span class="text-3xl font-black italic tracking-tighter text-indigo-700">P<span class="text-sky-500">P</span></span>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-slate-100 mb-2" style="font-family: 'Outfit', sans-serif;">
+                    Pay Platform Commission
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 font-medium">
+                    PayPal checkout simulation for Inquiry #{{ inquiry.id }}
+                </p>
+            </div>
+
+            <!-- Ledger Card -->
+            <div class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-6 mb-8 border border-slate-100 dark:border-slate-800 space-y-4">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500 dark:text-slate-400">Target Patient</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">{{ inquiry.patient.get_full_name|default:inquiry.patient.username }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500 dark:text-slate-400">Treatment</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">{{ inquiry.treatment.name }}</span>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-800 pt-4 flex justify-between items-end">
+                    <div>
+                        <span class="text-xs text-slate-400 uppercase tracking-wider block">Commission Fee Due</span>
+                        <span class="text-sm font-bold text-slate-400">(5% standard rate)</span>
+                    </div>
+                    <span class="text-3xl font-black text-indigo-600">${{ inquiry.commission_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <form method="POST" class="space-y-8">
+                {% csrf_token %}
+                
+                <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                    <strong>PayPal sandbox payment:</strong> Click the button below to process this payment securely. The credentials and environment mode can be easily configured inside <code class="bg-amber-100 dark:bg-amber-850 px-1 py-0.5 rounded">payments/paypal.py</code>.
+                </div>
+
+                <div class="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'view_inquiry' inquiry.uuid %}" class="flex-1 py-4 px-8 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-center font-black hover:bg-slate-200 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" class="flex-1 py-4 px-8 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-black transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2">
+                        <span class="italic font-bold tracking-tight">PayPal</span> Pay Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

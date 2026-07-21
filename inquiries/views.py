@@ -368,9 +368,36 @@ def inquiry_detail(request, inquiry_id):
 
     quote = Quote.objects.filter(inquiry=inquiry).first()
     
+    # Calculate travel deadlines and remaining days
+    from django.utils import timezone
+    from datetime import timedelta
+    current_date = timezone.now().date()
+    
+    deadline_date = None
+    days_remaining = None
+    ticket_upload_allowed = True
+    
+    if inquiry.travel_date:
+        if inquiry.payment_status in ['FULL', 'PARTIAL']:
+            # Paid: 1 week (7 days) deadline
+            deadline_date = inquiry.travel_date - timedelta(days=7)
+        else:
+            # Unpaid: 2 weeks (14 days) deadline
+            deadline_date = inquiry.travel_date - timedelta(days=14)
+            
+        days_remaining = (inquiry.travel_date - current_date).days
+        # For ticket upload, check how many days remaining before travel date vs the deadline requirement
+        required_days = 7 if inquiry.payment_status in ['FULL', 'PARTIAL'] else 14
+        if days_remaining < required_days:
+            ticket_upload_allowed = False
+            
     return render(request, "inquiry_detail.html", {
         "inquiry": inquiry,
-        "quote": quote
+        "quote": quote,
+        "deadline_date": deadline_date,
+        "days_remaining": days_remaining,
+        "ticket_upload_allowed": ticket_upload_allowed,
+        "current_date": current_date,
     })
 
 @login_required
@@ -495,11 +522,7 @@ def process_payment(request, inquiry_id):
         
     inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
     
-    # In a real application, this would integrate with Stripe or a payment gateway
-    # For now, we simulate a successful payment process
-    
-    import time
-    time.sleep(1) # Simulate processing delay
+    payment_choice = request.POST.get('payment_choice', 'unpaid')
     
     # Process Add-ons
     inquiry.needs_visa_assistance = request.POST.get('visa') == 'on'
@@ -542,25 +565,48 @@ def process_payment(request, inquiry_id):
             inquiry.commission_amount = 0.00
     
     inquiry.status = "COMPLETED"
-    inquiry.save()
     
     from .utils import log_inquiry_event
-    log_inquiry_event(inquiry, request.user, "Payment Successful", "Patient paid the deposit successfully.")
     
-    # Save payment details for records
-    from payments.models import Payment
-    Payment.objects.create(
-        inquiry=inquiry,
-        amount=inquiry.total_amount_paid,
-        currency="USD",
-        status="Completed"
-    )
-    
+    if payment_choice in ['full', 'partial']:
+        import time
+        time.sleep(0.5) # Simulate processing delay
+        
+        # Calculate amount
+        if payment_choice == 'full':
+            amount_to_pay = float(base_price) + float(service_fees)
+            inquiry.payment_status = 'FULL'
+        else:
+            # Partial payment - deposit is $100 + service fees
+            amount_to_pay = 100.00 + float(service_fees)
+            inquiry.payment_status = 'PARTIAL'
+            
+        inquiry.booking_confirmed = True
+        inquiry.save()
+        
+        # Save payment details for records
+        from payments.models import Payment
+        Payment.objects.create(
+            inquiry=inquiry,
+            amount=amount_to_pay,
+            currency="USD",
+            status="Completed"
+        )
+        log_inquiry_event(inquiry, request.user, "Payment Successful", f"Patient completed {payment_choice} payment of ${amount_to_pay:.2f} successfully via PayPal.")
+        msg = f"Payment of ${amount_to_pay:.2f} processed successfully! Your booking is confirmed."
+    else:
+        # Unpaid option
+        inquiry.payment_status = 'UNPAID'
+        inquiry.booking_confirmed = False
+        inquiry.save()
+        log_inquiry_event(inquiry, request.user, "Booking Finalized (Unpaid)", "Patient chose to finalize booking without payment.")
+        msg = "Your booking request has been submitted. Please upload your ticket at least 2 weeks before travel to confirm your booking."
+        
     if request.headers.get('HX-Request'):
         return render(request, "partials/payment_success.html", {"inquiry": inquiry})
         
     from django.contrib import messages
-    messages.success(request, "Payment processed successfully! Your treatment is fully booked.")
+    messages.success(request, msg)
     return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @login_required
@@ -572,10 +618,10 @@ def mark_treatment_completed(request, inquiry_id):
     hospital = request.user.hospital
     inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, hospital=hospital)
     
-    # Must be paid/completed status
+    # Must be completed status (i.e. patient finalized booking)
     if inquiry.status != "COMPLETED":
         from django.contrib import messages
-        messages.error(request, "Cannot mark as completed until payment is settled.")
+        messages.error(request, "Cannot mark as completed until booking is completed/finalized by the patient.")
         return redirect('hospital_manage_inquiries')
         
     from django.utils import timezone
@@ -598,39 +644,209 @@ def mark_treatment_completed(request, inquiry_id):
         
     inquiry.save()
     
-    # Process payout: transfer the $100 initial payment to the hospital, and deduct commission
+    # Transfer the paid amount (if any) to the hospital
     hospital_acc = inquiry.hospital
     from decimal import Decimal
+    total_paid = Decimal(str(inquiry.total_amount_paid))
     
-    # Add $100 Initial Payment
-    initial_payment = Decimal('100.00')
-    hospital_acc.wallet_balance += initial_payment
-    
-    from hospitals.models import WalletTransaction
-    WalletTransaction.objects.create(
-        hospital=hospital_acc,
-        amount=initial_payment,
-        transaction_type='DEPOSIT',
-        description=f"Initial Payment Transfer for completed Inquiry #{inquiry.id}"
-    )
-    
-    # Deduct Commission
-    if inquiry.commission_amount > 0:
-        commission_decimal = Decimal(str(inquiry.commission_amount))
-        hospital_acc.wallet_balance -= commission_decimal
+    if total_paid > 0:
+        hospital_acc.wallet_balance += total_paid
+        from hospitals.models import WalletTransaction
         WalletTransaction.objects.create(
             hospital=hospital_acc,
-            amount=-inquiry.commission_amount,
-            transaction_type='COMMISSION_FEE',
-            description=f"Commission fee deduction for completed Inquiry #{inquiry.id}"
+            amount=total_paid,
+            transaction_type='DEPOSIT',
+            description=f"Initial Payment Transfer for completed Inquiry #{inquiry.id}"
         )
-        
-    hospital_acc.save()
+        hospital_acc.save()
+    
+    # Send email/link to collect reviews from both parties
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    # Email to Patient
+    patient_review_url = request.build_absolute_uri(reverse('submit_review', args=[inquiry.uuid]))
+    send_mail(
+        subject="Please rate your experience with " + inquiry.hospital.name,
+        message=f"Dear {inquiry.patient.get_full_name() or inquiry.patient.username},\n\nWe hope your treatment was successful. Please click the link below to submit a review of the hospital:\n\n{patient_review_url}\n\nBest regards,\nThe MedTour Team",
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
+        recipient_list=[inquiry.patient.email],
+        fail_silently=True
+    )
+    
+    # Email to Hospital
+    hospital_review_url = request.build_absolute_uri(reverse('submit_patient_review', args=[inquiry.uuid]))
+    send_mail(
+        subject="Please rate your patient " + (inquiry.patient.get_full_name() or inquiry.patient.username),
+        message=f"Dear Partner,\n\nPlease rate and review your experience with the patient {inquiry.patient.get_full_name() or inquiry.patient.username} using this link:\n\n{hospital_review_url}\n\nBest regards,\nThe MedTour Team",
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
+        recipient_list=[inquiry.hospital.user.email],
+        fail_silently=True
+    )
     
     from django.contrib import messages
-    messages.success(request, f"Treatment for {inquiry.patient.get_full_name()} marked as completed.")
+    messages.success(request, f"Treatment marked as completed. Review collection links sent to both parties.")
     return redirect('hospital_manage_inquiries')
 
+@login_required
+def upload_ticket(request, inquiry_id):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
+    
+    if not inquiry.travel_date:
+        from django.contrib import messages
+        messages.error(request, "Please set a travel/arrival date before uploading your ticket.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    ticket_file = request.FILES.get('ticket_file')
+    if not ticket_file:
+        from django.contrib import messages
+        messages.error(request, "Please select a valid ticket file to upload.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    # Check deadline
+    from django.utils import timezone
+    from datetime import timedelta
+    current_date = timezone.now().date()
+    travel_date = inquiry.travel_date
+    days_remaining = (travel_date - current_date).days
+    
+    if inquiry.payment_status in ['FULL', 'PARTIAL']:
+        # Paid: 1 week (7 days) deadline
+        if days_remaining < 7:
+            from django.contrib import messages
+            messages.error(request, f"Deadline missed. Ticket must be uploaded at least 1 week before travel date. ({days_remaining} days remaining).")
+            return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+    else:
+        # Unpaid: 2 weeks (14 days) deadline
+        if days_remaining < 14:
+            from django.contrib import messages
+            messages.error(request, f"Deadline missed. Unpaid booking ticket must be uploaded at least 2 weeks before travel date. ({days_remaining} days remaining).")
+            return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+            
+    inquiry.ticket_file = ticket_file
+    inquiry.ticket_uploaded_at = timezone.now()
+    inquiry.booking_confirmed = True  # Officially confirmed now!
+    inquiry.save()
+    
+    from .utils import log_inquiry_event
+    log_inquiry_event(inquiry, request.user, "Ticket Uploaded", "Patient uploaded travel ticket. Booking confirmed.")
+    
+    from django.contrib import messages
+    messages.success(request, "Ticket uploaded successfully! Your booking is confirmed.")
+    return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+
+@login_required
+@hospital_required
+def submit_patient_review(request, inquiry_id):
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, hospital=request.user.hospital)
+    
+    if not inquiry.treatment_completed:
+        raise PermissionDenied("Cannot submit review until treatment is completed.")
+        
+    if hasattr(inquiry, 'patient_review') and inquiry.patient_review is not None:
+        from django.contrib import messages
+        messages.error(request, "You have already submitted a review for this patient.")
+        return redirect('hospital_manage_inquiries')
+        
+    if request.method == "POST":
+        rating_str = request.POST.get('rating')
+        comment = request.POST.get('comment', '').strip()
+        
+        try:
+            rating = int(rating_str)
+            if rating < 1 or rating > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            from django.contrib import messages
+            messages.error(request, "Invalid rating submitted.")
+            return redirect('hospital_manage_inquiries')
+            
+        from reviews.models import PatientReview
+        PatientReview.objects.create(
+            inquiry=inquiry,
+            hospital=inquiry.hospital,
+            patient=inquiry.patient,
+            rating=rating,
+            comment=comment
+        )
+        
+        from django.contrib import messages
+        messages.success(request, "Thank you! Patient review submitted successfully.")
+        return redirect('hospital_manage_inquiries')
+        
+    return render(request, "submit_patient_review.html", {"inquiry": inquiry})
+
+@login_required
+def send_commission_link(request, inquiry_id):
+    if request.user.role not in ['ADMIN', 'COORDINATOR'] and not request.user.is_superuser:
+        raise PermissionDenied("Unauthorized access.")
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
+    
+    if not inquiry.treatment_completed:
+        from django.contrib import messages
+        messages.error(request, "Treatment must be completed before sending the commission link.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    if request.method == "POST":
+        inquiry.commission_payment_link_sent = True
+        inquiry.save()
+        
+        from .utils import log_inquiry_event
+        log_inquiry_event(inquiry, request.user, "Commission Link Sent", f"Admin sent commission payment link of ${inquiry.commission_amount} to hospital.")
+        
+        # Send Email to Hospital
+        from django.core.mail import send_mail
+        from django.conf import settings
+        pay_commission_url = request.build_absolute_uri(reverse('pay_commission', args=[inquiry.uuid]))
+        send_mail(
+            subject=f"Commission Payment Request for Case #{inquiry.id}",
+            message=f"Dear Partner,\n\nTreatment is completed for patient {inquiry.patient.get_full_name() or inquiry.patient.username}. Please pay the platform commission of ${inquiry.commission_amount:.2f} using the link below:\n\n{pay_commission_url}\n\nBest regards,\nThe MedTour Team",
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
+            recipient_list=[inquiry.hospital.user.email],
+            fail_silently=True
+        )
+        
+        from django.contrib import messages
+        messages.success(request, "Commission payment link successfully sent to the hospital.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    return HttpResponse("Method not allowed", status=405)
+
+@login_required
+def pay_commission(request, inquiry_id):
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
+    
+    # Must be hospital assigned or staff
+    if request.user.role == 'HOSPITAL' and inquiry.hospital != request.user.hospital:
+        raise PermissionDenied("Unauthorized access.")
+        
+    if request.method == "POST":
+        inquiry.commission_paid = True
+        inquiry.save()
+        
+        # Log event
+        from .utils import log_inquiry_event
+        log_inquiry_event(inquiry, request.user, "Commission Paid", f"Hospital paid the commission of ${inquiry.commission_amount:.2f} via PayPal.")
+        
+        # Record Wallet Transaction for history (inflow for platform / negative for hospital ledger)
+        from hospitals.models import WalletTransaction
+        from decimal import Decimal
+        WalletTransaction.objects.create(
+            hospital=inquiry.hospital,
+            amount=-Decimal(str(inquiry.commission_amount)),
+            transaction_type='COMMISSION_FEE',
+            description=f"PayPal Commission payment for completed Inquiry #{inquiry.id}"
+        )
+        
+        from django.contrib import messages
+        messages.success(request, "Commission paid successfully! Thank you.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    return render(request, "pay_commission.html", {"inquiry": inquiry})
 
 @login_required
 def submit_review(request, inquiry_id):

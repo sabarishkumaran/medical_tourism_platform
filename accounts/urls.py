@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin/revenue/leads/', views.admin_revenue_leads, name="admin_revenue_leads"),
     path('admin/revenue/services/', views.admin_revenue_services, name="admin_revenue_services"),
     path('admin/settings/subscriptions/', views.admin_subscription_settings, name="admin_subscription_settings"),
+    path('admin/config/', views.admin_global_config, name="admin_global_config"),
     path('password_change/', auth_views.PasswordChangeView.as_view(
         template_name="password_change.html",
         form_class=CustomPasswordChangeForm

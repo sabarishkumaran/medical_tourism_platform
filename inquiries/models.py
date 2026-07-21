@@ -50,6 +50,19 @@ class Inquiry(models.Model):
 
     treatment_completed = models.BooleanField(default=False)
     current_sitting_number = models.IntegerField(default=1)
+    
+    # New fields for payment, ticket, and commission flows
+    booking_confirmed = models.BooleanField(default=False)
+    payment_status = models.CharField(
+        max_length=10,
+        choices=[('UNPAID', 'Unpaid'), ('PARTIAL', 'Partially Paid'), ('FULL', 'Fully Paid')],
+        default='UNPAID'
+    )
+    ticket_file = models.FileField(upload_to='travel_tickets/', null=True, blank=True)
+    ticket_uploaded_at = models.DateTimeField(null=True, blank=True)
+    commission_paid = models.BooleanField(default=False)
+    commission_payment_link_sent = models.BooleanField(default=False)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -57,8 +70,9 @@ class Inquiry(models.Model):
         
     @property
     def total_amount_paid(self):
-        # Initial deposit is $100 plus any service/concierge fees
-        return 100.00 + float(self.service_fees_total)
+        # Calculate from actual recorded completed payments
+        payments_sum = self.payment_set.filter(status__iexact='Completed').aggregate(models.Sum('amount'))['amount__sum'] or 0.00
+        return float(payments_sum)
 
 
 class InquiryAuditLog(models.Model):
@@ -125,4 +139,19 @@ class ContactMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message from {self.first_name} {self.last_name}"
+        return f"Message from {self.first_name} {self.last_name}"
+
+
+class InquiryMessage(models.Model):
+    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    attachment = models.FileField(upload_to='chat_attachments/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Message from {self.sender.username} on Inquiry #{self.inquiry.id}"

@@ -36,7 +36,7 @@
             <div class="divide-y divide-slate-100 dark:divide-slate-800">
                 {% for inquiry in inquiries %}
                 <div class="relative group border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors">
-                    <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="p-6 block w-full h-full">
+                    <a href="{% if inquiry.status == 'NEW' %}{% url 'respond_inquiry' inquiry.uuid %}{% else %}{% url 'view_inquiry' inquiry.uuid %}{% endif %}" class="p-6 block w-full h-full">
                         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">

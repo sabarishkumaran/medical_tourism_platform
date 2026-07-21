@@ -116,7 +116,11 @@
                                             {{ inquiry.patient.first_name|default:"P"|slice:":1" }}
                                         </div>
                                         <div>
-                                            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ inquiry.patient.get_full_name|default:"Patient" }}</h3>
+                                            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">
+                                                <a href="{% if inquiry.status == 'NEW' %}{% url 'respond_inquiry' inquiry.uuid %}{% else %}{% url 'view_inquiry' inquiry.uuid %}{% endif %}" class="hover:text-sky-600 transition-colors">
+                                                    {{ inquiry.patient.get_full_name|default:"Patient" }}
+                                                </a>
+                                            </h3>
                                             <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">{{ inquiry.created_at|date:"M d, Y" }}</p>
                                         </div>
                                     </div>
@@ -142,7 +146,14 @@
                                         {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
                                             <span class="inline-block bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 text-xs font-bold py-2 px-4 rounded-lg border border-indigo-200 shadow-sm cursor-default whitespace-nowrap">Payment Link Sent</span>
                                         {% elif inquiry.status == 'COMPLETED' %}
-                                            <span class="inline-block bg-emerald-50 text-emerald-600 text-xs font-bold py-2 px-4 rounded-lg border border-emerald-200 shadow-sm cursor-default whitespace-nowrap">Payment Confirmed</span>
+                                            {% if not inquiry.treatment_completed %}
+                                            <form method="post" action="{% url 'mark_treatment_completed' inquiry.uuid %}" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-md whitespace-nowrap">Mark as Completed</button>
+                                            </form>
+                                            {% else %}
+                                            <span class="inline-block bg-emerald-50 text-emerald-600 text-xs font-bold py-2 px-4 rounded-lg border border-emerald-200 shadow-sm cursor-default whitespace-nowrap">Treatment Completed</span>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </div>

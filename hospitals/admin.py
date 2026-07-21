@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Hospital, Doctor
+from .models import Hospital, Doctor, Accreditation
 
 admin.site.register(Hospital)
 admin.site.register(Doctor)
+admin.site.register(Accreditation)
 
 # @admin.register(Hospital)
 # class HospitalAdmin(admin.ModelAdmin):

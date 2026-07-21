@@ -20,6 +20,13 @@ class SubscriptionPlanConfig(models.Model):
     
     def __str__(self):
         return f"{self.get_plan_type_display()} - ${self.price}/mo"
+class Accreditation(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
 class Hospital(models.Model):
 
     STATUS_CHOICES = (
@@ -37,6 +44,16 @@ class Hospital(models.Model):
         ('JACHO', 'JACHO Accredited'),
         ('OTHER', 'Other'),
     )
+
+    @classmethod
+    def get_accreditation_choices(cls):
+        try:
+            db_choices = [(a.code, f"{a.name} ({a.code})") for a in Accreditation.objects.all()]
+            if db_choices:
+                return [('', 'Not Set')] + db_choices
+        except Exception:
+            pass
+        return cls.ACCREDITATION_CHOICES
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
