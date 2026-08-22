@@ -21,6 +21,10 @@ urlpatterns = [
     path('upload-ticket/<uuid:inquiry_id>/', views.upload_ticket, name="upload_ticket"),
     path('send-commission-link/<uuid:inquiry_id>/', views.send_commission_link, name="send_commission_link"),
     path('pay-commission/<uuid:inquiry_id>/', views.pay_commission, name="pay_commission"),
+    path('pay-commission/<uuid:inquiry_id>/create-order/', views.create_commission_order, name="create_commission_order"),
+    path('pay-commission/<uuid:inquiry_id>/capture-order/', views.capture_commission_order, name="capture_commission_order"),
     path('cancel-refund/<uuid:inquiry_id>/', views.cancel_and_refund_inquiry, name="cancel_and_refund_inquiry"),
     path('book-next-sitting/<uuid:inquiry_id>/', views.book_next_sitting, name="book_next_sitting"),
+    path('inquiry/<uuid:inquiry_id>/payment/create-order/', views.create_payment_order, name='create_payment_order'),
+    path('inquiry/<uuid:inquiry_id>/payment/capture-order/', views.capture_payment_order, name='capture_payment_order'),
 ]

@@ -85,7 +85,7 @@ class Hospital(models.Model):
     subscription_plan = models.CharField(max_length=20, choices=SUBSCRIPTION_PLAN_CHOICES, default='BASIC')
     subscription_end_date = models.DateField(null=True, blank=True)
     auto_renew = models.BooleanField(default=True)
-    wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    paypal_subscription_id = models.CharField(max_length=100, blank=True, null=True)
     is_featured = models.BooleanField(default=False)
     last_admin_notification_date = models.DateTimeField(null=True, blank=True)
 
@@ -158,16 +158,18 @@ class ReapprovalRequest(models.Model):
     def __str__(self):
         return f"Reapproval: {self.hospital.name} ({self.submitted_at.strftime('%Y-%m-%d')})"
 
-class WalletTransaction(models.Model):
+class Transaction(models.Model):
     TRANSACTION_TYPES = (
         ('DEPOSIT', 'Deposit'),
         ('COMMISSION_FEE', 'Commission Fee'),
-        ('SUBSCRIPTION', 'Subscription Fee')
+        ('SUBSCRIPTION', 'Subscription Fee'),
+        ('TREATMENT_PAYMENT', 'Treatment Payment')
     )
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='wallet_transactions')
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='transactions')
     amount = models.DecimalField(max_digits=10, decimal_places=2) # positive or negative
-    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    transaction_type = models.CharField(max_length=30, choices=TRANSACTION_TYPES)
     description = models.CharField(max_length=255)
+    paypal_order_id = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

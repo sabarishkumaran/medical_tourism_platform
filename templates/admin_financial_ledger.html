@@ -39,7 +39,7 @@
                 <p class="text-3xl font-black text-slate-900 dark:text-slate-100 relative z-10" style="font-family: 'Outfit', sans-serif;">${{ total_inflows|floatformat:2 }}</p>
             </div>
 
-            <!-- Total Payouts (Hospital Wallets) -->
+            <!-- Total Payouts (Hospital Ledger) -->
             <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-[2rem] p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-200 rounded-full blur-2xl opacity-50"></div>
                 <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex items-center justify-center text-indigo-600 mb-4 relative z-10">
@@ -119,11 +119,11 @@
             </div>
         </div>
 
-        <!-- Tab Content 2: Hospital Wallet Activity -->
+        <!-- Tab Content 2: Hospital Ledger Activity -->
         <div x-show="activeTab === 'outflows'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
             <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
-                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Hospital Wallet Activity</h2>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Hospital Ledger Activity</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -160,6 +160,9 @@
                                 </td>
                                 <td class="p-4">
                                     <div class="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 truncate max-w-[250px]" title="{{ tx.description }}">{{ tx.description }}</div>
+                                    {% if tx.paypal_order_id %}
+                                    <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-1">PayPal ID: {{ tx.paypal_order_id }}</div>
+                                    {% endif %}
                                 </td>
                                 <td class="p-4 pr-6 text-right">
                                     {% if tx.amount > 0 %}
@@ -171,7 +174,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-400 italic">No hospital wallet transactions found.</td>
+                                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-400 italic">No hospital ledger transactions found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>

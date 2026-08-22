@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from inquiries.models import MedicalDocument, Inquiry, Quote
 from .forms import InquiryForm, QuoteForm
@@ -26,7 +27,7 @@ def respond_inquiry(request, inquiry_id):
         if quote_already_sent:
             return redirect('hospital_dashboard')
 
-        form = QuoteForm(request.POST, instance=quote)
+        form = QuoteForm(request.POST, request.FILES, instance=quote)
         if form.is_valid():
             quote = form.save(commit=False)
             quote.inquiry = inquiry
@@ -391,6 +392,7 @@ def inquiry_detail(request, inquiry_id):
         if days_remaining < required_days:
             ticket_upload_allowed = False
             
+    from django.conf import settings
     return render(request, "inquiry_detail.html", {
         "inquiry": inquiry,
         "quote": quote,
@@ -398,6 +400,7 @@ def inquiry_detail(request, inquiry_id):
         "days_remaining": days_remaining,
         "ticket_upload_allowed": ticket_upload_allowed,
         "current_date": current_date,
+        "paypal_client_id": getattr(settings, 'PAYPAL_CLIENT_ID', '')
     })
 
 @login_required
@@ -456,7 +459,9 @@ def accept_quote(request, inquiry_id):
         log_inquiry_event(inquiry, request.user, "Plan Confirmed", "Patient confirmed the treatment plan.")
         
         if request.headers.get('HX-Request'):
-            return render(request, "partials/quote_accepted_success.html", {"inquiry": inquiry})
+            response = render(request, "partials/quote_accepted_success.html", {"inquiry": inquiry})
+            response['HX-Refresh'] = 'true'
+            return response
             
         from django.contrib import messages
         messages.success(request, "Congratulations! You have confirmed your treatment plan. Our team will contact you for the next steps.")
@@ -511,35 +516,21 @@ def send_payment_link(request, inquiry_id):
         if request.headers.get('HX-Request'):
             return HttpResponse(status=204, headers={'HX-Refresh': 'true'})
             
-        return redirect('hospital_dashboard')
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
         
     return HttpResponse("Method not allowed", status=405)
 
-@login_required
-def process_payment(request, inquiry_id):
-    if request.method != "POST":
-        return HttpResponse("Method not allowed", status=405)
-        
-    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
-    
-    payment_choice = request.POST.get('payment_choice', 'unpaid')
-    
-    # Process Add-ons
-    inquiry.needs_visa_assistance = request.POST.get('visa') == 'on'
-    inquiry.needs_travel_booking = request.POST.get('travel') == 'on'
-    inquiry.needs_concierge = request.POST.get('concierge') == 'on'
+def get_payment_details(inquiry, payment_choice, request_post):
+    """Helper to calculate payment amounts."""
+    needs_visa = request_post.get('visa') == 'true' or request_post.get('visa') == 'on'
+    needs_travel = request_post.get('travel') == 'true' or request_post.get('travel') == 'on'
+    needs_concierge = request_post.get('concierge') == 'true' or request_post.get('concierge') == 'on'
     
     service_fees = 0.00
-    if inquiry.needs_visa_assistance:
-        service_fees += 99.00
-    if inquiry.needs_travel_booking:
-        service_fees += 49.00
-    if inquiry.needs_concierge:
-        service_fees += 199.00
+    if needs_visa: service_fees += 99.00
+    if needs_travel: service_fees += 49.00
+    if needs_concierge: service_fees += 199.00
         
-    inquiry.service_fees_total = service_fees
-    
-    # Calculate standard 5% platform commission from hospital
     base_price = 0
     quote = inquiry.quote_set.order_by('-created_at').first()
     if quote:
@@ -550,9 +541,8 @@ def process_payment(request, inquiry_id):
     else:
         base_price = inquiry.budget or 0
         
-    inquiry.commission_amount = float(base_price) * 0.05
+    commission_amount = float(base_price) * 0.05
     
-    # Elite Plan: 0% commission on the first 5 leads/mo
     if inquiry.hospital.subscription_plan == 'ELITE':
         from datetime import date
         current_month_leads = inquiry.hospital.inquiry_set.filter(
@@ -560,53 +550,138 @@ def process_payment(request, inquiry_id):
             created_at__year=date.today().year,
             created_at__month=date.today().month
         ).count()
-        
         if current_month_leads < 5:
-            inquiry.commission_amount = 0.00
-    
-    inquiry.status = "COMPLETED"
-    
-    from .utils import log_inquiry_event
-    
-    if payment_choice in ['full', 'partial']:
-        import time
-        time.sleep(0.5) # Simulate processing delay
-        
-        # Calculate amount
-        if payment_choice == 'full':
-            amount_to_pay = float(base_price) + float(service_fees)
-            inquiry.payment_status = 'FULL'
-        else:
-            # Partial payment - deposit is $100 + service fees
-            amount_to_pay = 100.00 + float(service_fees)
-            inquiry.payment_status = 'PARTIAL'
+            commission_amount = 0.00
             
+    if payment_choice == 'full':
+        amount_to_pay = float(base_price) + float(service_fees)
+        payment_status = 'FULL'
+    else:
+        amount_to_pay = 100.00 + float(service_fees)
+        payment_status = 'PARTIAL'
+        
+    return {
+        'amount_to_pay': amount_to_pay,
+        'service_fees': service_fees,
+        'commission_amount': commission_amount,
+        'payment_status': payment_status,
+        'needs_visa': needs_visa,
+        'needs_travel': needs_travel,
+        'needs_concierge': needs_concierge,
+    }
+
+from django.http import JsonResponse
+import json
+
+@login_required
+def create_payment_order(request, inquiry_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
+    
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        
+    payment_choice = data.get('payment_choice', 'partial')
+    details = get_payment_details(inquiry, payment_choice, data)
+    
+    from payments.paypal import create_paypal_order
+    order_res = create_paypal_order(
+        amount=details['amount_to_pay'], 
+        description=f"MedTour Payment - {inquiry.treatment.name}"
+    )
+    
+    if order_res and 'id' in order_res:
+        return JsonResponse({'orderID': order_res['id']})
+    else:
+        return JsonResponse({'error': 'Failed to create PayPal order'}, status=500)
+
+@login_required
+def capture_payment_order(request, inquiry_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
+    
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        
+    order_id = data.get('orderID')
+    payment_choice = data.get('payment_choice', 'partial')
+    
+    if not order_id:
+        return JsonResponse({'error': 'Missing order ID'}, status=400)
+        
+    from payments.paypal import capture_paypal_order
+    capture_res = capture_paypal_order(order_id)
+    
+    if capture_res and capture_res.get('status') == 'COMPLETED':
+        details = get_payment_details(inquiry, payment_choice, data)
+        
+        # Update inquiry
+        inquiry.needs_visa_assistance = details['needs_visa']
+        inquiry.needs_travel_booking = details['needs_travel']
+        inquiry.needs_concierge = details['needs_concierge']
+        inquiry.service_fees_total = details['service_fees']
+        inquiry.commission_amount = details['commission_amount']
+        inquiry.status = "CONFIRMED"
+        inquiry.payment_status = details['payment_status']
         inquiry.booking_confirmed = True
         inquiry.save()
         
-        # Save payment details for records
+        # Save payment details
+        payer_id = capture_res.get('payer', {}).get('payer_id', '')
         from payments.models import Payment
         Payment.objects.create(
             inquiry=inquiry,
-            amount=amount_to_pay,
+            amount=details['amount_to_pay'],
             currency="USD",
-            status="Completed"
+            status="Completed",
+            payment_type='TREATMENT',
+            paypal_order_id=order_id,
+            paypal_payer_id=payer_id
         )
-        log_inquiry_event(inquiry, request.user, "Payment Successful", f"Patient completed {payment_choice} payment of ${amount_to_pay:.2f} successfully via PayPal.")
-        msg = f"Payment of ${amount_to_pay:.2f} processed successfully! Your booking is confirmed."
+        
+        from .utils import log_inquiry_event
+        log_inquiry_event(inquiry, request.user, "Payment Successful", f"Patient completed {payment_choice} payment of ${details['amount_to_pay']:.2f} successfully via PayPal.")
+        
+        return JsonResponse({'success': True})
     else:
-        # Unpaid option
-        inquiry.payment_status = 'UNPAID'
-        inquiry.booking_confirmed = False
-        inquiry.save()
-        log_inquiry_event(inquiry, request.user, "Booking Finalized (Unpaid)", "Patient chose to finalize booking without payment.")
-        msg = "Your booking request has been submitted. Please upload your ticket at least 2 weeks before travel to confirm your booking."
+        return JsonResponse({'error': 'Failed to capture PayPal payment'}, status=400)
+
+@login_required
+def process_payment(request, inquiry_id):
+    """Fallback for unpaid flow"""
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
         
-    if request.headers.get('HX-Request'):
-        return render(request, "partials/payment_success.html", {"inquiry": inquiry})
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, patient=request.user)
+    payment_choice = request.POST.get('payment_choice', 'unpaid')
+    
+    if payment_choice != 'unpaid':
+        return HttpResponse("Invalid choice for this endpoint. Use PayPal for paid options.", status=400)
         
+    details = get_payment_details(inquiry, payment_choice, request.POST)
+    inquiry.needs_visa_assistance = details['needs_visa']
+    inquiry.needs_travel_booking = details['needs_travel']
+    inquiry.needs_concierge = details['needs_concierge']
+    inquiry.service_fees_total = details['service_fees']
+    inquiry.commission_amount = details['commission_amount']
+    inquiry.status = "CONFIRMED"
+    inquiry.payment_status = 'UNPAID'
+    inquiry.booking_confirmed = False
+    inquiry.save()
+    
+    from .utils import log_inquiry_event
+    log_inquiry_event(inquiry, request.user, "Booking Finalized (Unpaid)", "Patient chose to finalize booking without payment.")
+    
     from django.contrib import messages
-    messages.success(request, msg)
+    messages.success(request, "Your booking request has been submitted. Please upload your ticket at least 2 weeks before travel to confirm your booking.")
     return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @login_required
@@ -618,14 +693,14 @@ def mark_treatment_completed(request, inquiry_id):
     hospital = request.user.hospital
     inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, hospital=hospital)
     
-    # Must be completed status (i.e. patient finalized booking)
-    if inquiry.status != "COMPLETED":
+    # Must have booking confirmed by patient
+    if not (inquiry.booking_confirmed or inquiry.status in ["CONFIRMED", "PAYMENT_LINK_SENT", "COMPLETED"]):
         from django.contrib import messages
-        messages.error(request, "Cannot mark as completed until booking is completed/finalized by the patient.")
+        messages.error(request, "Cannot mark as completed until booking is confirmed by the patient.")
         return redirect('hospital_manage_inquiries')
         
     from django.utils import timezone
-    if inquiry.travel_date and inquiry.travel_date >= timezone.now().date():
+    if inquiry.travel_date and inquiry.travel_date > timezone.now().date():
         from django.contrib import messages
         messages.error(request, "Cannot mark treatment as completed before the travel date.")
         return redirect('hospital_manage_inquiries')
@@ -638,8 +713,10 @@ def mark_treatment_completed(request, inquiry_id):
             inquiry.status = "AWAITING_NEXT_SITTING"
             inquiry.treatment_completed = False
         else:
+            inquiry.status = "COMPLETED"
             inquiry.treatment_completed = True
     else:
+        inquiry.status = "COMPLETED"
         inquiry.treatment_completed = True
         
     inquiry.save()
@@ -650,15 +727,13 @@ def mark_treatment_completed(request, inquiry_id):
     total_paid = Decimal(str(inquiry.total_amount_paid))
     
     if total_paid > 0:
-        hospital_acc.wallet_balance += total_paid
-        from hospitals.models import WalletTransaction
-        WalletTransaction.objects.create(
+        from hospitals.models import Transaction
+        Transaction.objects.create(
             hospital=hospital_acc,
             amount=total_paid,
-            transaction_type='DEPOSIT',
+            transaction_type='TREATMENT_PAYMENT',
             description=f"Initial Payment Transfer for completed Inquiry #{inquiry.id}"
         )
-        hospital_acc.save()
     
     # Send email/link to collect reviews from both parties
     from django.core.mail import send_mail
@@ -833,9 +908,9 @@ def pay_commission(request, inquiry_id):
         log_inquiry_event(inquiry, request.user, "Commission Paid", f"Hospital paid the commission of ${inquiry.commission_amount:.2f} via PayPal.")
         
         # Record Wallet Transaction for history (inflow for platform / negative for hospital ledger)
-        from hospitals.models import WalletTransaction
+        from hospitals.models import Transaction
         from decimal import Decimal
-        WalletTransaction.objects.create(
+        Transaction.objects.create(
             hospital=inquiry.hospital,
             amount=-Decimal(str(inquiry.commission_amount)),
             transaction_type='COMMISSION_FEE',
@@ -846,7 +921,81 @@ def pay_commission(request, inquiry_id):
         messages.success(request, "Commission paid successfully! Thank you.")
         return redirect('view_inquiry', inquiry_id=inquiry.uuid)
         
-    return render(request, "pay_commission.html", {"inquiry": inquiry})
+    from django.conf import settings
+    return render(request, "pay_commission.html", {
+        "inquiry": inquiry,
+        "paypal_client_id": getattr(settings, 'PAYPAL_CLIENT_ID', '')
+    })
+
+@csrf_exempt
+@login_required
+def create_commission_order(request, inquiry_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
+    if request.user.role == 'HOSPITAL' and inquiry.hospital != request.user.hospital:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+        
+    if inquiry.commission_paid:
+        return JsonResponse({'error': 'Commission already paid'}, status=400)
+        
+    amount = float(inquiry.commission_amount)
+    
+    from payments.paypal import create_paypal_order
+    order_res = create_paypal_order(amount, description=f"Commission for Inquiry #{inquiry.id}")
+    
+    if order_res and 'id' in order_res:
+        return JsonResponse({'orderID': order_res['id']})
+    
+    return JsonResponse({'error': 'Failed to create PayPal order'}, status=500)
+
+@csrf_exempt
+@login_required
+def capture_commission_order(request, inquiry_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+        
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
+    if request.user.role == 'HOSPITAL' and inquiry.hospital != request.user.hospital:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+        
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('orderID')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        
+    if not order_id:
+        return JsonResponse({'error': 'No order ID provided'}, status=400)
+        
+    from payments.paypal import capture_paypal_order
+    capture_res = capture_paypal_order(order_id)
+    
+    if capture_res and capture_res.get('status') == 'COMPLETED':
+        inquiry.commission_paid = True
+        inquiry.save()
+        
+        # Log event
+        from .utils import log_inquiry_event
+        log_inquiry_event(inquiry, request.user, "Commission Paid", f"Hospital paid the commission of ${inquiry.commission_amount:.2f} via PayPal.")
+        
+        # Record Wallet Transaction for history
+        from hospitals.models import Transaction
+        from decimal import Decimal
+        Transaction.objects.create(
+            hospital=inquiry.hospital,
+            amount=-Decimal(str(inquiry.commission_amount)),
+            transaction_type='COMMISSION_FEE',
+            description=f"PayPal Commission payment for completed Inquiry #{inquiry.id}",
+            paypal_order_id=order_id
+        )
+        
+        from django.contrib import messages
+        messages.success(request, "Commission paid successfully! Thank you.")
+        return JsonResponse({'success': True})
+        
+    return JsonResponse({'error': 'Failed to capture payment', 'details': capture_res}, status=400)
 
 @login_required
 def submit_review(request, inquiry_id):
@@ -950,4 +1099,5 @@ def book_next_sitting(request, inquiry_id):
     from django.contrib import messages
     messages.success(request, f'You are now booking Sitting {inquiry.current_sitting_number}. Please set your travel date.')
     return redirect('edit_confirmation', inquiry_id=inquiry.uuid)
-
+
+

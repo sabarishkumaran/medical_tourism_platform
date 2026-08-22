@@ -64,7 +64,7 @@
             const response = await fetch('{% url 'request_registration_otp' %}', {
                 method: 'POST',
                 body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}' }
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
             });
             const data = await response.json();
             if (data.success) {
@@ -94,7 +94,7 @@
             const response = await fetch('{% url 'verify_registration_otp' %}', {
                 method: 'POST',
                 body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}' }
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
             });
             const data = await response.json();
             if (data.success) {
@@ -335,6 +335,9 @@
                                         <input type="text" x-model="otpCode" maxlength="6"
                                             class="w-full bg-white dark:bg-slate-900 border border-sky-200 rounded-xl px-4 py-2 text-center text-xl font-bold tracking-[0.5em] focus:border-sky-500 outline-none"
                                             placeholder="------">
+                                        <p class="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                                            Note: Please check your spam or junk folder if you don't receive the email.
+                                        </p>
                                         <div class="flex justify-between items-center mt-2 px-1">
                                             <p class="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-400" x-show="otpTimer > 0">Code expires in:
                                                 <span class="font-bold text-sky-600"

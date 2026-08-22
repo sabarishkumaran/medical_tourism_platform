@@ -483,6 +483,9 @@ def hospital_dashboard(request):
     else:
         estimated_revenue = f"${revenue_sum:.0f}"
 
+    from django.utils import timezone
+    current_date = timezone.now().date()
+
     context = {
         "total_inquiries": total_inquiries,
         "pending_approvals": pending_approvals,
@@ -492,6 +495,7 @@ def hospital_dashboard(request):
         "estimated_revenue": estimated_revenue,
         "doctors": doctors,
         "packages": packages,
+        "current_date": current_date,
     }
 
     return render(request, "hospital_dashboard.html", context)
@@ -706,7 +710,7 @@ def manage_inquiries(request):
 @hospital_required
 def hospital_billing(request):
     hospital = request.user.hospital
-    transactions = hospital.wallet_transactions.all().order_by('-created_at')[:50]
+    transactions = hospital.transactions.all().order_by('-created_at')[:50]
     
     from hospitals.models import SubscriptionPlanConfig
     plans = SubscriptionPlanConfig.objects.all().order_by('price')
@@ -729,156 +733,7 @@ def hospital_billing(request):
         "current_plan_price": current_plan_price,
     })
 
-@hospital_required
-def upgrade_plan(request, plan_choice):
-    if request.method != "POST":
-        return HttpResponse("Method not allowed", status=405)
 
-    hospital = request.user.hospital
-    valid_plans = [choice[0] for choice in Hospital.SUBSCRIPTION_PLAN_CHOICES]
-    
-    if plan_choice in valid_plans:
-        from hospitals.models import SubscriptionPlanConfig, WalletTransaction
-        from decimal import Decimal
-        from datetime import date
-        from dateutil.relativedelta import relativedelta
-        from django.template.loader import render_to_string
-        from django.core.mail import send_mail
-        from django.conf import settings
-        
-        plan_config = SubscriptionPlanConfig.objects.filter(plan_type=plan_choice).first()
-        plan_price = plan_config.price if plan_config else Decimal('0.00')
-        
-        charge_amount = plan_price
-        credit_applied = Decimal('0.00')
-        is_upgrade = False
-        is_downgrade = False
-        
-        # Proration Logic
-        if hospital.subscription_plan != 'BASIC' and hospital.subscription_end_date and hospital.subscription_end_date > date.today():
-            current_config = SubscriptionPlanConfig.objects.filter(plan_type=hospital.subscription_plan).first()
-            if current_config:
-                if plan_price > current_config.price:
-                    # Upgrade: Calculate unused credit and charge difference
-                    remaining_days = (hospital.subscription_end_date - date.today()).days
-                    daily_rate = current_config.price / Decimal('30')
-                    credit_applied = (daily_rate * Decimal(str(remaining_days))).quantize(Decimal('0.01'))
-                    charge_amount = max(Decimal('0.00'), plan_price - credit_applied)
-                    is_upgrade = True
-                elif plan_price < current_config.price and plan_price > 0:
-                    # Downgrade between paid tiers: No immediate charge, keep existing end date
-                    charge_amount = Decimal('0.00')
-                    is_downgrade = True
-        
-        if plan_price > 0:
-            if hospital.wallet_balance < charge_amount:
-                messages.error(request, f"Insufficient funds in Lead Wallet to upgrade. Amount due: ${charge_amount}. Please deposit funds first.")
-                return redirect('hospital_billing')
-            
-            # Perform Debit
-            hospital.wallet_balance -= charge_amount
-            
-            # Record Transaction
-            desc = f"Subscription Activation: {plan_choice}"
-            if is_upgrade:
-                desc = f"Subscription Upgrade: {plan_choice} (Prorated credit of ${credit_applied} applied)"
-            elif is_downgrade:
-                desc = f"Subscription Downgrade: {plan_choice}"
-            
-            WalletTransaction.objects.create(
-                hospital=hospital,
-                amount=-charge_amount,
-                transaction_type='SUBSCRIPTION',
-                description=desc
-            )
-
-        # Update Subscription Status
-        hospital.subscription_plan = plan_choice
-        if not is_downgrade:
-            hospital.subscription_end_date = date.today() + relativedelta(months=+1)
-        
-        # Determine auto_renew based on the submitted checkbox
-        auto_renew_val = request.POST.get('auto_renew')
-        hospital.auto_renew = True if auto_renew_val else False
-        hospital.save()
-        
-        # Send Notification Email
-        if plan_price > 0:
-            context = {
-                'hospital': hospital,
-                'success': True,
-                'is_upgrade': (plan_choice != 'BASIC' and hospital.subscription_plan != 'BASIC'), # Simplified for now
-                'plan_name': plan_config.display_title if plan_config else plan_choice,
-                'price': charge_amount if 'charge_amount' in locals() else plan_price,
-                'next_billing': hospital.subscription_end_date,
-                'login_link': request.build_absolute_uri('/')
-            }
-            
-            subject = f"Your {context['plan_name']} Subscription Activated!"
-            if context['is_upgrade']:
-                subject = f"Your Subscription Upgraded to {context['plan_name']}!"
-                
-            html_message = render_to_string('subscription_renewal_email_html.html', context)
-            send_mail(
-                subject,
-                "",
-                settings.DEFAULT_FROM_EMAIL,
-                [hospital.user.email],
-                html_message=html_message,
-                fail_silently=True
-            )
-        
-        messages.success(request, f"Successfully upgraded to {hospital.get_subscription_plan_display()}! Auto-renew is {'enabled' if hospital.auto_renew else 'disabled'}.")
-    
-    return redirect('hospital_billing')
-
-@hospital_required
-def deposit_wallet(request):
-    if request.method != "POST":
-        return HttpResponse("Method not allowed", status=405)
-        
-    amount_str = request.POST.get('amount')
-    try:
-        from decimal import Decimal, InvalidOperation
-        amount = Decimal(amount_str)
-        if amount > 0:
-            hospital = request.user.hospital
-            hospital.wallet_balance += amount
-            hospital.save()
-            
-            from hospitals.models import WalletTransaction
-            WalletTransaction.objects.create(
-                hospital=hospital,
-                amount=amount,
-                transaction_type='DEPOSIT',
-                description=f"Direct deposit via billing dashboard"
-            )
-            
-            from django.contrib import messages
-            messages.success(request, f"Successfully deposited ${amount:.2f} into your Lead Wallet!")
-        else:
-            from django.contrib import messages
-            messages.error(request, "Deposit amount must be greater than zero.")
-    except Exception:
-        from django.contrib import messages
-        messages.error(request, "Invalid deposit amount.")
-        
-    return redirect('hospital_billing')
-
-@hospital_required
-def cancel_plan(request):
-    if request.method != "POST":
-        return HttpResponse("Method not allowed", status=405)
-    
-    hospital = request.user.hospital
-    # Downgrade to basics instantly (can also be deferred to end date)
-    hospital.subscription_plan = 'BASIC'
-    hospital.subscription_end_date = None
-    hospital.save()
-    
-    from django.contrib import messages
-    messages.info(request, "Your subscription has been canceled and downgraded to the Basic Free Tier.")
-    return redirect('hospital_billing')
 
 @hospital_required
 def toggle_auto_renew(request):

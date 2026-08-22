@@ -77,7 +77,7 @@
                                 {% endif %}
                             </div>
                             
-                            <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete {{ country.name }}?');">
+                            <form method="POST" class="inline" onsubmit="showDeleteModal(event, '{{ country.name }}');">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete_country">
                                 <input type="hidden" name="country_id" value="{{ country.id }}">
@@ -137,7 +137,7 @@
                                 <span class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ acc.name }}</span>
                             </div>
                             
-                            <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete accreditation {{ acc.code }}?');">
+                            <form method="POST" class="inline" onsubmit="showDeleteModal(event, '{{ acc.code }} - {{ acc.name }}');">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete_accreditation">
                                 <input type="hidden" name="accreditation_id" value="{{ acc.id }}">
@@ -156,4 +156,80 @@
 
     </div>
 </div>
+
+<!-- Premium Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden" role="dialog" aria-modal="true">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 max-w-sm w-full border border-slate-100 dark:border-slate-800 shadow-2xl transition-all transform scale-95 duration-200" id="deleteModalContainer">
+        <div class="flex flex-col items-center text-center space-y-4">
+            <div class="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center shadow-inner">
+                <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </div>
+            
+            <div>
+                <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Confirm Deletion</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium" id="deleteModalMessage">
+                    Are you sure you want to delete this item? This action cannot be undone.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 w-full mt-2">
+                <button type="button" onclick="closeDeleteModal()" class="py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl transition-all">
+                    Cancel
+                </button>
+                <button type="button" id="confirmDeleteBtn" class="py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl transition-all shadow-md">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeFormToSubmit = null;
+
+    function showDeleteModal(event, itemName) {
+        event.preventDefault();
+        activeFormToSubmit = event.target;
+        
+        const messageEl = document.getElementById('deleteModalMessage');
+        messageEl.innerHTML = `Are you sure you want to delete <span class="font-bold text-rose-500 dark:text-rose-400">${itemName}</span>? This action cannot be undone.`;
+        
+        const modal = document.getElementById('deleteModal');
+        const container = document.getElementById('deleteModalContainer');
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            container.classList.remove('scale-95');
+            container.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        const container = document.getElementById('deleteModalContainer');
+        
+        container.classList.remove('scale-100');
+        container.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            activeFormToSubmit = null;
+        }, 150);
+    }
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        if (activeFormToSubmit) {
+            activeFormToSubmit.submit();
+        }
+    });
+
+    document.getElementById('deleteModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('deleteModal')) {
+            closeDeleteModal();
+        }
+    });
+</script>
 {% endblock %}
+

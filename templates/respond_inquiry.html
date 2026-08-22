@@ -95,7 +95,7 @@
                         </div>
                     </div>
 
-                    <form method="post" class="space-y-6">
+                    <form method="post" class="space-y-6" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <div class="group">
@@ -105,6 +105,23 @@
                             {% else %}
                                 {% render_field form.treatment_plan %}
                                 <p class="mt-2 text-[10px] text-slate-400 dark:text-slate-400">Be as detailed as possible to increase approval rates.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-sky-600 transition-colors">Plan Document / Brochure (Optional)</label>
+                            {% if quote_already_sent %}
+                                {% if quote.attachment %}
+                                    <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl">
+                                        <svg class="w-6 h-6 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <a href="{{ quote.attachment.url }}" target="_blank" class="text-sm font-bold text-sky-600 hover:text-sky-800 underline transition-colors">View Attached Document</a>
+                                    </div>
+                                {% else %}
+                                    <p class="text-xs text-slate-400 italic">No document was attached to this proposal.</p>
+                                {% endif %}
+                            {% else %}
+                                {% render_field form.attachment class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 outline-none" %}
+                                <p class="mt-2 text-[10px] text-slate-400 dark:text-slate-400">PDF, JPG, PNG or word documents detailing schedules, hotel booking details, or brochures.</p>
                             {% endif %}
                         </div>
 

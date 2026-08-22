@@ -99,7 +99,7 @@ from .models import Quote
 class QuoteForm(forms.ModelForm):
     class Meta:
         model = Quote
-        fields = ['treatment_plan', 'price']
+        fields = ['treatment_plan', 'price', 'attachment']
         widgets = {
             'treatment_plan': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Describe the proposed treatment plan, duration, and facilities...'})
         }

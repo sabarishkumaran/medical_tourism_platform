@@ -97,15 +97,15 @@
             </div>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
             <!-- Recent Inquiries Section -->
-            <div id="inquiries" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+            <div id="inquiries" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
                 <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
                     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Recent Inquiries Action</h2>
                     <a href="{% url 'hospital_manage_inquiries' %}" class="text-sm font-bold text-sky-600 hover:text-sky-800 transition-colors">View All</a>
                 </div>
                 
-                <div class="flex-1 overflow-auto">
+                <div>
                     {% if recent_inquiries %}
                         <div class="divide-y divide-slate-100 dark:divide-slate-800">
                             {% for inquiry in recent_inquiries %}
@@ -141,19 +141,29 @@
                                             <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="inline-block bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">Review & Quote</a>
                                         {% elif inquiry.status == 'QUOTE_SENT' %}
                                             <a href="{% url 'respond_inquiry' inquiry.uuid %}" class="inline-block bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs font-bold py-2 px-4 rounded-lg hover:bg-slate-200 dark:bg-slate-800 transition-colors shadow-sm cursor-pointer whitespace-nowrap">Awaiting Patient</a>
-                                        {% elif inquiry.status == 'CONFIRMED' %}
-                                            <button type="button" hx-post="{% url 'send_payment_link' inquiry.uuid %}" hx-swap="none" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">Send Payment Link</button>
-                                        {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
-                                            <span class="inline-block bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 text-xs font-bold py-2 px-4 rounded-lg border border-indigo-200 shadow-sm cursor-default whitespace-nowrap">Payment Link Sent</span>
-                                        {% elif inquiry.status == 'COMPLETED' %}
-                                            {% if not inquiry.treatment_completed %}
-                                            <form method="post" action="{% url 'mark_treatment_completed' inquiry.uuid %}" class="inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors shadow-md whitespace-nowrap">Mark as Completed</button>
-                                            </form>
-                                            {% else %}
+                                        {% elif inquiry.treatment_completed or inquiry.status == 'COMPLETED' %}
                                             <span class="inline-block bg-emerald-50 text-emerald-600 text-xs font-bold py-2 px-4 rounded-lg border border-emerald-200 shadow-sm cursor-default whitespace-nowrap">Treatment Completed</span>
-                                            {% endif %}
+                                        {% elif inquiry.payment_status == 'FULL' or inquiry.payment_status == 'PARTIAL' or inquiry.booking_confirmed %}
+                                            <div class="flex items-center gap-2">
+                                                {% if inquiry.payment_status == 'FULL' %}
+                                                    <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold py-2 px-3 rounded-lg">Fully Paid</span>
+                                                {% elif inquiry.payment_status == 'PARTIAL' %}
+                                                    <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold py-2 px-3 rounded-lg">Deposit Paid</span>
+                                                {% endif %}
+                                                
+                                                {% if inquiry.travel_date and current_date < inquiry.travel_date %}
+                                                    <button type="button" disabled title="Cannot mark completed before travel date ({{ inquiry.travel_date|date:'M d, Y' }})" class="inline-block bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs font-bold py-2 px-3 rounded-lg cursor-not-allowed whitespace-nowrap opacity-60">Mark as Completed</button>
+                                                {% else %}
+                                                    <form method="post" action="{% url 'mark_treatment_completed' inquiry.uuid %}" class="inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors shadow-md whitespace-nowrap">Mark as Completed</button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        {% elif inquiry.status == 'CONFIRMED' %}
+                                            <button type="button" hx-post="{% url 'send_payment_link' inquiry.uuid %}" hx-swap="none" class="inline-block bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">Send Payment Link</button>
+                                        {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
+                                            <span class="inline-block bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 text-xs font-bold py-2 px-3 rounded-lg border border-indigo-200 shadow-sm cursor-default whitespace-nowrap">Payment Link Sent</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -195,68 +205,70 @@
                             {% endif %}
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="mb-6">
                             <!-- Current Plan -->
-                            <div class="bg-white/5 dark:bg-slate-900/5 rounded-2xl p-4 border border-white/10">
+                            <div class="bg-white/5 dark:bg-slate-900/5 rounded-2xl p-4 border border-white/10 w-full">
                                 <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mb-1">Current Plan</p>
                                 <div class="flex items-end justify-between">
                                     <p class="text-xl font-black text-white">{{ request.user.hospital.get_subscription_plan_display }}</p>
                                     <a href="{% url 'hospital_billing' %}" class="text-[10px] text-indigo-400 font-bold hover:text-white underline transition-colors">Upgrade</a>
                                 </div>
                             </div>
-                            <!-- Wallet Balance -->
-                            <div class="bg-white/5 dark:bg-slate-900/5 rounded-2xl p-4 border border-white/10">
-                                <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mb-1">Lead Wallet</p>
-                                <div class="flex items-end justify-between">
-                                    <p class="text-xl font-black text-white">${{ request.user.hospital.wallet_balance|floatformat:2 }}</p>
-                                    <a href="{% url 'hospital_billing' %}" class="text-[10px] text-emerald-400 font-bold hover:text-white underline transition-colors">Deposit</a>
-                                </div>
-                            </div>
                         </div>
-                        <p class="text-xs text-indigo-200/60 leading-tight">Your wallet is used to cover lead generation fees. Maintain a positive balance to continue receiving patient inquiries.</p>
+                        <p class="text-xs text-indigo-200/60 leading-tight">Your active subscription determines your profile visibility and algorithmic priority.</p>
                     </div>
                 </div>
 
                 <!-- Treatment Packages Section -->
                 <div id="treatments" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap" style="font-family: 'Outfit', sans-serif;">Active Treatments</h2>
                             <a href="{% url 'manage_treatment_packages' %}" class="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-1 uppercase tracking-widest ml-1 bg-sky-50 dark:bg-sky-900/20 px-2 py-0.5 rounded-full cursor-pointer">View All &rarr;</a>
                         </div>
-                        <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+                        <a href="{% url 'add_treatment_package' %}" class="text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer w-fit">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Package
                         </a>
                     </div>
                     
                     <div class="space-y-3">
-                        {% for package in packages %}
-                        <div class="p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:border-sky-200 hover:shadow-md transition-all group flex justify-between items-center" id="package-{{ package.id }}">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm opacity-{% if package.is_active %}100{% else %}50{% endif %}">{{ package.treatment.name }}</h3>
+                        {% for package in packages|slice:":2" %}
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:border-sky-200 hover:shadow-md transition-all group flex flex-col sm:flex-row justify-between sm:items-center gap-4" id="package-{{ package.id }}">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm opacity-{% if package.is_active %}100{% else %}50{% endif %} truncate">{{ package.treatment.name }}</h3>
                                     {% if not package.is_active %}<span class="bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Offline</span>{% endif %}
                                 </div>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1 line-clamp-1">{{ package.treatment.category }} • {{ package.doctor.name }}</p>
                             </div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-right">
+                            <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-slate-800">
+                                <div class="text-left sm:text-right">
                                     <div class="font-black text-slate-800 dark:text-slate-200">From ${{ package.price }}</div>
                                     <div class="text-[10px] text-slate-400 dark:text-slate-400 font-bold uppercase">{{ package.stay_days }}d stay</div>
                                 </div>
-                                <a href="{% url 'edit_treatment_package' package.id %}" class="text-sky-500 hover:text-sky-700 p-2 ml-2 cursor-pointer transition-colors" title="Edit Package">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                </a>
-                                <button hx-post="{% url 'toggle_package_active' package.id %}" hx-swap="none" class="{% if package.is_active %}text-emerald-500 hover:text-emerald-700{% else %}text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:text-slate-400{% endif %} p-2 cursor-pointer transition-colors" title="Toggle Visibility">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                </button>
-                                <button hx-post="{% url 'delete_treatment_package' package.id %}" hx-target="#package-{{ package.id }}" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this treatment package?" class="text-red-500 hover:text-red-700 p-2 cursor-pointer transition-colors" title="Delete Package">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
+                                <div class="flex items-center gap-1">
+                                    <a href="{% url 'edit_treatment_package' package.id %}" class="text-sky-500 hover:text-sky-700 p-2 cursor-pointer transition-colors" title="Edit Package">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </a>
+                                    <button hx-post="{% url 'toggle_package_active' package.id %}" hx-swap="none" class="{% if package.is_active %}text-emerald-500 hover:text-emerald-700{% else %}text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:text-slate-400{% endif %} p-2 cursor-pointer transition-colors" title="Toggle Visibility">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </button>
+                                    <button hx-post="{% url 'delete_treatment_package' package.id %}" hx-target="#package-{{ package.id }}" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this treatment package?" class="text-red-500 hover:text-red-700 p-2 cursor-pointer transition-colors" title="Delete Package">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         {% empty %}
-                        <p class="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl text-center border border-slate-100 dark:border-slate-800 border-dashed">No treatment packages published yet. Create one to attract patients.</p>
+                        <div class="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl text-center border border-slate-100 dark:border-slate-800 border-dashed space-y-3">
+                            <p class="text-sm text-slate-500 dark:text-slate-400">No treatment packages published yet.</p>
+                            {% if not doctors %}
+                            <p class="text-xs text-amber-600 dark:text-amber-400 font-medium">⚠️ Please add your doctors first and then service packages.</p>
+                            <a href="{% url 'add_doctor' %}" class="inline-flex items-center gap-1 text-xs font-bold text-sky-600 hover:underline">Add a Doctor Now &rarr;</a>
+                            {% else %}
+                            <a href="{% url 'add_treatment_package' %}" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:underline">Create a Package &rarr;</a>
+                            {% endif %}
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -273,7 +285,7 @@
                     </div>
                     
                     <div class="space-y-3">
-                        {% for doctor in doctors %}
+                        {% for doctor in doctors|slice:":2" %}
                         <div class="p-3 border border-slate-100 dark:border-slate-800 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors" id="doctor-{{ doctor.id }}">
                             <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden flex-shrink-0">
                                 {% if doctor.photo %}

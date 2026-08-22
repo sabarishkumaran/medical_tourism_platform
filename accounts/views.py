@@ -181,8 +181,9 @@ def admin_dashboard(request):
     guest_messages = ContactMessage.objects.exclude(email__in=patient_emails).order_by('-created_at')[:5]
     
     # Report Drilldown Datasets
-    from hospitals.models import WalletTransaction
-    commission_transactions = WalletTransaction.objects.filter(transaction_type='COMMISSION_FEE').select_related('hospital').order_by('-created_at')
+    from hospitals.models import Transaction
+    
+    transactions = Transaction.objects.filter(transaction_type='COMMISSION_FEE').select_related('hospital').order_by('-created_at')
     subscription_hospitals = Hospital.objects.filter(subscription_plan__in=['PREMIUM', 'ELITE']).order_by('-id')
     lead_transactions = Inquiry.objects.exclude(status='NEW').select_related('patient', 'hospital').order_by('-created_at')
     featured_hospitals = Hospital.objects.filter(is_featured=True).order_by('-id')
@@ -193,7 +194,7 @@ def admin_dashboard(request):
         'recent_hospitals': recent_hospitals,
         'auth_messages': auth_messages,
         'guest_messages': guest_messages,
-        'commission_transactions': commission_transactions,
+        'commission_transactions': transactions,
         'subscription_hospitals': subscription_hospitals,
         'lead_transactions': lead_transactions,
         'featured_hospitals': featured_hospitals,
@@ -206,9 +207,9 @@ def admin_dashboard(request):
 def admin_revenue_commissions(request):
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
         raise PermissionDenied("Administrative access required.")
-    from hospitals.models import WalletTransaction
+    from hospitals.models import Transaction
     from django.db.models import Sum
-    transactions = WalletTransaction.objects.filter(transaction_type='COMMISSION_FEE').select_related('hospital').order_by('-created_at')
+    transactions = Transaction.objects.filter(transaction_type='COMMISSION_FEE').select_related('hospital').order_by('-created_at')
     total = abs(transactions.aggregate(total=Sum('amount'))['total'] or 0)
     return render(request, 'admin_revenue_commissions.html', {'transactions': transactions, 'total': total})
 
@@ -266,28 +267,33 @@ def admin_financial_ledger(request):
         raise PermissionDenied("Administrative access required.")
         
     from payments.models import Payment
-    from hospitals.models import WalletTransaction
-    from django.db.models import Sum
+    from hospitals.models import Transaction
+    from django.db.models import Sum, Q
     
     # Patient Payments (Inflows)
     patient_payments = Payment.objects.select_related('inquiry__patient', 'inquiry__hospital', 'inquiry__treatment').order_by('-payment_date')
     total_inflows = patient_payments.filter(status__iexact='completed').aggregate(total=Sum('amount'))['total'] or 0
     
+    # Fetch Top Revenue Generating Hospitals
+    hospital_revenue = Hospital.objects.annotate(
+        total_revenue=Sum('inquiry__commission_amount', filter=Q(inquiry__status='COMPLETED', inquiry__commission_paid=True))
+    ).filter(total_revenue__gt=0).order_by('-total_revenue')[:5]
+
     # Hospital Wallet Activity (Outflows and Deductions)
-    wallet_transactions = WalletTransaction.objects.select_related('hospital').order_by('-created_at')
+    transactions = Transaction.objects.select_related('hospital').order_by('-created_at')
     
-    # Calculate Payouts (DEPOSIT to hospital wallets)
-    total_payouts = wallet_transactions.filter(transaction_type='DEPOSIT').aggregate(total=Sum('amount'))['total'] or 0
+    # Calculate Payouts (TREATMENT_PAYMENT to hospitals)
+    total_payouts = transactions.filter(transaction_type='TREATMENT_PAYMENT').aggregate(total=Sum('amount'))['total'] or 0
     
-    # Calculate Deductions (COMMISSION_FEE collected from hospital wallets)
-    total_deductions = wallet_transactions.filter(transaction_type='COMMISSION_FEE').aggregate(total=Sum('amount'))['total'] or 0
+    # Calculate Deductions (COMMISSION_FEE collected from hospital)
+    total_deductions = transactions.filter(transaction_type='COMMISSION_FEE').aggregate(total=Sum('amount'))['total'] or 0
     
     return render(request, 'admin_financial_ledger.html', {
-        'patient_payments': patient_payments,
-        'wallet_transactions': wallet_transactions,
-        'total_inflows': total_inflows,
         'total_payouts': total_payouts,
         'total_deductions': abs(total_deductions),
+        'transactions': transactions,
+        'patient_payments': patient_payments,
+        'total_inflows': total_inflows,
     })
 
 @login_required

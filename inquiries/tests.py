@@ -59,7 +59,7 @@ class PaymentTicketReviewTests(TestCase):
         self.inquiry.refresh_from_db()
         self.assertEqual(self.inquiry.payment_status, 'FULL')
         self.assertTrue(self.inquiry.booking_confirmed)
-        self.assertEqual(self.inquiry.status, 'COMPLETED')
+        self.assertEqual(self.inquiry.status, 'CONFIRMED')
         self.assertEqual(Payment.objects.filter(inquiry=self.inquiry).count(), 1)
         
         # Reset and test Partial

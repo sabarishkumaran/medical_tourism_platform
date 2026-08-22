@@ -8,6 +8,17 @@ Function views
     1. Add an import:  from my_app import views
     2. Add a URL to urlpatterns:  path('', views.home, name='home')
 Class-based views
+"""
+"""
+URL configuration for medtour project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
@@ -19,6 +30,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render
+
 def handler403(request, exception=None):
     return render(request, '403.html', {'message': exception}, status=403)
 
@@ -31,6 +43,7 @@ urlpatterns = [
     path('', include('treatments.urls')),
     path('hospitals/', include('hospitals.urls')),
     path('inquiries/', include('inquiries.urls')),
+    path('payments/', include('payments.urls')),
     path('accounts/', include('accounts.urls')),
     path('blog/', include('blog.urls')),
     path('newsletter/', include('newsletter.urls')),
