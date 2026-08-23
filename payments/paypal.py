@@ -27,7 +27,7 @@ def get_paypal_access_token():
         logger.error(f"Failed to get PayPal token: {response.text}")
         return None
 
-def create_paypal_order(amount, currency="USD", description="Medical Tourism Payment"):
+def create_paypal_order(amount, currency="USD", description="Medical Tourism Payment", return_url=None, cancel_url=None):
     """Create a one-time payment order."""
     token = get_paypal_access_token()
     if not token:
@@ -54,6 +54,13 @@ def create_paypal_order(amount, currency="USD", description="Medical Tourism Pay
             }
         ]
     }
+    
+    if return_url and cancel_url:
+        payload["application_context"] = {
+            "return_url": return_url,
+            "cancel_url": cancel_url,
+            "user_action": "PAY_NOW"
+        }
     
     response = requests.post(order_url, headers=headers, json=payload)
     if response.status_code == 201:

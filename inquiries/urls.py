@@ -27,4 +27,7 @@ urlpatterns = [
     path('book-next-sitting/<uuid:inquiry_id>/', views.book_next_sitting, name="book_next_sitting"),
     path('inquiry/<uuid:inquiry_id>/payment/create-order/', views.create_payment_order, name='create_payment_order'),
     path('inquiry/<uuid:inquiry_id>/payment/capture-order/', views.capture_payment_order, name='capture_payment_order'),
+    path('inquiry/<uuid:inquiry_id>/payment/return/', views.payment_return, name='payment_return'),
+    path('pay-commission/<uuid:inquiry_id>/return/', views.commission_return, name='commission_return'),
+    path('record-offline-payment/<uuid:inquiry_id>/', views.record_offline_payment, name='record_offline_payment'),
 ]

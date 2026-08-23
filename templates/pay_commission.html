@@ -49,6 +49,7 @@
                 <!-- PayPal Buttons Container -->
                 <form id="csrf-form" class="hidden">{% csrf_token %}</form>
                 <div id="paypal-button-container" class="w-full relative z-20"></div>
+                <a id="paypal-direct-link" href="#" target="_blank" class="hidden text-xs text-sky-600 dark:text-sky-400 hover:underline font-bold mt-3 text-center transition-colors block w-full">Having trouble with popup? Click here to pay directly on PayPal.com &rarr;</a>
 
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <a href="{% url 'view_inquiry' inquiry.uuid %}" class="block w-full py-4 px-8 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-center font-black hover:bg-slate-200 transition-colors">
@@ -86,6 +87,13 @@
                         if (order.error) {
                             alert(order.error);
                             return;
+                        }
+                        if (order.approve_url) {
+                            const directLink = document.getElementById('paypal-direct-link');
+                            if (directLink) {
+                                directLink.href = order.approve_url;
+                                directLink.classList.remove('hidden');
+                            }
                         }
                         return order.orderID;
                     });

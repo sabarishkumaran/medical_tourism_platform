@@ -588,16 +588,55 @@ def create_payment_order(request, inquiry_id):
     payment_choice = data.get('payment_choice', 'partial')
     details = get_payment_details(inquiry, payment_choice, data)
     
+    return_url = request.build_absolute_uri(reverse('payment_return', args=[inquiry.uuid]))
+    cancel_url = request.build_absolute_uri(reverse('view_inquiry', args=[inquiry.uuid]))
+    
     from payments.paypal import create_paypal_order
     order_res = create_paypal_order(
         amount=details['amount_to_pay'], 
-        description=f"MedTour Payment - {inquiry.treatment.name}"
+        description=f"MedTour Payment - {inquiry.treatment.name}",
+        return_url=return_url,
+        cancel_url=cancel_url
     )
     
     if order_res and 'id' in order_res:
-        return JsonResponse({'orderID': order_res['id']})
+        approve_url = next((link['href'] for link in order_res.get('links', []) if link['rel'] == 'approve'), '')
+        return JsonResponse({'orderID': order_res['id'], 'approve_url': approve_url})
     else:
         return JsonResponse({'error': 'Failed to create PayPal order'}, status=500)
+
+@login_required
+def payment_return(request, inquiry_id):
+    """Fallback return handler when paying directly on PayPal site."""
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
+    token = request.GET.get('token') or request.GET.get('orderID')
+    
+    if token:
+        from payments.paypal import capture_paypal_order
+        capture_res = capture_paypal_order(token)
+        if capture_res and capture_res.get('status') == 'COMPLETED':
+            inquiry.status = "CONFIRMED"
+            inquiry.booking_confirmed = True
+            inquiry.save()
+            
+            payer_id = capture_res.get('payer', {}).get('payer_id', '')
+            from payments.models import Payment
+            Payment.objects.create(
+                inquiry=inquiry,
+                amount=inquiry.budget or 100.00,
+                currency="USD",
+                status="Completed",
+                payment_type='TREATMENT',
+                paypal_order_id=token,
+                paypal_payer_id=payer_id
+            )
+            from django.contrib import messages
+            messages.success(request, "Payment completed successfully via PayPal!")
+            return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+            
+    from django.contrib import messages
+    messages.info(request, "Returned from PayPal.")
+    return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @login_required
 def capture_payment_order(request, inquiry_id):
@@ -703,6 +742,24 @@ def mark_treatment_completed(request, inquiry_id):
     if inquiry.travel_date and inquiry.travel_date > timezone.now().date():
         from django.contrib import messages
         messages.error(request, "Cannot mark treatment as completed before the travel date.")
+        return redirect('hospital_manage_inquiries')
+        
+    # Check if full payment is received
+    base_price = 0
+    quote = Quote.objects.filter(inquiry=inquiry).order_by('-created_at').first()
+    if quote:
+        sitting = quote.sittings.filter(sitting_number=inquiry.current_sitting_number).first()
+        base_price = sitting.price if sitting else quote.price
+    elif inquiry.package:
+        base_price = inquiry.package.price
+    else:
+        base_price = inquiry.budget or 0
+        
+    required_total = float(base_price) + float(inquiry.service_fees_total)
+    
+    if inquiry.payment_status != 'FULL' and inquiry.total_amount_paid < required_total:
+        from django.contrib import messages
+        messages.error(request, "Cannot mark as completed until full payment is recorded in the system.")
         return redirect('hospital_manage_inquiries')
         
     # Check if there are more sittings
@@ -942,13 +999,50 @@ def create_commission_order(request, inquiry_id):
         
     amount = float(inquiry.commission_amount)
     
+    return_url = request.build_absolute_uri(reverse('commission_return', args=[inquiry.uuid]))
+    cancel_url = request.build_absolute_uri(reverse('view_inquiry', args=[inquiry.uuid]))
+    
     from payments.paypal import create_paypal_order
-    order_res = create_paypal_order(amount, description=f"Commission for Inquiry #{inquiry.id}")
+    order_res = create_paypal_order(
+        amount, 
+        description=f"Commission for Inquiry #{inquiry.id}",
+        return_url=return_url,
+        cancel_url=cancel_url
+    )
     
     if order_res and 'id' in order_res:
-        return JsonResponse({'orderID': order_res['id']})
+        approve_url = next((link['href'] for link in order_res.get('links', []) if link['rel'] == 'approve'), '')
+        return JsonResponse({'orderID': order_res['id'], 'approve_url': approve_url})
     
     return JsonResponse({'error': 'Failed to create PayPal order'}, status=500)
+
+@login_required
+def commission_return(request, inquiry_id):
+    """Fallback return handler for commission payment via direct PayPal link."""
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
+    token = request.GET.get('token') or request.GET.get('orderID')
+    
+    if token and not inquiry.commission_paid:
+        from payments.paypal import capture_paypal_order
+        capture_res = capture_paypal_order(token)
+        if capture_res and capture_res.get('status') == 'COMPLETED':
+            inquiry.commission_paid = True
+            inquiry.save()
+            
+            from hospitals.models import Transaction
+            from decimal import Decimal
+            Transaction.objects.create(
+                hospital=inquiry.hospital,
+                amount=-Decimal(str(inquiry.commission_amount)),
+                transaction_type='COMMISSION_FEE',
+                description=f"PayPal Commission payment for Inquiry #{inquiry.id}",
+                paypal_order_id=token
+            )
+            from django.contrib import messages
+            messages.success(request, "Commission paid successfully via PayPal!")
+            return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+            
+    return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @csrf_exempt
 @login_required
@@ -1100,4 +1194,61 @@ def book_next_sitting(request, inquiry_id):
     messages.success(request, f'You are now booking Sitting {inquiry.current_sitting_number}. Please set your travel date.')
     return redirect('edit_confirmation', inquiry_id=inquiry.uuid)
 
+@login_required
+@hospital_required
+def record_offline_payment(request, inquiry_id):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
+        
+    hospital = request.user.hospital
+    inquiry = get_object_or_404(Inquiry, uuid=inquiry_id, hospital=hospital)
+    
+    amount_str = request.POST.get('amount')
+    if not amount_str:
+        from django.contrib import messages
+        messages.error(request, "Amount is required.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    try:
+        amount = float(amount_str)
+        if amount <= 0:
+            raise ValueError()
+    except ValueError:
+        from django.contrib import messages
+        messages.error(request, "Invalid amount.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    from payments.models import Payment
+    Payment.objects.create(
+        inquiry=inquiry,
+        amount=amount,
+        status='Completed',
+        payment_type='TREATMENT',
+        paypal_order_id='OFFLINE_CASH'
+    )
+    
+    # Check if total paid is now enough for FULL
+    base_price = 0
+    quote = inquiry.quote_set.order_by('-created_at').first()
+    if quote:
+        sitting = quote.sittings.filter(sitting_number=inquiry.current_sitting_number).first()
+        base_price = sitting.price if sitting else quote.price
+    elif inquiry.package:
+        base_price = inquiry.package.price
+    else:
+        base_price = inquiry.budget or 0
+        
+    required_total = float(base_price) + float(inquiry.service_fees_total)
+    
+    if inquiry.total_amount_paid >= required_total:
+        inquiry.payment_status = 'FULL'
+        inquiry.save()
+        
+    from .utils import log_inquiry_event
+    log_inquiry_event(inquiry, request.user, "Offline Payment Recorded", f"Hospital recorded a cash/offline payment of ${amount:.2f}.")
+    
+    from django.contrib import messages
+    messages.success(request, f"Successfully recorded cash payment of ${amount:.2f}.")
+    
+    return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
