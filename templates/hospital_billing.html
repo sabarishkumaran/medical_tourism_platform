@@ -1,74 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto px-4 md:px-8 py-10" x-data="{ 
-    upgradeModalOpen: false, 
-    selectedPlan: '', 
-    cancelModalOpen: false, 
-    autoRenew: {{ request.user.hospital.auto_renew|yesno:'true,false' }},
-    remainingDays: {{ remaining_days|default:0 }},
-    currentPlanPrice: {{ current_plan_price|default:0 }},
-    planPrices: {
-        'BASIC': 0,
-        'PREMIUM': {{ plan_data.PREMIUM.price|default:199 }},
-        'ELITE': {{ plan_data.ELITE.price|default:499 }}
-    },
-    calculateProrated() {
-        if (!this.selectedPlan) return 0;
-        const newPrice = this.planPrices[this.selectedPlan];
-        if (this.currentPlanPrice === 0) return newPrice;
-        
-        // Calculate credit for unused days of current plan
-        const dailyRate = this.currentPlanPrice / 30;
-        const credit = dailyRate * this.remainingDays;
-        
-        // Final amount is New Price - Unused Credit
-        const total = Math.max(0, newPrice - credit);
-        return total.toFixed(2);
-    },
-    submitUpgrade() {
-        const formData = {
-            plan_type: this.selectedPlan,
-            price: this.planPrices[this.selectedPlan]
-        };
-        fetch("{% url 'create_subscription' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.approval_url) {
-                window.location.href = data.approval_url;
-            } else {
-                alert(data.error || "An error occurred.");
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Network error.");
-        });
-    },
-    submitCancel() {
-        fetch("{% url 'cancel_subscription' %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert(data.error || "Failed to cancel.");
-            }
-        });
-    }
-}">
+<div class="container mx-auto px-4 md:px-8 py-10" x-data="billingData()">
     <div class="max-w-6xl mx-auto">
         <!-- Header -->
         <div class="mb-10 text-center animate-fade-up">
@@ -469,4 +402,79 @@
         </div>
     </template>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function billingData() {
+        return {
+            upgradeModalOpen: false, 
+            selectedPlan: '', 
+            cancelModalOpen: false, 
+            autoRenew: {{ request.user.hospital.auto_renew|yesno:'true,false' }},
+            remainingDays: {{ remaining_days|default:0 }},
+            currentPlanPrice: {{ current_plan_price|default:0 }},
+            planPrices: {
+                'BASIC': 0,
+                'PREMIUM': {{ plan_data.PREMIUM.price|default:199 }},
+                'ELITE': {{ plan_data.ELITE.price|default:499 }}
+            },
+            calculateProrated() {
+                if (!this.selectedPlan) return 0;
+                const newPrice = this.planPrices[this.selectedPlan];
+                if (this.currentPlanPrice === 0) return newPrice;
+                
+                // Calculate credit for unused days of current plan
+                const dailyRate = this.currentPlanPrice / 30;
+                const credit = dailyRate * this.remainingDays;
+                
+                // Final amount is New Price - Unused Credit
+                const total = Math.max(0, newPrice - credit);
+                return total.toFixed(2);
+            },
+            submitUpgrade() {
+                const formData = {
+                    plan_type: this.selectedPlan,
+                    price: this.planPrices[this.selectedPlan]
+                };
+                fetch("{% url 'create_subscription' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.approval_url) {
+                        window.location.href = data.approval_url;
+                    } else {
+                        alert(data.error || "An error occurred.");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Network error.");
+                });
+            },
+            submitCancel() {
+                fetch("{% url 'cancel_subscription' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(data.error || "Failed to cancel.");
+                    }
+                });
+            }
+        };
+    }
+</script>
 {% endblock %}
