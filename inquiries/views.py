@@ -1107,6 +1107,17 @@ def capture_commission_order(request, inquiry_id):
             paypal_order_id=order_id
         )
         
+        # Track payment in system
+        from payments.models import Payment
+        Payment.objects.create(
+            inquiry=inquiry,
+            amount=inquiry.commission_amount,
+            status='Completed',
+            payment_type='COMMISSION',
+            paypal_order_id=order_id,
+            currency="USD"
+        )
+        
         from django.contrib import messages
         messages.success(request, "Commission paid successfully! Thank you.")
         return JsonResponse({'success': True})

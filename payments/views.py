@@ -83,6 +83,15 @@ def subscription_return(request):
                     paypal_order_id=subscription_id
                 )
                 
+                # Track in Payment system
+                Payment.objects.create(
+                    amount=plan_config.price,
+                    status='Completed',
+                    payment_type='SUBSCRIPTION',
+                    paypal_order_id=subscription_id,
+                    currency="USD"
+                )
+                
             from django.contrib import messages
             messages.success(request, f"Successfully upgraded to {plan_type} plan!")
             return redirect('hospital_billing')
@@ -166,6 +175,15 @@ def paypal_webhook(request):
                     transaction_type='SUBSCRIPTION',
                     description=f"Automated PayPal Renewal: {sub.plan_type}",
                     paypal_order_id=resource.get('id')
+                )
+                
+                # Track in Payment system
+                Payment.objects.create(
+                    amount=float(amount),
+                    status='Completed',
+                    payment_type='SUBSCRIPTION',
+                    paypal_order_id=resource.get('id'),
+                    currency=resource.get('amount', {}).get('currency', 'USD')
                 )
                 
         return HttpResponse(status=200)
