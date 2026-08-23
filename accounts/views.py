@@ -261,6 +261,28 @@ def admin_commission_settlements(request):
     })
 
 @login_required
+def admin_hospital_commission_history(request, hospital_id):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+        
+    from hospitals.models import Hospital
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    
+    # Get all completed treatments for this hospital that have a commission amount
+    completed_inquiries = hospital.inquiry_set.filter(treatment_completed=True, commission_amount__gt=0).order_by('-created_at')
+    
+    # Calculate totals
+    settled_commission = sum([inquiry.commission_amount for inquiry in completed_inquiries if inquiry.commission_paid])
+    outstanding_commission = sum([inquiry.commission_amount for inquiry in completed_inquiries if not inquiry.commission_paid])
+    
+    return render(request, 'admin_hospital_commission_history.html', {
+        'hospital': hospital,
+        'inquiries': completed_inquiries,
+        'settled_commission': settled_commission,
+        'outstanding_commission': outstanding_commission
+    })
+
+@login_required
 def admin_revenue_leads(request):
     if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
         raise PermissionDenied("Administrative access required.")

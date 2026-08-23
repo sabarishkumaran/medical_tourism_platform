@@ -61,7 +61,7 @@
                         {% for h in hospitals %}
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors">
                             <td class="p-4 pl-6">
-                                <div class="font-bold text-slate-800 dark:text-slate-200">{{ h.name }}</div>
+                                <a href="{% url 'admin_hospital_commission_history' h.id %}" class="font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{{ h.name }}</a>
                                 <div class="text-[11px] text-slate-400">{{ h.city|default:"Location not set" }}</div>
                             </td>
                             <td class="p-4">

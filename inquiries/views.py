@@ -366,7 +366,7 @@ def inquiry_detail(request, inquiry_id):
         if not (request.user.role == 'HOSPITAL' and inquiry.hospital == request.user.hospital):
             raise PermissionDenied("You do not have permission to view this inquiry.")
 
-    quote = Quote.objects.filter(inquiry=inquiry).first()
+    quote = Quote.objects.filter(inquiry=inquiry).order_by('-created_at').first()
     
     # Calculate travel deadlines and remaining days
     from django.utils import timezone
@@ -391,6 +391,19 @@ def inquiry_detail(request, inquiry_id):
         if days_remaining < required_days:
             ticket_upload_allowed = False
             
+    # Calculate Required Total
+    base_price = 0
+    if quote:
+        sitting = quote.sittings.filter(sitting_number=inquiry.current_sitting_number).first()
+        base_price = sitting.price if sitting else quote.price
+    elif inquiry.package:
+        base_price = inquiry.package.price
+    else:
+        base_price = inquiry.budget or 0
+        
+    required_total = float(base_price) + float(inquiry.service_fees_total)
+    balance_amount = max(0, required_total - float(inquiry.total_amount_paid))
+            
     from django.conf import settings
     return render(request, "inquiry_detail.html", {
         "inquiry": inquiry,
@@ -399,6 +412,8 @@ def inquiry_detail(request, inquiry_id):
         "days_remaining": days_remaining,
         "ticket_upload_allowed": ticket_upload_allowed,
         "current_date": current_date,
+        "required_total": required_total,
+        "balance_amount": balance_amount,
         "paypal_client_id": getattr(settings, 'PAYPAL_CLIENT_ID', '')
     })
 
@@ -1251,16 +1266,7 @@ def record_offline_payment(request, inquiry_id):
         messages.error(request, "Invalid amount.")
         return redirect('view_inquiry', inquiry_id=inquiry.uuid)
         
-    from payments.models import Payment
-    Payment.objects.create(
-        inquiry=inquiry,
-        amount=amount,
-        status='Completed',
-        payment_type='TREATMENT',
-        paypal_order_id='OFFLINE_CASH'
-    )
-    
-    # Check if total paid is now enough for FULL
+    # Calculate required total (budget) before accepting payment
     base_price = 0
     quote = inquiry.quote_set.order_by('-created_at').first()
     if quote:
@@ -1273,7 +1279,23 @@ def record_offline_payment(request, inquiry_id):
         
     required_total = float(base_price) + float(inquiry.service_fees_total)
     
-    if inquiry.total_amount_paid >= required_total:
+    # Validation: Do not exceed the planned budget
+    if float(inquiry.total_amount_paid) + amount > required_total:
+        from django.contrib import messages
+        messages.error(request, f"Payment exceeds the remaining budget! Only ${required_total - float(inquiry.total_amount_paid):.2f} is left to pay.")
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
+    from payments.models import Payment
+    Payment.objects.create(
+        inquiry=inquiry,
+        amount=amount,
+        status='Completed',
+        payment_type='TREATMENT',
+        paypal_order_id='OFFLINE_CASH'
+    )
+    
+    # Check if total paid is now enough for FULL
+    if float(inquiry.total_amount_paid) >= required_total:
         inquiry.payment_status = 'FULL'
         inquiry.save()
         

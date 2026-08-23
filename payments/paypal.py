@@ -240,6 +240,17 @@ def cancel_paypal_subscription(subscription_id, reason="Requested by user"):
     response = requests.post(cancel_url, headers=headers, json=payload)
     if response.status_code == 204:
         return True
+        
+    if response.status_code == 422:
+        try:
+            err_data = response.json()
+            for detail in err_data.get('details', []):
+                if detail.get('issue') == 'SUBSCRIPTION_STATUS_INVALID':
+                    logger.warning(f"Subscription {subscription_id} already in invalid state for cancellation (likely already cancelled). Allowing local cancellation.")
+                    return True
+        except Exception:
+            pass
+            
     logger.error(f"Failed to cancel subscription {subscription_id}: {response.text}")
     return False
 

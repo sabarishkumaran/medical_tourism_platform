@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ hospital.name }} - Commission History{% endblock %}
+
+{% block content %}
+<div class="px-8 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-10 mt-6">
+        <a href="{% url 'admin_commission_settlements' %}" class="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <div>
+            <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Commission History</div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white">{{ hospital.name }}</h1>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div style="background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%);" class="rounded-3xl p-8 text-white relative overflow-hidden shadow-lg">
+            <div class="relative z-10">
+                <p class="text-indigo-100 font-bold text-xs uppercase tracking-widest mb-2">Total Settled Commission</p>
+                <h2 class="text-4xl font-black">${{ settled_commission|floatformat:2 }}</h2>
+                <p class="text-sm mt-3 text-indigo-200">Already paid by hospital</p>
+            </div>
+            <div class="absolute right-0 bottom-0 text-white/10 -mb-6 -mr-6">
+                <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            </div>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);" class="rounded-3xl p-8 text-white relative overflow-hidden shadow-lg">
+            <div class="relative z-10">
+                <p class="text-amber-100 font-bold text-xs uppercase tracking-widest mb-2">Total Outstanding Commission</p>
+                <h2 class="text-4xl font-black">${{ outstanding_commission|floatformat:2 }}</h2>
+                <p class="text-sm mt-3 text-amber-200">Pending collection from completed treatments</p>
+            </div>
+            <div class="absolute right-0 bottom-0 text-white/10 -mb-6 -mr-6">
+                <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mb-12">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <h2 class="font-bold text-lg text-slate-800 dark:text-white">Completed Treatments</h2>
+            
+            {% if outstanding_commission > 0 %}
+            <form method="POST" action="{% url 'send_cumulative_commission_link' hospital.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition-all whitespace-nowrap">
+                    Send Cumulative Link
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        <th class="p-4 pl-6">Patient & Treatment</th>
+                        <th class="p-4">Commission Amount</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4 pr-6 text-right">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                    {% for inquiry in inquiries %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <td class="p-4 pl-6">
+                            <a href="{% url 'view_inquiry' inquiry.uuid %}" class="font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600">{{ inquiry.patient.first_name }} {{ inquiry.patient.last_name }}</a>
+                            <div class="text-[11px] text-slate-400">{{ inquiry.treatment.name|default:"General Inquiry" }}</div>
+                        </td>
+                        <td class="p-4 font-bold text-slate-700 dark:text-slate-300">
+                            ${{ inquiry.commission_amount|floatformat:2 }}
+                        </td>
+                        <td class="p-4">
+                            {% if inquiry.commission_paid %}
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold rounded-lg">Settled</span>
+                            {% else %}
+                                <span class="px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold rounded-lg">Outstanding</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 pr-6 text-right text-slate-500 text-xs">
+                            {{ inquiry.created_at|date:"M d, Y H:i" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-10 text-center text-slate-400 font-medium">
+                            No completed treatments with commissions found for this hospital.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
