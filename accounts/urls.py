@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/patients/<int:user_id>/', views.patient_detail, name="patient_detail"),
     path('admin/revenue/ledger/', views.admin_financial_ledger, name="admin_financial_ledger"),
     path('admin/revenue/commissions/', views.admin_revenue_commissions, name="admin_revenue_commissions"),
+    path('admin/revenue/commission-settlements/', views.admin_commission_settlements, name="admin_commission_settlements"),
     path('admin/revenue/subscriptions/', views.admin_revenue_subscriptions, name="admin_revenue_subscriptions"),
     path('admin/revenue/leads/', views.admin_revenue_leads, name="admin_revenue_leads"),
     path('admin/revenue/services/', views.admin_revenue_services, name="admin_revenue_services"),

@@ -1252,3 +1252,149 @@ def record_offline_payment(request, inquiry_id):
     
     return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
+@login_required
+def send_cumulative_commission_link(request, hospital_id):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+        
+    from hospitals.models import Hospital
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    
+    outstanding_inquiries = hospital.inquiry_set.filter(commission_paid=False, treatment_completed=True)
+    if not outstanding_inquiries.exists():
+        from django.contrib import messages
+        messages.info(request, "No outstanding commissions for this hospital.")
+        return redirect('admin_commission_settlements')
+        
+    total_amount = sum([inquiry.commission_amount for inquiry in outstanding_inquiries])
+    
+    pay_link = request.build_absolute_uri(reverse('pay_cumulative_commission', args=[hospital.id]))
+    
+    from django.core.mail import send_mail
+    from django.conf import settings
+    send_mail(
+        subject="Action Required: Outstanding Platform Commissions",
+        message=f"Dear Partner,\n\nYou have outstanding platform commissions totaling ${total_amount:.2f}. Please pay this using the link below:\n\n{pay_link}\n\nBest regards,\nThe MedTour Team",
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
+        recipient_list=[hospital.user.email],
+        fail_silently=True
+    )
+    
+    from django.contrib import messages
+    messages.success(request, f"Cumulative commission link sent to {hospital.name}.")
+    return redirect('admin_commission_settlements')
+
+@login_required
+def pay_cumulative_commission(request, hospital_id):
+    from hospitals.models import Hospital
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    
+    # Allow the hospital user or an admin to access this
+    if request.user.role == 'HOSPITAL' and request.user.hospital != hospital:
+        raise PermissionDenied("You can only pay for your own hospital.")
+        
+    outstanding_inquiries = hospital.inquiry_set.filter(commission_paid=False, treatment_completed=True)
+    total_amount = sum([inquiry.commission_amount for inquiry in outstanding_inquiries])
+    
+    if total_amount <= 0:
+        from django.contrib import messages
+        messages.info(request, "There are no outstanding commissions to pay.")
+        return redirect('hospital_dashboard' if request.user.role == 'HOSPITAL' else 'admin_commission_settlements')
+        
+    from django.conf import settings
+    context = {
+        'hospital': hospital,
+        'inquiries': outstanding_inquiries,
+        'total_amount': total_amount,
+        'paypal_client_id': settings.PAYPAL_CLIENT_ID
+    }
+    
+    return render(request, "pay_cumulative_commission.html", context)
+
+@login_required
+def create_cumulative_order(request, hospital_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+        
+    from hospitals.models import Hospital
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    
+    outstanding_inquiries = hospital.inquiry_set.filter(commission_paid=False, treatment_completed=True)
+    total_amount = sum([inquiry.commission_amount for inquiry in outstanding_inquiries])
+    
+    if total_amount <= 0:
+        return JsonResponse({'error': 'No amount due'}, status=400)
+        
+    from payments.paypal import create_paypal_order
+    order = create_paypal_order(
+        amount=total_amount,
+        currency="USD",
+        return_url=request.build_absolute_uri(reverse('cumulative_return', args=[hospital.id])),
+        cancel_url=request.build_absolute_uri(reverse('cumulative_return', args=[hospital.id])) + "?cancel=true",
+        description=f"Cumulative Commission Payment for {hospital.name}"
+    )
+    
+    if order and 'id' in order:
+        return JsonResponse({'orderID': order['id']})
+    else:
+        return JsonResponse({'error': 'Failed to create PayPal order'}, status=500)
+
+@login_required
+def capture_cumulative_order(request, hospital_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('orderID')
+    except:
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+        
+    from payments.paypal import capture_paypal_order
+    capture_res = capture_paypal_order(order_id)
+    
+    if capture_res and capture_res.get('status') == 'COMPLETED':
+        from hospitals.models import Hospital
+        hospital = get_object_or_404(Hospital, id=hospital_id)
+        
+        outstanding_inquiries = hospital.inquiry_set.filter(commission_paid=False, treatment_completed=True)
+        total_amount = sum([inquiry.commission_amount for inquiry in outstanding_inquiries])
+        
+        from payments.models import Payment
+        Payment.objects.create(
+            amount=total_amount,
+            status="Completed",
+            payment_type="COMMISSION",
+            paypal_order_id=order_id,
+            currency="USD"
+        )
+        
+        from hospitals.models import Transaction
+        Transaction.objects.create(
+            hospital=hospital,
+            amount=total_amount,
+            transaction_type='COMMISSION_FEE',
+            description=f"Cumulative Commission payment (PayPal: {order_id})",
+            paypal_order_id=order_id
+        )
+        
+        for inquiry in outstanding_inquiries:
+            inquiry.commission_paid = True
+            inquiry.save()
+            from .utils import log_inquiry_event
+            log_inquiry_event(inquiry, request.user, "Commission Paid (Bulk)", "Commission was settled in a bulk payment.")
+            
+        from django.contrib import messages
+        messages.success(request, f"Cumulative commission of ${total_amount:.2f} paid successfully!")
+        
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'error': 'Capture failed'}, status=400)
+
+@login_required
+def cumulative_return(request, hospital_id):
+    if request.GET.get('cancel'):
+        from django.contrib import messages
+        messages.warning(request, "Commission payment was cancelled.")
+        return redirect('pay_cumulative_commission', hospital_id=hospital_id)
+    return redirect('hospital_dashboard' if request.user.role == 'HOSPITAL' else 'admin_commission_settlements')

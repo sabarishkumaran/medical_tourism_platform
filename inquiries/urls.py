@@ -30,4 +30,11 @@ urlpatterns = [
     path('inquiry/<uuid:inquiry_id>/payment/return/', views.payment_return, name='payment_return'),
     path('pay-commission/<uuid:inquiry_id>/return/', views.commission_return, name='commission_return'),
     path('record-offline-payment/<uuid:inquiry_id>/', views.record_offline_payment, name='record_offline_payment'),
+    
+    # Cumulative Commission Routes
+    path('send-cumulative-link/<int:hospital_id>/', views.send_cumulative_commission_link, name="send_cumulative_commission_link"),
+    path('pay-cumulative/<int:hospital_id>/', views.pay_cumulative_commission, name="pay_cumulative_commission"),
+    path('pay-cumulative/<int:hospital_id>/create-order/', views.create_cumulative_order, name="create_cumulative_order"),
+    path('pay-cumulative/<int:hospital_id>/capture-order/', views.capture_cumulative_order, name="capture_cumulative_order"),
+    path('pay-cumulative/<int:hospital_id>/return/', views.cumulative_return, name="cumulative_return"),
 ]

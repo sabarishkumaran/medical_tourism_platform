@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="max-w-xl mx-auto">
+        <!-- Back Link -->
+        <a href="{% if request.user.role == 'HOSPITAL' %}{% url 'hospital_dashboard' %}{% else %}{% url 'admin_commission_settlements' %}{% endif %}" class="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 mb-8 transition-colors group">
+            <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <span class="font-bold text-sm uppercase tracking-wider">Back</span>
+        </a>
+
+        <!-- Main Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-amber-50 dark:bg-amber-900/20 rounded-full blur-3xl opacity-50"></div>
+            
+            <div class="relative z-10 text-center mb-10">
+                <div class="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <span class="text-3xl font-black italic tracking-tighter text-indigo-700 dark:text-indigo-400">P<span class="text-sky-500">P</span></span>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-slate-100 mb-2" style="font-family: 'Outfit', sans-serif;">
+                    Cumulative Settlement
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 font-medium">
+                    Paying total outstanding commission for {{ hospital.name }}
+                </p>
+            </div>
+
+            <!-- Ledger Card -->
+            <div class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-6 mb-8 border border-slate-100 dark:border-slate-800 space-y-4">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500 dark:text-slate-400">Hospital</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">{{ hospital.name }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500 dark:text-slate-400">Inquiries to Settle</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">{{ inquiries.count }} completed treatments</span>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-800 pt-4 flex justify-between items-end">
+                    <div>
+                        <span class="text-xs text-slate-400 uppercase tracking-wider block">Total Amount Due</span>
+                    </div>
+                    <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400">${{ total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- PayPal Buttons Container -->
+                <form id="csrf-form" class="hidden">{% csrf_token %}</form>
+                <div id="paypal-button-container" class="w-full relative z-20"></div>
+                <a id="paypal-direct-link" href="#" target="_blank" class="hidden text-xs text-sky-600 dark:text-sky-400 hover:underline font-bold mt-3 text-center transition-colors block w-full">Having trouble with popup? Click here to pay directly on PayPal.com &rarr;</a>
+
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <a href="{% if request.user.role == 'HOSPITAL' %}{% url 'hospital_dashboard' %}{% else %}{% url 'admin_commission_settlements' %}{% endif %}" class="block w-full py-4 px-8 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-center font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if(document.getElementById('paypal-button-container')) {
+            paypal.Buttons({
+                style: {
+                    layout: 'vertical',
+                    color:  'gold',
+                    shape:  'rect',
+                    label:  'pay'
+                },
+                createOrder: function(data, actions) {
+                    return fetch("{% url 'create_cumulative_order' hospital.id %}", {
+                        method: "post",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then((response) => response.json())
+                    .then((order) => {
+                        if (order.error) {
+                            alert(order.error);
+                            return;
+                        }
+                        if (order.approve_url) {
+                            const directLink = document.getElementById('paypal-direct-link');
+                            if (directLink) {
+                                directLink.href = order.approve_url;
+                                directLink.classList.remove('hidden');
+                            }
+                        }
+                        return order.orderID;
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return fetch("{% url 'capture_cumulative_order' hospital.id %}", {
+                        method: "post",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            orderID: data.orderID
+                        })
+                    })
+                    .then((response) => response.json())
+                    .then((details) => {
+                        if (details.error) {
+                            alert('Transaction failed: ' + details.error);
+                        } else {
+                            window.location.href = "{% url 'cumulative_return' hospital.id %}";
+                        }
+                    });
+                }
+            }).render('#paypal-button-container');
+        }
+    });
+</script>
+{% endblock %}

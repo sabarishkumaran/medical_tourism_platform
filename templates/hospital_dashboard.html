@@ -56,6 +56,25 @@
 
     <!-- Main Dashboard Body -->
     <main class="flex-1 space-y-8">
+        
+        {% if outstanding_commission > 0 %}
+        <!-- Outstanding Commission Alert -->
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);" class="rounded-3xl p-6 shadow-lg text-white flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in-up">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-black text-lg text-white">Action Required: Pending Commission</h3>
+                    <p class="text-white/80 text-sm">You have an outstanding platform commission of <strong>${{ outstanding_commission|floatformat:2 }}</strong> from completed treatments.</p>
+                </div>
+            </div>
+            <a href="{% url 'pay_cumulative_commission' user.hospital.id %}" style="color: #ea580c;" class="px-6 py-3 bg-white hover:bg-orange-50 font-black rounded-xl shadow-md transition-all whitespace-nowrap">
+                Pay Now
+            </a>
+        </div>
+        {% endif %}
+
         <!-- Header & Metrics -->
         <div>
             <div class="flex justify-between items-end mb-6">

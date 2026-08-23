@@ -233,6 +233,32 @@ def admin_revenue_subscriptions(request):
         'total': total,
     })
 
+@login_required
+def admin_commission_settlements(request):
+    if not (request.user.role in ['ADMIN', 'COORDINATOR'] or request.user.is_superuser):
+        raise PermissionDenied("Administrative access required.")
+        
+    from django.db.models import Sum, Q
+    from hospitals.models import Hospital
+    
+    # Annotate hospitals with their settled and outstanding commission
+    hospitals = Hospital.objects.annotate(
+        settled_commission=Sum('inquiry__commission_amount', filter=Q(inquiry__commission_paid=True, inquiry__treatment_completed=True)),
+        outstanding_commission=Sum('inquiry__commission_amount', filter=Q(inquiry__commission_paid=False, inquiry__treatment_completed=True))
+    )
+    
+    # Filter to only hospitals that have some commission (settled or outstanding)
+    hospitals = [h for h in hospitals if (h.settled_commission or 0) > 0 or (h.outstanding_commission or 0) > 0]
+    
+    # Calculate totals for the dashboard summary
+    total_outstanding = sum([h.outstanding_commission or 0 for h in hospitals])
+    total_settled = sum([h.settled_commission or 0 for h in hospitals])
+    
+    return render(request, 'admin_commission_settlements.html', {
+        'hospitals': hospitals,
+        'total_outstanding': total_outstanding,
+        'total_settled': total_settled
+    })
 
 @login_required
 def admin_revenue_leads(request):

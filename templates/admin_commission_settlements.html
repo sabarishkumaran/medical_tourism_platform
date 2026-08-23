@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-10">
+    <div class="max-w-6xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-sky-600 hover:border-sky-200 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </a>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Admin · Revenue</p>
+                <h1 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100" style="font-family:'Outfit',sans-serif;">Commission Settlements</h1>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div style="background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%);" class="rounded-3xl p-8 text-white shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-sky-200 text-sm font-bold uppercase tracking-widest mb-1">Total Settled Commission</p>
+                    <p class="text-4xl font-black" style="font-family:'Outfit',sans-serif;">${{ total_settled|floatformat:2 }}</p>
+                    <p class="text-sky-200 text-xs mt-2">Paid successfully by hospitals</p>
+                </div>
+                <div class="w-16 h-16 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);" class="rounded-3xl p-8 text-white shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-orange-200 text-sm font-bold uppercase tracking-widest mb-1">Total Outstanding Commission</p>
+                    <p class="text-4xl font-black" style="font-family:'Outfit',sans-serif;">${{ total_outstanding|floatformat:2 }}</p>
+                    <p class="text-orange-200 text-xs mt-2">Pending collection from completed treatments</p>
+                </div>
+                <div class="w-16 h-16 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settlements Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-50 flex items-center justify-between">
+                <h2 class="font-bold text-slate-800 dark:text-slate-200">Hospital Settlement Overview</h2>
+                <span class="text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 px-3 py-1 rounded-full">{{ hospitals|length }} Hospitals</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            <th class="p-4 pl-6 font-bold">Hospital</th>
+                            <th class="p-4 font-bold">Settled ($)</th>
+                            <th class="p-4 font-bold">Outstanding ($)</th>
+                            <th class="p-4 pr-6 font-bold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                        {% for h in hospitals %}
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-950/50 transition-colors">
+                            <td class="p-4 pl-6">
+                                <div class="font-bold text-slate-800 dark:text-slate-200">{{ h.name }}</div>
+                                <div class="text-[11px] text-slate-400">{{ h.city|default:"Location not set" }}</div>
+                            </td>
+                            <td class="p-4">
+                                <span class="font-bold text-emerald-600">${{ h.settled_commission|default:0|floatformat:2 }}</span>
+                            </td>
+                            <td class="p-4">
+                                {% if h.outstanding_commission > 0 %}
+                                    <span class="font-bold text-amber-600">${{ h.outstanding_commission|floatformat:2 }}</span>
+                                {% else %}
+                                    <span class="font-bold text-slate-400">$0.00</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 pr-6 text-right">
+                                {% if h.outstanding_commission > 0 %}
+                                <form method="POST" action="{% url 'send_cumulative_commission_link' h.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition-all whitespace-nowrap">
+                                        Send Cumulative Link
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold text-xs rounded-xl whitespace-nowrap">
+                                    All Settled
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-slate-400 italic">No commission data found for hospitals.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -486,6 +486,9 @@ def hospital_dashboard(request):
     from django.utils import timezone
     current_date = timezone.now().date()
 
+    outstanding_inquiries = hospital_inquiries.filter(commission_paid=False, treatment_completed=True)
+    outstanding_commission = sum([inq.commission_amount for inq in outstanding_inquiries])
+
     context = {
         "total_inquiries": total_inquiries,
         "pending_approvals": pending_approvals,
@@ -496,6 +499,7 @@ def hospital_dashboard(request):
         "doctors": doctors,
         "packages": packages,
         "current_date": current_date,
+        "outstanding_commission": outstanding_commission,
     }
 
     return render(request, "hospital_dashboard.html", context)
