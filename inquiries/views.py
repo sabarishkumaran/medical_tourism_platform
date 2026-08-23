@@ -316,10 +316,9 @@ def contact_messages_hub(request):
                 msg.is_read = True
                 msg.save()
                 
-                html_message = render_to_string('contact_reply_email_html.html', {
-                    'first_name': msg.first_name,
-                    'original_message': msg.message,
-                    'reply_message': reply_text,
+                html_message = render_to_string('generic_email_html.html', {
+                    'title': f"Response to Your Inquiry",
+                    'message': f"Dear {msg.first_name},\n\nThank you for reaching out to us.\n\n<b>Your message:</b>\n\"{msg.message}\"\n\n<b>Our Response:</b>\n{reply_text}",
                 })
                 
                 send_mail(
@@ -798,22 +797,37 @@ def mark_treatment_completed(request, inquiry_id):
     
     # Email to Patient
     patient_review_url = request.build_absolute_uri(reverse('submit_review', args=[inquiry.uuid]))
+    from django.template.loader import render_to_string
+    patient_html = render_to_string('generic_email_html.html', {
+        'title': f"Please rate your experience with {inquiry.hospital.name}",
+        'message': f"Dear {inquiry.patient.get_full_name() or inquiry.patient.username},\n\nWe hope your treatment was successful. Please click the button below to submit a review of the hospital.",
+        'cta_link': patient_review_url,
+        'cta_text': "Submit Review"
+    })
     send_mail(
         subject="Please rate your experience with " + inquiry.hospital.name,
         message=f"Dear {inquiry.patient.get_full_name() or inquiry.patient.username},\n\nWe hope your treatment was successful. Please click the link below to submit a review of the hospital:\n\n{patient_review_url}\n\nBest regards,\nThe MedTour Team",
         from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
         recipient_list=[inquiry.patient.email],
-        fail_silently=True
+        fail_silently=True,
+        html_message=patient_html
     )
     
     # Email to Hospital
     hospital_review_url = request.build_absolute_uri(reverse('submit_patient_review', args=[inquiry.uuid]))
+    hospital_html = render_to_string('generic_email_html.html', {
+        'title': f"Please rate your patient {inquiry.patient.get_full_name() or inquiry.patient.username}",
+        'message': f"Dear Partner,\n\nPlease rate and review your experience with the patient {inquiry.patient.get_full_name() or inquiry.patient.username} using this link.",
+        'cta_link': hospital_review_url,
+        'cta_text': "Rate Patient"
+    })
     send_mail(
         subject="Please rate your patient " + (inquiry.patient.get_full_name() or inquiry.patient.username),
         message=f"Dear Partner,\n\nPlease rate and review your experience with the patient {inquiry.patient.get_full_name() or inquiry.patient.username} using this link:\n\n{hospital_review_url}\n\nBest regards,\nThe MedTour Team",
         from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
         recipient_list=[inquiry.hospital.user.email],
-        fail_silently=True
+        fail_silently=True,
+        html_message=hospital_html
     )
     
     from django.contrib import messages
@@ -933,13 +947,21 @@ def send_commission_link(request, inquiry_id):
         # Send Email to Hospital
         from django.core.mail import send_mail
         from django.conf import settings
+        from django.template.loader import render_to_string
         pay_commission_url = request.build_absolute_uri(reverse('pay_commission', args=[inquiry.uuid]))
+        commission_html = render_to_string('generic_email_html.html', {
+            'title': f"Commission Payment Request for Case #{inquiry.id}",
+            'message': f"Dear Partner,\n\nTreatment is completed for patient {inquiry.patient.get_full_name() or inquiry.patient.username}. Please pay the platform commission of ${inquiry.commission_amount:.2f} using the link below.",
+            'cta_link': pay_commission_url,
+            'cta_text': "Pay Commission"
+        })
         send_mail(
             subject=f"Commission Payment Request for Case #{inquiry.id}",
             message=f"Dear Partner,\n\nTreatment is completed for patient {inquiry.patient.get_full_name() or inquiry.patient.username}. Please pay the platform commission of ${inquiry.commission_amount:.2f} using the link below:\n\n{pay_commission_url}\n\nBest regards,\nThe MedTour Team",
             from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
             recipient_list=[inquiry.hospital.user.email],
-            fail_silently=True
+            fail_silently=True,
+            html_message=commission_html
         )
         
         from django.contrib import messages
@@ -1272,12 +1294,20 @@ def send_cumulative_commission_link(request, hospital_id):
     
     from django.core.mail import send_mail
     from django.conf import settings
+    from django.template.loader import render_to_string
+    comm_html = render_to_string('generic_email_html.html', {
+        'title': "Action Required: Outstanding Platform Commissions",
+        'message': f"Dear Partner,\n\nYou have outstanding platform commissions totaling <b>${total_amount:.2f}</b>.",
+        'cta_link': pay_link,
+        'cta_text': "Pay Commission"
+    })
     send_mail(
         subject="Action Required: Outstanding Platform Commissions",
         message=f"Dear Partner,\n\nYou have outstanding platform commissions totaling ${total_amount:.2f}. Please pay this using the link below:\n\n{pay_link}\n\nBest regards,\nThe MedTour Team",
         from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
         recipient_list=[hospital.user.email],
-        fail_silently=True
+        fail_silently=True,
+        html_message=comm_html
     )
     
     from django.contrib import messages

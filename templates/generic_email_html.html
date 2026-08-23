@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f8fafc; padding: 40px 0; }
+        .content { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .header { background-color: #0ea5e9; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .body { padding: 40px 40px 30px; color: #334155; text-align: left; }
+        .body p { font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; color: #475569; white-space: pre-line; }
+        .body h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 24px 0; text-align: center; }
+        .cta-container { text-align: center; margin: 35px 0 15px; }
+        .cta-button { display: inline-block; background-color: #0ea5e9; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; padding: 14px 28px; border-radius: 8px; }
+        .footer { background-color: #f1f5f9; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer p { font-size: 13px; color: #64748b; margin: 0 0 10px 0; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="content">
+            <div class="header">
+                <h1>MedTour</h1>
+            </div>
+            
+            <div class="body">
+                {% if title %}
+                <h2>{{ title }}</h2>
+                {% endif %}
+                
+                <p>{{ message|safe }}</p>
+                
+                {% if cta_link %}
+                <div class="cta-container">
+                    <a href="{{ cta_link }}" class="cta-button">{{ cta_text|default:"Click Here" }}</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="footer">
+                <p>This is an automated notification from MedTour. Please do not reply to this email.</p>
+                <p>&copy; {% now "Y" %} Medical Tourism Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
