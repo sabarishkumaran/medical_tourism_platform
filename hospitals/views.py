@@ -696,6 +696,8 @@ def manage_inquiries(request):
         inquiries_all = inquiries_all.filter(status='NEW')
     elif status_filter == 'quotes':
         inquiries_all = inquiries_all.filter(status='QUOTE_SENT')
+    elif status_filter == 'revenue':
+        inquiries_all = inquiries_all.filter(status__in=['CONFIRMED', 'PAYMENT_LINK_SENT', 'COMPLETED'])
         
     paginator = Paginator(inquiries_all, 15)
     page_number = request.GET.get('page')
@@ -793,3 +795,34 @@ def hospital_list(request):
         return render(request, "partials/hospital_grid.html", context)
         
     return render(request, "hospital_list.html", context)
+
+@login_required
+def hospital_ledger(request):
+    if request.user.role != 'HOSPITAL' or not hasattr(request.user, 'hospital'):
+        raise PermissionDenied("Hospital access required.")
+        
+    hospital = request.user.hospital
+    
+    completed_inquiries = hospital.inquiry_set.filter(treatment_completed=True).order_by('-created_at')
+    
+    total_earnings = 0
+    for inquiry in completed_inquiries:
+        quote = inquiry.quote_set.order_by('-created_at').first()
+        if quote:
+            inquiry.patient_payment = float(quote.price)
+        elif inquiry.package:
+            inquiry.patient_payment = float(inquiry.package.price)
+        else:
+            inquiry.patient_payment = float(inquiry.budget or 0)
+        total_earnings += inquiry.patient_payment
+    
+    settled_commission = sum([inquiry.commission_amount for inquiry in completed_inquiries if inquiry.commission_paid])
+    outstanding_commission = sum([inquiry.commission_amount for inquiry in completed_inquiries if not inquiry.commission_paid and inquiry.commission_amount])
+    
+    return render(request, 'hospital_ledger.html', {
+        'hospital': hospital,
+        'inquiries': completed_inquiries,
+        'settled_commission': settled_commission,
+        'outstanding_commission': outstanding_commission,
+        'total_earnings': total_earnings,
+    })

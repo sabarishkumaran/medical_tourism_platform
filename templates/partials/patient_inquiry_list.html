@@ -27,6 +27,11 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                             Quote Ready
                         </span>
+                    {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            Payment Link Received
+                        </span>
                     {% elif inquiry.status == 'confirmed' or inquiry.status == 'CONFIRMED' %}
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

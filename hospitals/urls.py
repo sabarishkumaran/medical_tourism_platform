@@ -35,4 +35,5 @@ urlpatterns = [
     path('list/', views.hospital_list, name="hospital_list"),
 
     path('notify-admin-aged/', views.notify_admin_aged_approval, name='notify_admin_aged_approval'),
+    path('ledger/', views.hospital_ledger, name='hospital_ledger'),
 ]

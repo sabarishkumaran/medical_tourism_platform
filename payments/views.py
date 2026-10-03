@@ -92,11 +92,122 @@ def subscription_return(request):
                     currency="USD"
                 )
                 
+                # Send email confirmation
+                from django.core.mail import send_mail
+                from django.template.loader import render_to_string
+                
+                if plan_type == 'ELITE':
+                    features = "<ul><li>Homepage Priority Ranking</li><li>Unlimited Treatment Packages</li><li>5 Commission-Free Leads/mo</li><li>Automatic review dispute resolution</li></ul>"
+                elif plan_type == 'PREMIUM':
+                    features = "<ul><li>Expanded Profile Visibility</li><li>Up to 25 Treatment Package Slots</li><li>Dedicated Coordinator</li></ul>"
+                else:
+                    features = "<ul><li>Basic Platform Access</li></ul>"
+                    
+                html_message = render_to_string('generic_email_html.html', {
+                    'title': "Subscription Upgraded Successfully",
+                    'message': f"<p>Thank you for upgrading to the <strong>{plan_type}</strong> plan. Your hospital visibility has been boosted!</p><p>Here is what is included in your new subscription:</p>{features}",
+                })
+                
+                send_mail(
+                    subject="Subscription Upgraded Successfully",
+                    message=f"Thank you for upgrading to the {plan_type} plan. Your hospital visibility has been boosted!",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[hospital.user.email],
+                    fail_silently=True,
+                    html_message=html_message
+                )
+                
             from django.contrib import messages
             messages.success(request, f"Successfully upgraded to {plan_type} plan!")
             return redirect('hospital_billing')
             
     return redirect('hospital_billing')
+
+@login_required
+def process_simulated_subscription(request):
+    """Simulates an integrated credit card payment for subscriptions."""
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid request'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        plan_type = data.get('plan_type')
+        price = data.get('price')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        
+    hospital = request.user.hospital
+    
+    # Simulate processing delay
+    import time
+    time.sleep(1.5)
+    
+    # Generate a fake subscription ID
+    import uuid
+    sub_id = f"sim_sub_{uuid.uuid4().hex[:12]}"
+    
+    # Create the subscription
+    PayPalSubscription.objects.create(
+        hospital=hospital,
+        paypal_subscription_id=sub_id,
+        plan_type=plan_type,
+        status='ACTIVE',
+        current_period_end=date.today() + relativedelta(months=+1)
+    )
+    
+    # Update hospital
+    hospital.paypal_subscription_id = sub_id
+    hospital.subscription_plan = plan_type
+    hospital.subscription_end_date = date.today() + relativedelta(months=+1)
+    hospital.save()
+    
+    # Record first payment as a transaction
+    from hospitals.models import SubscriptionPlanConfig
+    plan_config = SubscriptionPlanConfig.objects.filter(plan_type=plan_type).first()
+    if plan_config:
+        Transaction.objects.create(
+            hospital=hospital,
+            amount=-plan_config.price,
+            transaction_type='SUBSCRIPTION',
+            description=f"Integrated Card Subscription: {plan_type}",
+            paypal_order_id=sub_id
+        )
+        
+        # Track in Payment system
+        Payment.objects.create(
+            amount=plan_config.price,
+            status='Completed',
+            payment_type='SUBSCRIPTION',
+            paypal_order_id=sub_id,
+            currency="USD"
+        )
+    
+    # Send email confirmation
+    from django.core.mail import send_mail
+    from django.template.loader import render_to_string
+    
+    if plan_type == 'ELITE':
+        features = "<ul><li>Homepage Priority Ranking</li><li>Unlimited Treatment Packages</li><li>5 Commission-Free Leads/mo</li><li>Automatic review dispute resolution</li></ul>"
+    elif plan_type == 'PREMIUM':
+        features = "<ul><li>Expanded Profile Visibility</li><li>Up to 25 Treatment Package Slots</li><li>Dedicated Coordinator</li></ul>"
+    else:
+        features = "<ul><li>Basic Platform Access</li></ul>"
+        
+    html_message = render_to_string('generic_email_html.html', {
+        'title': "Subscription Upgraded Successfully",
+        'message': f"<p>Thank you for upgrading to the <strong>{plan_type}</strong> plan. Your hospital visibility has been boosted!</p><p>Here is what is included in your new subscription:</p>{features}",
+    })
+    
+    send_mail(
+        subject="Subscription Upgraded Successfully",
+        message=f"Thank you for upgrading to the {plan_type} plan. Your hospital visibility has been boosted!",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[hospital.user.email],
+        fail_silently=True,
+        html_message=html_message
+    )
+    
+    return JsonResponse({'success': True, 'subscription_id': sub_id})
 
 @login_required
 def subscription_cancel_url(request):

@@ -86,7 +86,7 @@
                                     Respond & Send Quote &rarr;
                                 </a>
                             {% elif inquiry.status == 'PAYMENT_LINK_SENT' %}
-                                <span class="px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 font-bold text-xs border border-indigo-200 mt-1">Payment Link Sent</span>
+                                <span class="px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 font-bold text-xs border border-indigo-200 mt-1">{% if request.user.role == 'PATIENT' %}Payment Link Received{% else %}Payment Link Sent{% endif %}</span>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -120,12 +120,95 @@
                               hx-swap="outerHTML"
                               x-data="{ 
                                  paymentChoice: 'full',
+                                 showPaymentModal: false,
+                                 isProcessing: false,
                                  sittingPrice: {% if quote %}{{ quote.price }}{% elif inquiry.package %}{{ inquiry.package.price }}{% else %}{{ inquiry.budget|default:0 }}{% endif %},
                                  visa: false, travel: false, concierge: false,
                                  get total() { 
                                     let base = this.paymentChoice === 'full' ? parseFloat(this.sittingPrice) : (this.paymentChoice === 'partial' ? 100.00 : 0.00);
                                     if (this.paymentChoice === 'unpaid') return 0.00;
                                     return base + (this.visa ? 99 : 0) + (this.travel ? 49 : 0) + (this.concierge ? 199 : 0);
+                                 },
+                                 processIntegratedPayment() {
+                                     this.isProcessing = true;
+                                     const payload = {
+                                         orderID: 'sim_' + Date.now(),
+                                         payment_choice: this.paymentChoice,
+                                         visa: this.visa,
+                                         travel: this.travel,
+                                         concierge: this.concierge
+                                     };
+                                     
+                                     fetch('{% url "capture_payment_order" inquiry.uuid %}', {
+                                         method: 'post',
+                                         headers: {
+                                             'Content-Type': 'application/json',
+                                             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                         },
+                                         body: JSON.stringify(payload)
+                                     })
+                                     .then((response) => response.json())
+                                     .then((orderData) => {
+                                         if(orderData.success) {
+                                             window.location.reload();
+                                         } else {
+                                             alert('Payment capture failed: ' + (orderData.error || 'Unknown error'));
+                                             this.isProcessing = false;
+                                         }
+                                     }).catch(() => {
+                                         alert('Network error occurred.');
+                                         this.isProcessing = false;
+                                     });
+                                 },
+                                 renderPayPal(el) {
+                                     if(window.paypal) {
+                                         window.paypal.Buttons({
+                                             
+                                             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+                                             createOrder: (data, actions) => {
+                                                 const payload = {
+                                                     payment_choice: this.paymentChoice,
+                                                     visa: this.visa,
+                                                     travel: this.travel,
+                                                     concierge: this.concierge
+                                                 };
+                                                 return fetch('{% url "create_payment_order" inquiry.uuid %}', {
+                                                     method: 'post',
+                                                     headers: {
+                                                         'Content-Type': 'application/json',
+                                                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                                     },
+                                                     body: JSON.stringify(payload)
+                                                 }).then(r => r.json()).then(order => {
+                                                     if (order.error) { alert(order.error); return; }
+                                                     return order.orderID;
+                                                 });
+                                             },
+                                             onApprove: (data, actions) => {
+                    const overlay = document.getElementById('global-payment-overlay');
+                    if (overlay) overlay.classList.remove('hidden');
+                    if (overlay) overlay.classList.add('flex');
+                                                 const payload = {
+                                                     orderID: data.orderID,
+                                                     payment_choice: this.paymentChoice,
+                                                     visa: this.visa,
+                                                     travel: this.travel,
+                                                     concierge: this.concierge
+                                                 };
+                                                 return fetch('{% url "capture_payment_order" inquiry.uuid %}', {
+                                                     method: 'post',
+                                                     headers: {
+                                                         'Content-Type': 'application/json',
+                                                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                                     },
+                                                     body: JSON.stringify(payload)
+                                                 }).then(r => r.json()).then(orderData => {
+                                                     if(orderData.success) { window.location.reload(); } 
+                                                     else { alert('Payment capture failed.'); }
+                                                 });
+                                             }
+                                         }).render(el);
+                                     }
                                  }
                               }"
                               class="bg-white/10 dark:bg-slate-900/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 flex flex-col w-full lg:w-96 shrink-0 relative z-10">
@@ -210,9 +293,44 @@
                                     <span class="relative z-10">Proceed Unpaid</span>
                                 </button>
                                 
-                                <!-- PayPal Buttons Container -->
-                                <div id="paypal-button-container" x-show="paymentChoice !== 'unpaid'" class="w-full z-20 relative"></div>
-                                <a id="paypal-direct-link" href="#" target="_blank" x-show="paymentChoice !== 'unpaid'" class="hidden text-xs text-sky-300 hover:text-white font-bold underline mt-3 text-center transition-colors block w-full">Having trouble with popup? Click here to pay directly on PayPal.com &rarr;</a>
+                                <!-- Integrated Payment Button -->
+                                <button type="button" x-show="paymentChoice !== 'unpaid'" @click="showPaymentModal = true"
+                                    class="w-full relative group bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 px-10 rounded-2xl overflow-hidden shadow-lg shadow-indigo-600/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 whitespace-nowrap text-lg">
+                                    <span class="relative z-10">Proceed to Payment</span>
+                                    <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </button>
+                                
+                                <!-- Integrated Payment Modal -->
+                                <div x-show="showPaymentModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto" x-cloak>
+                                    <div @click.away="if(!isProcessing) showPaymentModal = false" class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh] border border-slate-100 dark:border-slate-800 text-left" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                                        
+                                        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                                            <div>
+                                                <h3 class="font-bold text-slate-900 dark:text-slate-100 text-lg flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                                    Secure Checkout
+                                                </h3>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please review and enter your payment details</p>
+                                            </div>
+                                            <button type="button" @click="if(!isProcessing) showPaymentModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">&times;</button>
+                                        </div>
+                                        
+                                        <div class="p-6">
+                                            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 mb-6 border border-indigo-100 dark:border-indigo-800/30 flex justify-between items-center">
+                                                <span class="text-indigo-900 dark:text-indigo-200 font-bold">Total Amount Due:</span>
+                                                <span class="text-2xl font-black text-indigo-700 dark:text-indigo-400">$<span x-text="total.toFixed(2)"></span></span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mb-4">Please complete your payment securely via PayPal or Credit/Debit Card below.</p>
+
+                                            <div class="mt-2 w-full" x-init="renderPayPal($el)"></div>
+                                            
+                                            <div class="text-center mt-4 text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5">
+                                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                                Secured by PayPal
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -854,87 +972,17 @@
 {% endif %}
 {% endblock %}
 
+
+    <!-- Global Payment Processing Overlay -->
+    <div id="global-payment-overlay" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center">
+        <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <h2 class="text-2xl font-black text-white tracking-wide">Verifying Payment...</h2>
+        <p class="text-slate-400 mt-2 font-medium">Please do not close or refresh this page.</p>
+    </div>
+
 {% block extra_js %}
-{% if inquiry.status == 'QUOTE_ACCEPTED' or inquiry.status == 'PAYMENT_LINK_SENT' %}
 <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if(document.getElementById('paypal-button-container')) {
-            paypal.Buttons({
-                style: {
-                    layout: 'vertical',
-                    color:  'gold',
-                    shape:  'rect',
-                    label:  'pay'
-                },
-                createOrder: function(data, actions) {
-                    // Collect current alpine state values
-                    const form = document.querySelector('form[hx-post]');
-                    const formData = new FormData(form);
-                    
-                    const payload = {
-                        payment_choice: formData.get('payment_choice') || 'full',
-                        visa: formData.get('visa') === 'on',
-                        travel: formData.get('travel') === 'on',
-                        concierge: formData.get('concierge') === 'on'
-                    };
-                    
-                    return fetch("{% url 'create_payment_order' inquiry.uuid %}", {
-                        method: "post",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then((response) => response.json())
-                    .then((order) => {
-                        if (order.error) {
-                            alert(order.error);
-                            return;
-                        }
-                        if (order.approve_url) {
-                            const directLink = document.getElementById('paypal-direct-link');
-                            if (directLink) {
-                                directLink.href = order.approve_url;
-                                directLink.classList.remove('hidden');
-                            }
-                        }
-                        return order.orderID;
-                    });
-                },
-                onApprove: function(data, actions) {
-                    const form = document.querySelector('form[hx-post]');
-                    const formData = new FormData(form);
-                    
-                    const payload = {
-                        orderID: data.orderID,
-                        payment_choice: formData.get('payment_choice') || 'full',
-                        visa: formData.get('visa') === 'on',
-                        travel: formData.get('travel') === 'on',
-                        concierge: formData.get('concierge') === 'on'
-                    };
-                    
-                    return fetch("{% url 'capture_payment_order' inquiry.uuid %}", {
-                        method: "post",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then((response) => response.json())
-                    .then((orderData) => {
-                        if(orderData.success) {
-                            window.location.reload();
-                        } else {
-                            alert("Payment capture failed: " + (orderData.error || "Unknown error"));
-                        }
-                    });
-                }
-            }).render('#paypal-button-container');
-        }
-    });
-</script>
-{% endif %}
 {% endblock %}

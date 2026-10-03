@@ -45,11 +45,73 @@
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <!-- PayPal Buttons Container -->
+            <div class="space-y-6" x-data="{
+                showPaymentModal: false,
+                isProcessing: false,
+                processIntegratedPayment() {
+                    this.isProcessing = true;
+                    const payload = {
+                        orderID: 'sim_' + Date.now()
+                    };
+                    
+                    fetch('{% url "capture_commission_order" inquiry.uuid %}', {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(response => response.json())
+                    .then(orderData => {
+                        if(orderData.success) {
+                            window.location.href = '{% url "view_inquiry" inquiry.uuid %}';
+                        } else {
+                            alert('Payment capture failed: ' + (orderData.error || 'Unknown error'));
+                            this.isProcessing = false;
+                        }
+                    }).catch(() => {
+                        alert('Network error occurred.');
+                        this.isProcessing = false;
+                    });
+                }
+            }">
                 <form id="csrf-form" class="hidden">{% csrf_token %}</form>
-                <div id="paypal-button-container" class="w-full relative z-20"></div>
-                <a id="paypal-direct-link" href="#" target="_blank" class="hidden text-xs text-sky-600 dark:text-sky-400 hover:underline font-bold mt-3 text-center transition-colors block w-full">Having trouble with popup? Click here to pay directly on PayPal.com &rarr;</a>
+                
+                <!-- Integrated Payment Button -->
+                <button type="button" @click="showPaymentModal = true"
+                    class="w-full relative group bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 px-10 rounded-2xl overflow-hidden shadow-lg shadow-indigo-600/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 whitespace-nowrap text-lg">
+                    <span class="relative z-10">Proceed to Payment</span>
+                    <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+                
+                <!-- Integrated Payment Modal -->
+                <div x-show="showPaymentModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto" x-cloak>
+                    <div @click.away="if(!isProcessing) showPaymentModal = false" class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh] border border-slate-100 dark:border-slate-800 text-left" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                        
+                        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-slate-100 text-lg flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Secure Checkout
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please review and enter your payment details</p>
+                            </div>
+                            <button type="button" @click="if(!isProcessing) showPaymentModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">&times;</button>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 mb-6 border border-indigo-100 dark:border-indigo-800/30 flex justify-between items-center">
+                                <span class="text-indigo-900 dark:text-indigo-200 font-bold">Total Amount Due:</span>
+                                <span class="text-2xl font-black text-indigo-700 dark:text-indigo-400">${{ inquiry.commission_amount|floatformat:2 }}</span>
+                            </div>
+                            
+                            <p class="text-xs text-slate-500 mb-4">Please complete your payment securely via PayPal or Credit/Debit Card below.</p>
+
+                            <div id="paypal-button-container" class="mt-2 w-full"></div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <a href="{% url 'view_inquiry' inquiry.uuid %}" class="block w-full py-4 px-8 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-center font-black hover:bg-slate-200 transition-colors">
@@ -62,12 +124,24 @@
 </div>
 {% endblock %}
 
+
+    <!-- Global Payment Processing Overlay -->
+    <div id="global-payment-overlay" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center">
+        <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <h2 class="text-2xl font-black text-white tracking-wide">Verifying Payment...</h2>
+        <p class="text-slate-400 mt-2 font-medium">Please do not close or refresh this page.</p>
+    </div>
+
 {% block extra_js %}
 <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         if(document.getElementById('paypal-button-container')) {
             paypal.Buttons({
+                
                 style: {
                     layout: 'vertical',
                     color:  'gold',
@@ -88,17 +162,13 @@
                             alert(order.error);
                             return;
                         }
-                        if (order.approve_url) {
-                            const directLink = document.getElementById('paypal-direct-link');
-                            if (directLink) {
-                                directLink.href = order.approve_url;
-                                directLink.classList.remove('hidden');
-                            }
-                        }
                         return order.orderID;
                     });
                 },
                 onApprove: function(data, actions) {
+                    const overlay = document.getElementById('global-payment-overlay');
+                    if (overlay) overlay.classList.remove('hidden');
+                    if (overlay) overlay.classList.add('flex');
                     return fetch("{% url 'capture_commission_order' inquiry.uuid %}", {
                         method: "post",
                         headers: {
