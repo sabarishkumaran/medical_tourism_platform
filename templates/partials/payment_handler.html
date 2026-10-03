@@ -1,0 +1,60 @@
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
+<script>
+    window.initPaymentIntegration = function(config) {
+        const { containerId, createUrl, captureUrl, redirectUrl, csrfToken } = config;
+
+        if (document.getElementById(containerId)) {
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    const fetchOptions = {
+                        method: "post",
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'X-CSRFToken': csrfToken 
+                        }
+                    };
+                    if (config.getPayload) {
+                        fetchOptions.body = JSON.stringify(config.getPayload());
+                    }
+                    
+                    return fetch(createUrl, fetchOptions)
+                    .then(res => res.json())
+                    .then(orderData => orderData.orderID);
+                },
+                onApprove: function(data, actions) {
+                    const overlay = document.getElementById('global-payment-overlay');
+                    if (overlay) {
+                        overlay.classList.remove('hidden');
+                        overlay.classList.add('flex');
+                    }
+                    
+                    const capturePayload = { orderID: data.orderID };
+                    if (config.getPayload) {
+                        Object.assign(capturePayload, config.getPayload());
+                    }
+                    
+                    return fetch(captureUrl, {
+                        method: "post",
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'X-CSRFToken': csrfToken 
+                        },
+                        body: JSON.stringify(capturePayload)
+                    })
+                    .then(res => res.json())
+                    .then(details => {
+                        if (details.error) {
+                            alert('Transaction failed: ' + details.error);
+                            if (overlay) {
+                                overlay.classList.add('hidden');
+                                overlay.classList.remove('flex');
+                            }
+                        } else {
+                            window.location.href = redirectUrl;
+                        }
+                    });
+                }
+            }).render('#' + containerId);
+        }
+    };
+</script>

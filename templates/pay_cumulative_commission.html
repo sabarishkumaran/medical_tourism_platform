@@ -61,76 +61,18 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
+{% include 'partials/payment_handler.html' %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if(document.getElementById('paypal-button-container')) {
-            paypal.Buttons({
-                style: {
-                    layout: 'vertical',
-                    color:  'gold',
-                    shape:  'rect',
-                    label:  'pay'
-                },
-                createOrder: function(data, actions) {
-                    return fetch("{% url 'create_cumulative_order' hospital.id %}", {
-                        method: "post",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        }
-                    })
-                    .then((response) => response.json())
-                    .then((order) => {
-                        if (order.error) {
-                            alert(order.error);
-                            return;
-                        }
-                        if (order.approve_url) {
-                            const directLink = document.getElementById('paypal-direct-link');
-                            if (directLink) {
-                                directLink.href = order.approve_url;
-                                directLink.classList.remove('hidden');
-                            }
-                        }
-                        return order.orderID;
-                    });
-                },
-                onApprove: function(data, actions) {
-                    const overlay = document.getElementById('global-payment-overlay');
-                    if (overlay) overlay.classList.remove('hidden');
-                    if (overlay) overlay.classList.add('flex');
-                    return fetch("{% url 'capture_cumulative_order' hospital.id %}", {
-                        method: "post",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify({
-                            orderID: data.orderID
-                        })
-                    })
-                    .then((response) => response.json())
-                    .then((details) => {
-                        if (details.error) {
-                            alert('Transaction failed: ' + details.error);
-                        } else {
-                            window.location.href = "{% url 'cumulative_return' hospital.id %}";
-                        }
-                    });
-                }
-            }).render('#paypal-button-container');
-        }
+document.addEventListener("DOMContentLoaded", function() {
+    window.initPaymentIntegration({
+        containerId: 'paypal-button-container',
+        createUrl: "{% url 'create_cumulative_order' hospital.id %}",
+        captureUrl: "{% url 'capture_cumulative_order' hospital.id %}",
+        redirectUrl: "{% url 'cumulative_return' hospital.id %}",
+        csrfToken: document.querySelector('[name=csrfmiddlewaretoken]').value
     });
+});
 </script>
 {% endblock %}
 
-<!-- Global Payment Processing Overlay -->
-<div id="global-payment-overlay" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center">
-    <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    <h2 class="text-2xl font-black text-white tracking-wide">Verifying Payment...</h2>
-    <p class="text-slate-400 mt-2 font-medium">Please do not close or refresh this page.</p>
-</div>
+
