@@ -625,6 +625,10 @@ def payment_return(request, inquiry_id):
     inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
     token = request.GET.get('token') or request.GET.get('orderID')
     
+    # Check if already processed by the frontend JS capture
+    if inquiry.booking_confirmed and not request.GET.get('cancel'):
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
     if token:
         from payments.paypal import capture_paypal_order
         capture_res = capture_paypal_order(token)
@@ -655,15 +659,16 @@ def payment_return(request, inquiry_id):
                 paypal_payer_id=payer_id
             )
             
-            from .utils import log_inquiry_event
+            from .utils import log_inquiry_event, send_payment_receipt
             log_inquiry_event(inquiry, request.user, "Payment Successful", f"Patient completed {payment_choice} payment of ${details['amount_to_pay']:.2f} via PayPal redirect.")
+            send_payment_receipt(inquiry, details['amount_to_pay'], payment_choice)
             
             from django.contrib import messages
             messages.success(request, "Payment completed successfully via PayPal!")
             return redirect('view_inquiry', inquiry_id=inquiry.uuid)
             
     from django.contrib import messages
-    messages.info(request, "Returned from PayPal.")
+    messages.warning(request, "Payment was cancelled or could not be completed. No charges were made.")
     return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @login_required
@@ -714,8 +719,9 @@ def capture_payment_order(request, inquiry_id):
             paypal_payer_id=payer_id
         )
         
-        from .utils import log_inquiry_event
+        from .utils import log_inquiry_event, send_payment_receipt
         log_inquiry_event(inquiry, request.user, "Payment Successful", f"Patient completed {payment_choice} payment of ${details['amount_to_pay']:.2f} successfully via PayPal.")
+        send_payment_receipt(inquiry, details['amount_to_pay'], payment_choice)
         
         return JsonResponse({'success': True})
     else:
@@ -1035,6 +1041,9 @@ def pay_commission(request, inquiry_id):
             currency="USD"
         )
         
+        from .utils import send_commission_receipt
+        send_commission_receipt(inquiry, inquiry.commission_amount)
+        
         from django.contrib import messages
         messages.success(request, "Commission paid successfully! Thank you.")
         return redirect('view_inquiry', inquiry_id=inquiry.uuid)
@@ -1082,6 +1091,10 @@ def commission_return(request, inquiry_id):
     inquiry = get_object_or_404(Inquiry, uuid=inquiry_id)
     token = request.GET.get('token') or request.GET.get('orderID')
     
+    # Check if already processed by the frontend JS capture
+    if inquiry.commission_paid and not request.GET.get('cancel'):
+        return redirect('view_inquiry', inquiry_id=inquiry.uuid)
+        
     if token and not inquiry.commission_paid:
         from payments.paypal import capture_paypal_order
         capture_res = capture_paypal_order(token)
@@ -1110,10 +1123,15 @@ def commission_return(request, inquiry_id):
                 currency="USD"
             )
             
+            from .utils import send_commission_receipt
+            send_commission_receipt(inquiry, inquiry.commission_amount)
+            
             from django.contrib import messages
             messages.success(request, "Commission paid successfully via PayPal!")
             return redirect('view_inquiry', inquiry_id=inquiry.uuid)
             
+    from django.contrib import messages
+    messages.warning(request, "Commission payment was cancelled or could not be completed.")
     return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
 @login_required
@@ -1166,6 +1184,9 @@ def capture_commission_order(request, inquiry_id):
             paypal_order_id=order_id,
             currency="USD"
         )
+        
+        from .utils import send_commission_receipt
+        send_commission_receipt(inquiry, inquiry.commission_amount)
         
         from django.contrib import messages
         messages.success(request, "Commission paid successfully! Thank you.")
@@ -1481,6 +1502,9 @@ def capture_cumulative_order(request, hospital_id):
             from .utils import log_inquiry_event
             log_inquiry_event(inquiry, request.user, "Commission Paid (Bulk)", "Commission was settled in a bulk payment.")
             
+        from .utils import send_cumulative_commission_receipt
+        send_cumulative_commission_receipt(hospital, total_amount)
+        
         from django.contrib import messages
         messages.success(request, f"Cumulative commission of ${total_amount:.2f} paid successfully!")
         
