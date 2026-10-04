@@ -1352,7 +1352,14 @@ def record_offline_payment(request, inquiry_id):
     # Check if total paid is now enough for FULL
     if float(inquiry.total_amount_paid) >= required_total:
         inquiry.payment_status = 'FULL'
-        inquiry.save()
+    elif float(inquiry.total_amount_paid) > 0 and inquiry.payment_status == 'UNPAID':
+        inquiry.payment_status = 'PARTIAL'
+        
+    inquiry.booking_confirmed = True
+    if inquiry.status in ['NEW', 'QUOTE_SENT']:
+        inquiry.status = "CONFIRMED"
+        
+    inquiry.save()
         
     from .utils import log_inquiry_event
     log_inquiry_event(inquiry, request.user, "Offline Payment Recorded", f"Hospital recorded a cash/offline payment of ${amount:.2f}.")

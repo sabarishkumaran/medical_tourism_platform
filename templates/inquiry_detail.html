@@ -691,7 +691,7 @@
                     </div>
                     
                     <!-- Commission Card (For Admin/Hospital) -->
-                    {% if inquiry.treatment_completed %}
+                    {% if inquiry.treatment_completed and request.user.role != 'PATIENT' %}
                     <div class="bg-indigo-900 text-white rounded-3xl p-8 shadow-xl mt-8">
                         <h3 class="font-bold text-xl mb-4" style="font-family: 'Outfit', sans-serif;">Platform Commission</h3>
                         
