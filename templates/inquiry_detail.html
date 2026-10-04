@@ -168,7 +168,7 @@
                                              containerId: el.id,
                                              createUrl: "{% url 'create_payment_order' inquiry.uuid %}",
                                              captureUrl: "{% url 'capture_payment_order' inquiry.uuid %}",
-                                             redirectUrl: "{% url 'payment_success' inquiry.uuid %}",
+                                             redirectUrl: "{% url 'payment_return' inquiry.uuid %}",
                                              csrfToken: document.querySelector('[name=csrfmiddlewaretoken]').value,
                                              getPayload: () => ({
                                                  payment_choice: alpineData.paymentChoice,
