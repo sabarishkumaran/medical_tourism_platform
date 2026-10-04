@@ -94,3 +94,13 @@ def send_cumulative_commission_receipt(hospital, amount):
         )
     except Exception as e:
         print(f"Error sending receipt: {e}")
+
+def send_subscription_update_email(hospital, plan_type, action):
+    from django.core.mail import send_mail
+    from django.conf import settings
+    subject = f'Your MedTour Plan has been {action}'
+    message = f'Hello {hospital.name},\n\nYour subscription plan has been {action.lower()} to {plan_type}.\n\nThank you,\nMedTour Team'
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [hospital.user.email])
+    except Exception as e:
+        pass

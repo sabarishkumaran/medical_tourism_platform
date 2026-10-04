@@ -24,29 +24,39 @@ def create_subscription(request):
         data = json.loads(request.body)
         plan_type = data.get('plan_type')
         price = data.get('price')
+        auto_renew_pref = data.get('auto_renew', True)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
         
     hospital = request.user.hospital
     
-    return_url = request.build_absolute_uri(reverse('subscription_return')) + f"?plan_type={plan_type}"
+    if float(price) <= 0:
+        hospital.subscription_plan = plan_type
+        hospital.auto_renew = auto_renew_pref
+        hospital.subscription_end_date = date.today() + relativedelta(months=+1)
+        hospital.save()
+        from inquiries.utils import send_subscription_update_email
+        send_subscription_update_email(hospital, plan_type, 'Downgraded')
+        return JsonResponse({'success': True})
+        
     cancel_url = request.build_absolute_uri(reverse('subscription_cancel_url'))
     
-    sub_res = create_paypal_subscription(plan_type, price, return_url, cancel_url)
-    
-    if sub_res and 'id' in sub_res:
-        # Create a pending local record
-        PayPalSubscription.objects.create(
-            hospital=hospital,
-            paypal_subscription_id=sub_res['id'],
-            plan_type=plan_type,
-            status='APPROVAL_PENDING'
-        )
-        
-        # Find the approval URL
-        approval_url = next((link['href'] for link in sub_res.get('links', []) if link['rel'] == 'approve'), None)
-        if approval_url:
-            return JsonResponse({'approval_url': approval_url})
+    if not auto_renew_pref:
+        from .paypal import create_paypal_order
+        return_url = request.build_absolute_uri(reverse('subscription_order_return')) + f"?plan_type={plan_type}"
+        sub_res = create_paypal_order(price, description=f"MedTour {plan_type} Plan (1 Month)", return_url=return_url, cancel_url=cancel_url)
+        if sub_res and 'id' in sub_res:
+            approval_url = next((link['href'] for link in sub_res.get('links', []) if link['rel'] == 'approve'), None)
+            if approval_url:
+                return JsonResponse({'approval_url': approval_url})
+    else:
+        return_url = request.build_absolute_uri(reverse('subscription_return')) + f"?plan_type={plan_type}&auto_renew=true"
+        sub_res = create_paypal_subscription(plan_type, price, return_url, cancel_url)
+        if sub_res and 'id' in sub_res:
+            PayPalSubscription.objects.create(hospital=hospital, paypal_subscription_id=sub_res['id'], plan_type=plan_type, status='APPROVAL_PENDING')
+            approval_url = next((link['href'] for link in sub_res.get('links', []) if link['rel'] == 'approve'), None)
+            if approval_url:
+                return JsonResponse({'approval_url': approval_url})
             
     return JsonResponse({'error': 'Failed to create subscription'}, status=500)
 
@@ -69,6 +79,19 @@ def subscription_return(request):
             hospital.paypal_subscription_id = subscription_id
             hospital.subscription_plan = plan_type
             hospital.subscription_end_date = sub.current_period_end
+            
+            auto_renew_pref = request.GET.get('auto_renew', 'true') == 'true'
+            
+            # If the user explicitly requested NO auto-renew, instantly cancel the recurring profile
+            if not auto_renew_pref:
+                from .paypal import cancel_paypal_subscription
+                cancel_paypal_subscription(subscription_id)
+                sub.status = 'CANCELLED'
+                sub.cancelled_at = date.today()
+                hospital.auto_renew = False
+            else:
+                hospital.auto_renew = True
+                
             hospital.save()
             
             # Record first payment as a transaction
@@ -301,3 +324,29 @@ def paypal_webhook(request):
     except Exception as e:
         logger.error(f"Webhook error: {str(e)}")
         return HttpResponse(status=400)
+
+
+@login_required
+def subscription_order_return(request):
+    token = request.GET.get('token')
+    plan_type = request.GET.get('plan_type')
+    hospital = request.user.hospital
+    
+    if token:
+        from .paypal import capture_paypal_order
+        result = capture_paypal_order(token)
+        if result and result.get('status') == 'COMPLETED':
+            hospital.subscription_plan = plan_type
+            hospital.subscription_end_date = date.today() + relativedelta(months=+1)
+            hospital.auto_renew = False
+            hospital.save()
+            
+            from inquiries.utils import send_subscription_update_email
+            send_subscription_update_email(hospital, plan_type, 'Upgraded')
+            from django.contrib import messages
+            messages.success(request, 'Payment successful! Your plan is activated for 1 month.')
+            return redirect('hospital_billing')
+            
+    from django.contrib import messages
+    messages.error(request, 'Payment failed or was cancelled.')
+    return redirect('hospital_billing')

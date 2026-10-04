@@ -36,7 +36,7 @@
                             </span>
                         </div>
                         
-                        {% if request.user.hospital.subscription_plan != 'BASIC' %}
+                        {% if request.user.hospital.subscription_plan != 'BASIC' and request.user.hospital.auto_renew %}
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-center">
                             <button @click="cancelModalOpen = true" class="text-xs font-bold text-red-500 hover:text-red-600 hover:underline transition-colors flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -104,7 +104,7 @@
                                 Upgrade to Premium
                             {% endif %}
                         </button>
-                        {% if request.user.hospital.subscription_plan == 'PREMIUM' %}
+                        {% if request.user.hospital.subscription_plan == 'PREMIUM' and request.user.hospital.auto_renew %}
                             <div class="mt-4 text-center">
                                 <button type="button" @click="cancelModalOpen = true" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest underline transition-colors">
                                     Downgrade to Basic
@@ -161,7 +161,7 @@
                             {% endif %}">
                             {% if request.user.hospital.subscription_plan == 'ELITE' %}Current Selection{% else %}Upgrade to Elite{% endif %}
                         </button>
-                        {% if request.user.hospital.subscription_plan == 'ELITE' %}
+                        {% if request.user.hospital.subscription_plan == 'ELITE' and request.user.hospital.auto_renew %}
                             <div class="mt-4 text-center">
                                 <button type="button" @click="cancelModalOpen = true" class="text-[11px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest underline transition-colors">
                                     Downgrade to Basic
@@ -327,7 +327,7 @@
 
                         <div class="mt-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-left">
                             <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" name="auto_renew" value="true" checked class="w-5 h-5 text-sky-600 rounded border-slate-300 dark:border-slate-600 focus:ring-sky-500 cursor-pointer">
+                                <input type="checkbox" x-model="upgradeAutoRenew" class="w-5 h-5 text-sky-600 rounded border-slate-300 dark:border-slate-600 focus:ring-sky-500 cursor-pointer">
                                 <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Auto-Renew Subscription</span>
                             </label>
                             <p class="text-[10px] text-slate-400 dark:text-slate-400 mt-1 pl-8">Your PayPal account will be charged automatically next billing cycle.</p>
@@ -335,8 +335,12 @@
                     </div>
                     
                     <div class="p-6 bg-white dark:bg-slate-900 flex flex-col gap-3">
-                        <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-center transition-all shadow-md shadow-slate-900/20 active:scale-95">
-                            Confirm Upgrade
+                        <button type="submit" :disabled="isSubmitting" class="w-full py-3 rounded-xl font-bold text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-center transition-all shadow-md shadow-slate-900/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-wait">
+                            <span x-show="!isSubmitting">Confirm Upgrade</span>
+                            <span x-show="isSubmitting" class="flex items-center gap-2" style="display: none;">
+                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Processing...
+                            </span>
                         </button>
                         <button type="button" @click="upgradeModalOpen = false" class="w-full py-3 rounded-xl font-bold text-slate-600 dark:text-slate-400 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-800 transition-colors text-center">
                             Cancel
@@ -411,7 +415,9 @@
             upgradeModalOpen: false, 
             selectedPlan: '', 
             cancelModalOpen: false, 
+            isSubmitting: false,
             autoRenew: {{ request.user.hospital.auto_renew|yesno:'true,false' }},
+            upgradeAutoRenew: true,
             remainingDays: {{ remaining_days|default:0 }},
             currentPlanPrice: {{ current_plan_price|default:0 }},
             planPrices: {
@@ -433,9 +439,11 @@
                 return total.toFixed(2);
             },
             submitUpgrade() {
+                this.isSubmitting = true;
                 const formData = {
                     plan_type: this.selectedPlan,
-                    price: this.planPrices[this.selectedPlan]
+                    price: this.upgradeAutoRenew ? this.planPrices[this.selectedPlan] : this.calculateProrated(),
+                    auto_renew: this.upgradeAutoRenew
                 };
                 fetch("{% url 'create_subscription' %}", {
                     method: "POST",
@@ -449,6 +457,8 @@
                 .then(data => {
                     if (data.approval_url) {
                         window.location.href = data.approval_url;
+                    } else if (data.success) {
+                        window.location.reload();
                     } else {
                         alert(data.error || "An error occurred.");
                     }
