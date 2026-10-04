@@ -156,6 +156,7 @@ PAYPAL_CLIENT_ID = "AbccO9cH5XB0ydGpYfDO_Rvot-s7-D8KmbbWATWnIFhrlgkbgw8upQzuD5le
 PAYPAL_SECRET = "EL90ktHyR0OYhQoy6ysj39qhf4_JhGdCIztdkVQYBEBm9KssU4OuU7k4CNpnG8dE_zt5IylX3Zq_FwBe"
 PAYPAL_MODE = "sandbox"
 PAYPAL_MERCHANT_EMAIL = "ootyalbum2023@gmail.com"
+DEFAULT_FROM_EMAIL = "ootyalbum2023@gmail.com"
 
 # Media files (User uploads)
 MEDIA_URL = '/media/'

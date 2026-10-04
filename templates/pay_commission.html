@@ -133,9 +133,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     window.initPaymentIntegration({
         containerId: 'paypal-button-container',
-        createUrl: "{% url 'create_commission_order' inquiry.id %}",
-        captureUrl: "{% url 'capture_commission_order' inquiry.id %}",
-        redirectUrl: "{% url 'commission_return' inquiry.id %}",
+        createUrl: "{% url 'create_commission_order' inquiry.uuid %}",
+        captureUrl: "{% url 'capture_commission_order' inquiry.uuid %}",
+        redirectUrl: "{% url 'commission_return' inquiry.uuid %}",
         csrfToken: document.querySelector('[name=csrfmiddlewaretoken]').value
     });
 });

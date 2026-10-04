@@ -629,7 +629,17 @@ def payment_return(request, inquiry_id):
         from payments.paypal import capture_paypal_order
         capture_res = capture_paypal_order(token)
         if capture_res and capture_res.get('status') == 'COMPLETED':
+            # Calculate proper payment details (default to partial payment for redirect flow)
+            payment_choice = request.GET.get('payment_choice', 'partial')
+            details = get_payment_details(inquiry, payment_choice, request.GET)
+            
+            inquiry.needs_visa_assistance = details['needs_visa']
+            inquiry.needs_travel_booking = details['needs_travel']
+            inquiry.needs_concierge = details['needs_concierge']
+            inquiry.service_fees_total = details['service_fees']
+            inquiry.commission_amount = details['commission_amount']
             inquiry.status = "CONFIRMED"
+            inquiry.payment_status = details['payment_status']
             inquiry.booking_confirmed = True
             inquiry.save()
             
@@ -637,13 +647,17 @@ def payment_return(request, inquiry_id):
             from payments.models import Payment
             Payment.objects.create(
                 inquiry=inquiry,
-                amount=inquiry.budget or 100.00,
+                amount=details['amount_to_pay'],
                 currency="USD",
                 status="Completed",
                 payment_type='TREATMENT',
                 paypal_order_id=token,
                 paypal_payer_id=payer_id
             )
+            
+            from .utils import log_inquiry_event
+            log_inquiry_event(inquiry, request.user, "Payment Successful", f"Patient completed {payment_choice} payment of ${details['amount_to_pay']:.2f} via PayPal redirect.")
+            
             from django.contrib import messages
             messages.success(request, "Payment completed successfully via PayPal!")
             return redirect('view_inquiry', inquiry_id=inquiry.uuid)
@@ -1011,6 +1025,16 @@ def pay_commission(request, inquiry_id):
             description=f"PayPal Commission payment for completed Inquiry #{inquiry.id}"
         )
         
+        # Track payment in system
+        from payments.models import Payment
+        Payment.objects.create(
+            inquiry=inquiry,
+            amount=inquiry.commission_amount,
+            status='Completed',
+            payment_type='COMMISSION',
+            currency="USD"
+        )
+        
         from django.contrib import messages
         messages.success(request, "Commission paid successfully! Thank you.")
         return redirect('view_inquiry', inquiry_id=inquiry.uuid)
@@ -1021,7 +1045,6 @@ def pay_commission(request, inquiry_id):
         "paypal_client_id": getattr(settings, 'PAYPAL_CLIENT_ID', '')
     })
 
-@csrf_exempt
 @login_required
 def create_commission_order(request, inquiry_id):
     if request.method != "POST":
@@ -1075,13 +1098,24 @@ def commission_return(request, inquiry_id):
                 description=f"PayPal Commission payment for Inquiry #{inquiry.id}",
                 paypal_order_id=token
             )
+            
+            # Track payment in system
+            from payments.models import Payment
+            Payment.objects.create(
+                inquiry=inquiry,
+                amount=inquiry.commission_amount,
+                status='Completed',
+                payment_type='COMMISSION',
+                paypal_order_id=token,
+                currency="USD"
+            )
+            
             from django.contrib import messages
             messages.success(request, "Commission paid successfully via PayPal!")
             return redirect('view_inquiry', inquiry_id=inquiry.uuid)
             
     return redirect('view_inquiry', inquiry_id=inquiry.uuid)
 
-@csrf_exempt
 @login_required
 def capture_commission_order(request, inquiry_id):
     if request.method != "POST":
@@ -1435,7 +1469,7 @@ def capture_cumulative_order(request, hospital_id):
         from hospitals.models import Transaction
         Transaction.objects.create(
             hospital=hospital,
-            amount=total_amount,
+            amount=-total_amount,
             transaction_type='COMMISSION_FEE',
             description=f"Cumulative Commission payment (PayPal: {order_id})",
             paypal_order_id=order_id
