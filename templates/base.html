@@ -93,22 +93,21 @@
 
       <!-- Left: Logo -->
       <h1 class="text-2xl font-extrabold tracking-tight flex-shrink-0" style="font-family: 'Outfit', sans-serif;">
-        <a href="{% url 'home' %}" class="flex items-center gap-2 text-slate-900 dark:text-slate-100 group">
-          <div
-            class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:rotate-12">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2">
-              </path>
-            </svg>
-          </div>
-          <span>Travel<span class="text-sky-600">N</span>Treat</span>
-        </a>
-      </h1>
+          <a href="{% url 'home' %}" class="flex items-center gap-2 text-slate-900 dark:text-slate-100 group">
+            <div
+              class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:rotate-12">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2">
+                </path>
+              </svg>
+            </div>
+            <span>Travel<span class="text-sky-600">N</span>Treat</span>
+          </a>
+        </h1>
 
       <!-- Center: Navigation Menu (Desktop) -->
       <nav
-        class="hidden md:flex flex-nowrap space-x-6 items-center text-[15px] font-bold text-slate-600 dark:text-slate-400"
-        style="white-space: nowrap;">
+        class="hidden md:flex flex-nowrap space-x-6 items-center text-[15px] font-bold text-slate-600 dark:text-slate-400" style="white-space: nowrap;">
         {% with current_url=request.resolver_match.url_name %}
         {% if not user.is_authenticated %}
         <a href="{% url 'home' %}"
@@ -219,31 +218,16 @@
         <a href="{% url 'blog_list' %}"
           class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'blog_list' %} active{% endif %}">Blog</a>
         {% elif user.role == 'ADMIN' or user.role == 'COORDINATOR' or user.is_superuser %}
-        <a href="{% url 'admin_dashboard' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_dashboard' %} active{% endif %}">Admin
-          Home</a>
-        <a href="{% url 'blog_list' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'blog_list' %} active{% endif %}">Blog</a>
-        <a href="{% url 'pending_hospitals' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'pending_hospitals' %} active{% endif %}">Hospitals</a>
+        <a href="{% url 'admin_dashboard' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_dashboard' %} active{% endif %}">Admin Home</a>
+        <a href="{% url 'blog_list' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'blog_list' %} active{% endif %}">Blog</a>
+        <a href="{% url 'pending_hospitals' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'pending_hospitals' %} active{% endif %}">Hospitals</a>
         {% if user.role == 'ADMIN' or user.is_superuser %}
-        <a href="{% url 'manage_staff' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'manage_staff' %} active{% endif %}">Manage
-          Team</a>
-        <a href="{% url 'admin_subscription_settings' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_subscription_settings' %} active{% endif %}">Subscription
-          Settings</a>
+        <a href="{% url 'manage_staff' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'manage_staff' %} active{% endif %}">Manage Team</a>
+        <a href="{% url 'admin_subscription_settings' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_subscription_settings' %} active{% endif %}">Subscription Settings</a>
         {% endif %}
-        <a href="{% url 'admin_global_config' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_global_config' %} active{% endif %}">Configuration</a>
-        <a href="{% url 'inquiry_hub' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors flex items-center gap-1{% if current_url == 'inquiry_hub' %} active{% endif %}">Hospital
-          Inquiry</a>
-        <a href="{% url 'contact_messages_hub' %}"
-          class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors flex items-center gap-1{% if current_url == 'contact_messages_hub' %} active{% endif %}">Inquiry
-          Hub{% if unread_contact_count > 0 %} <span
-            class="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full animate-pulse shadow-sm">{{
-            unread_contact_count }}</span>{% endif %}</a>
+        <a href="{% url 'admin_global_config' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors{% if current_url == 'admin_global_config' %} active{% endif %}">Configuration</a>
+        <a href="{% url 'inquiry_hub' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors flex items-center gap-1{% if current_url == 'inquiry_hub' %} active{% endif %}">Hospital Inquiry</a>
+        <a href="{% url 'contact_messages_hub' %}" class="nav-link hover:text-slate-900 dark:hover:text-white dark:text-slate-100 transition-colors flex items-center gap-1{% if current_url == 'contact_messages_hub' %} active{% endif %}">Inquiry Hub{% if unread_contact_count > 0 %} <span class="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full animate-pulse shadow-sm">{{ unread_contact_count }}</span>{% endif %}</a>
         {% endif %}
         {% endwith %}
       </nav>
@@ -661,8 +645,7 @@
               style="font-family: 'Outfit', sans-serif;">Travel<span class="text-sky-400">N</span>Treat</span>
           </a>
           <p class="text-slate-400 dark:text-slate-400 text-sm leading-relaxed mb-8 max-w-sm">
-            Empowering your global healthcare journey. TravelNTreat facilitates patient discovery and coordination with
-            world-class healthcare providers worldwide.
+            Empowering your global healthcare journey. TravelNTreat facilitates patient discovery and coordination with world-class healthcare providers worldwide.
           </p>
           <div class="flex items-center gap-4">
             <a href="#"
@@ -810,40 +793,24 @@
       <!-- Bottom Bar & Legal Notice -->
       <div class="border-t border-slate-800/80 pt-8 space-y-6">
         <p class="text-xs text-slate-400 dark:text-slate-400 leading-relaxed max-w-5xl">
-          © 2026 Thipak’s LLC, North Carolina. TravelNTreat.com is a medical travel facilitation and booking platform.
-          We are not a hospital, clinic, physician, or healthcare provider, and we do not provide medical advice,
-          diagnosis, or treatment. Healthcare services are provided solely by independent third-party providers.
+          © 2026 Thipak’s LLC, North Carolina. TravelNTreat.com is a medical travel facilitation and booking platform. We are not a hospital, clinic, physician, or healthcare provider, and we do not provide medical advice, diagnosis, or treatment. Healthcare services are provided solely by independent third-party providers.
         </p>
-        <nav aria-label="Legal and Policy Links"
-          class="flex flex-wrap items-center gap-x-2 gap-y-3 text-xs md:text-sm font-semibold">
-          <a href="{% url 'legal:terms_of_use' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Terms
-            of Use</a>
+        <nav aria-label="Legal and Policy Links" class="flex flex-wrap items-center gap-x-2 gap-y-3 text-xs md:text-sm font-semibold">
+          <a href="{% url 'legal:terms_of_use' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Terms of Use</a>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <a href="{% url 'legal:privacy_policy' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Privacy
-            Policy</a>
+          <a href="{% url 'legal:privacy_policy' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Privacy Policy</a>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <a href="{% url 'legal:medical_disclaimer' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Medical
-            Disclaimer</a>
+          <a href="{% url 'legal:medical_disclaimer' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Medical Disclaimer</a>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <button type="button" @click="window.dispatchEvent(new CustomEvent('open-cookie-settings'))"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all cursor-pointer text-left">Cookie
-            Settings</button>
+          <button type="button" @click="window.dispatchEvent(new CustomEvent('open-cookie-settings'))" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all cursor-pointer text-left">Cookie Settings</button>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <a href="{% url 'legal:refund_policy' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Refund
-            &amp; Cancellation Policy</a>
+          <a href="{% url 'legal:refund_policy' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Refund &amp; Cancellation Policy</a>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <a href="{% url 'legal:complaints' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Complaints</a>
+          <a href="{% url 'legal:complaints' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Complaints</a>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <a href="{% url 'legal:accessibility' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Accessibility</a>
+          <a href="{% url 'legal:accessibility' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Accessibility</a>
           <span class="text-slate-600 select-none px-1.5">•</span>
-          <a href="{% url 'contact' %}"
-            class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Contact</a>
+          <a href="{% url 'contact' %}" class="text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-500/60 hover:decoration-sky-300 transition-all">Contact</a>
         </nav>
       </div>
     </div>
@@ -879,12 +846,12 @@
   </a>
 
   <!-- HTMX CSRF Configuration -->
-  <form id="global-csrf-form" class="hidden">{% csrf_token %}</form>
-  <script>
+    <form id="global-csrf-form" class="hidden">{% csrf_token %}</form>
+    <script>
     document.body.addEventListener('htmx:configRequest', (event) => {
       const csrfToken = document.querySelector('#global-csrf-form input[name=csrfmiddlewaretoken]')?.value;
       if (csrfToken) {
-        event.detail.headers['X-CSRFToken'] = csrfToken;
+          event.detail.headers['X-CSRFToken'] = csrfToken;
       }
     });
 
@@ -908,20 +875,16 @@
 
   <!-- Global Animations & Logic -->
   <script src="{% static 'js/main.js' %}"></script>
-
+  
   <!-- Global Payment Processing Overlay -->
-  <div id="global-payment-overlay"
-    class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-300">
-    <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-      viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-      </path>
+<div id="global-payment-overlay" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-300">
+    <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>
     <h2 class="text-2xl font-black text-white tracking-wide">Verifying Payment...</h2>
     <p class="text-slate-400 mt-2 font-medium">Please do not close or refresh this page.</p>
-  </div>
+</div>
 
 
   <!-- Cookie Consent Banner & Settings Modal -->
@@ -952,23 +915,18 @@
           this.showSettings = false;
       }
   }" x-cloak>
-
+    
     <!-- First Visit Floating Banner -->
-    <div x-show="showBanner" x-transition:enter="transition ease-out duration-300"
-      x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+    <div x-show="showBanner" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
       class="fixed bottom-0 inset-x-0 z-[200] p-4 sm:p-6 pointer-events-none">
-      <div
-        class="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.6)] border border-slate-200 dark:border-slate-700 p-6 pointer-events-auto">
+      <div class="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.6)] border border-slate-200 dark:border-slate-700 p-6 pointer-events-auto">
         <div class="flex flex-col md:flex-row items-start md:items-center gap-6 justify-between">
           <div class="flex-1 space-y-2">
             <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm md:text-base flex items-center gap-2">
               <span>🍪</span> Cookie &amp; Privacy Choices
             </h4>
             <p class="text-xs md:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              We use cookies to run this site and, with your permission, to analyze usage and personalize content. You
-              can accept all, reject non-essential cookies, or choose your settings. See our <a
-                href="{% url 'legal:cookie_policy' %}"
-                class="text-sky-600 dark:text-sky-400 font-semibold underline hover:text-sky-700">Cookie Policy</a>.
+              We use cookies to run this site and, with your permission, to analyze usage and personalize content. You can accept all, reject non-essential cookies, or choose your settings. See our <a href="{% url 'legal:cookie_policy' %}" class="text-sky-600 dark:text-sky-400 font-semibold underline hover:text-sky-700">Cookie Policy</a>.
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-2.5 shrink-0 w-full md:w-auto">
@@ -990,21 +948,15 @@
     </div>
 
     <!-- Manage Settings Modal (No pre-selected optional categories) -->
-    <div x-show="showSettings"
-      class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
-      x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-      x-transition:enter-end="opacity-100">
-      <div @click.away="showSettings = false"
-        class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 md:p-8 space-y-6 text-left max-h-[90vh] overflow-y-auto">
+    <div x-show="showSettings" class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+      <div @click.away="showSettings = false" class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 md:p-8 space-y-6 text-left max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
           <div>
-            <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100" style="font-family: 'Outfit', sans-serif;">
-              Manage Cookie Settings</h3>
-            <p class="text-xs text-slate-500 mt-1">Configure your privacy preferences. Optional cookies are unselected
-              by default.</p>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100" style="font-family: 'Outfit', sans-serif;">Manage Cookie Settings</h3>
+            <p class="text-xs text-slate-500 mt-1">Configure your privacy preferences. Optional cookies are unselected by default.</p>
           </div>
-          <button type="button" @click="showSettings = false"
-            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold p-1 leading-none">&times;</button>
+          <button type="button" @click="showSettings = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold p-1 leading-none">&times;</button>
         </div>
 
         <div class="space-y-4">
@@ -1012,47 +964,36 @@
           <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4">
             <div>
               <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Strictly Necessary Cookies</p>
-              <p class="text-xs text-slate-500 mt-0.5">Required for core functions such as session authentication, CSRF
-                security, and basic navigation.</p>
+              <p class="text-xs text-slate-500 mt-0.5">Required for core functions such as session authentication, CSRF security, and basic navigation.</p>
             </div>
-            <span
-              class="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full shrink-0">Always
-              Active</span>
+            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full shrink-0">Always Active</span>
           </div>
 
           <!-- Preferences -->
-          <label
-            class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors">
+          <label class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors">
             <div>
               <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Preference Cookies</p>
               <p class="text-xs text-slate-500 mt-0.5">Remembers UI choices like dark mode and region settings.</p>
             </div>
-            <input type="checkbox" x-model="prefPreferences"
-              class="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer">
+            <input type="checkbox" x-model="prefPreferences" class="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer">
           </label>
 
           <!-- Analytics -->
-          <label
-            class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors">
+          <label class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors">
             <div>
               <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Analytics Cookies</p>
-              <p class="text-xs text-slate-500 mt-0.5">Helps us understand aggregated traffic and page usage with IP
-                anonymization.</p>
+              <p class="text-xs text-slate-500 mt-0.5">Helps us understand aggregated traffic and page usage with IP anonymization.</p>
             </div>
-            <input type="checkbox" x-model="prefAnalytics"
-              class="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer">
+            <input type="checkbox" x-model="prefAnalytics" class="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer">
           </label>
 
           <!-- Marketing -->
-          <label
-            class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors">
+          <label class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl flex items-start justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors">
             <div>
               <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Marketing Cookies</p>
-              <p class="text-xs text-slate-500 mt-0.5">Used for measuring ad performance. Health condition inquiries are
-                never tracked or used for marketing.</p>
+              <p class="text-xs text-slate-500 mt-0.5">Used for measuring ad performance. Health condition inquiries are never tracked or used for marketing.</p>
             </div>
-            <input type="checkbox" x-model="prefMarketing"
-              class="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer">
+            <input type="checkbox" x-model="prefMarketing" class="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer">
           </label>
         </div>
 
