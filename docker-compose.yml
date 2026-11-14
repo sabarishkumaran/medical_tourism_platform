@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: travelntreat_web
+    restart: always
+    ports:
+      - "8000:8000"  # Allows direct access via http://YOUR_SERVER_IP:8000
+    volumes:
+      - ./media:/app/media
+      - ./db.sqlite3:/app/db.sqlite3
+    environment:
+      - PYTHONUNBUFFERED=1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.travelntreat.rule=Host(`srv1543043.hstgr.cloud`, `travelntreat.com`, `www.travelntreat.com`)"
+      - "traefik.http.routers.travelntreat.entrypoints=websecure"
+      - "traefik.http.routers.travelntreat.tls=true"
+      - "traefik.http.routers.travelntreat.tls.certresolver=letsencrypt"
+      - "traefik.http.services.travelntreat.loadbalancer.server.port=8000"
+    networks:
+      - default
+      - traefik_network
+
+networks:
+  traefik_network:
+    external: true
