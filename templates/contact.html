@@ -46,6 +46,17 @@
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">How can we help?</label>
                     <textarea rows="5" name="message" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 transition-colors" placeholder="Tell us about your medical needs or travel inquiry..." required></textarea>
                 </div>
+
+                <!-- Communications & Marketing Consent (Part 5.8) -->
+                <div class="space-y-3 pt-2">
+                    <label class="flex items-start gap-3 cursor-pointer group">
+                        <input type="checkbox" name="marketing_consent" class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 cursor-pointer shrink-0">
+                        <span class="flex-1 min-w-0 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            I agree that Thipak’s LLC may send me promotional emails, SMS, and WhatsApp messages at the contact details I provided. Consent is not required to make a purchase. Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe from SMS, or click unsubscribe in any email. See our <a href="{% url 'legal:privacy_policy' %}" target="_blank" class="text-sky-600 underline">Privacy Policy</a> and <a href="{% url 'legal:terms_of_use' %}" target="_blank" class="text-sky-600 underline">Terms</a>.
+                        </span>
+                    </label>
+                </div>
+
                 <button type="submit" class="w-full md:w-auto bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.4)] transition-all duration-300 transform hover:-translate-y-1">
                     Send Message
                 </button>

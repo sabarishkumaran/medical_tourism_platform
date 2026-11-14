@@ -47,6 +47,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('blog/', include('blog.urls')),
     path('newsletter/', include('newsletter.urls')),
+    path('legal/', include('legal.urls')),
     
     # Error Page Previews
     path('403/', handler403, name='preview_403'),

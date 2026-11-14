@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-12 max-w-5xl">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-8 md:px-12 py-12 text-white relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-amber-400/30">
+                    Risk Disclosure
+                </span>
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3" style="font-family: 'Outfit', sans-serif;">
+                    Medical and Travel Risk Acknowledgment
+                </h1>
+                <p class="text-slate-300 text-sm">
+                    <strong>Operated by:</strong> Thipak’s LLC, North Carolina &nbsp;|&nbsp; <strong>Effective date:</strong> 11/4/2026
+                </p>
+            </div>
+        </div>
+
+        <!-- Document Content -->
+        <div class="px-8 md:px-12 py-10 space-y-6 text-slate-700 dark:text-slate-300 text-sm md:text-base leading-relaxed">
+            <p class="font-medium text-slate-900 dark:text-slate-100">
+                Before booking or paying for medical travel, every patient must acknowledge and accept that:
+            </p>
+
+            <ul class="space-y-4">
+                <li class="flex items-start gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span class="text-amber-500 font-bold text-lg">•</span>
+                    <span><strong>Procedure Risks:</strong> All medical, surgical, dental, and cosmetic procedures carry risks, including pain, infection, bleeding, scarring, blood clots, anesthesia reactions, unsatisfactory results, need for further procedures, long-term complications, and in rare cases death.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span class="text-amber-500 font-bold text-lg">•</span>
+                    <span><strong>Travel Risks:</strong> Travelling for treatment adds risks: long flights and reduced mobility after surgery can increase the risk of blood clots (DVT/PE) and other complications; I may need to extend my stay unexpectedly; and medical standards, regulation, drug names, and patient rights vary by country.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span class="text-amber-500 font-bold text-lg">•</span>
+                    <span><strong>Home Healthcare &amp; Insurer Coverage:</strong> If complications occur after I return home, my local healthcare system may not be obliged to treat me for free, and my insurer may not cover me.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span class="text-amber-500 font-bold text-lg">•</span>
+                    <span><strong>Legal Remedies Abroad:</strong> Legal remedies, including malpractice claims, may be limited, slow, or unavailable in the provider's country, and I may have to bring any claim in that country.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span class="text-amber-500 font-bold text-lg">•</span>
+                    <span><strong>Post-Operative Instructions:</strong> I will follow the provider's pre- and post-operative instructions, will not travel before the provider says it is safe to do so, and will tell my local doctor about my treatment.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span class="text-amber-500 font-bold text-lg">•</span>
+                    <span><strong>Facilitator Role:</strong> TravelNTreat.com is a facilitator and is not responsible for the medical care I receive.</span>
+                </li>
+            </ul>
+
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/40 p-6 rounded-2xl mt-8">
+                <p class="text-indigo-900 dark:text-indigo-200 font-semibold">
+                    I have had the chance to ask the provider questions and to consult my own doctor. I accept these risks voluntarily.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'theme',
     'widget_tweaks',
     'newsletter',
+    'legal',
     
 ]
 

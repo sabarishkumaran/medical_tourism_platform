@@ -561,6 +561,64 @@
                             </div>
                         </div>
 
+                        <!-- Legal Agreement & Consent Checkboxes (Part 1.5 & 1.7) -->
+                        <div class="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                                Terms &amp; Compliance Confirmations
+                            </h3>
+
+                            <!-- Checkbox 1: Terms, Patient Agreement & Privacy Policy (Required) -->
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <div class="relative flex items-center justify-center mt-0.5 shrink-0" style="width: 20px; height: 20px;">
+                                    <input type="checkbox" name="agree_terms" required
+                                        style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 checked:bg-sky-600 checked:border-sky-600 focus:ring-2 focus:ring-sky-500/30 transition-all cursor-pointer shrink-0">
+                                    <svg class="w-3.5 h-3.5 absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <span class="flex-1 min-w-0 text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed select-none">
+                                    I have read and agree to the 
+                                    <a href="{% url 'legal:terms_of_use' %}" target="_blank" class="text-sky-600 dark:text-sky-400 font-semibold underline hover:text-sky-500">Terms of Use</a> and the 
+                                    <a href="{% url 'legal:patient_agreement' %}" target="_blank" class="text-sky-600 dark:text-sky-400 font-semibold underline hover:text-sky-500">Patient Agreement</a>, and I have read the 
+                                    <a href="{% url 'legal:privacy_policy' %}" target="_blank" class="text-sky-600 dark:text-sky-400 font-semibold underline hover:text-sky-500">Privacy Policy</a>.
+                                    <span class="text-red-600 font-bold">*</span>
+                                </span>
+                            </label>
+
+                            <!-- Checkbox 2: Age Confirmation (Required) -->
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <div class="relative flex items-center justify-center mt-0.5 shrink-0" style="width: 20px; height: 20px;">
+                                    <input type="checkbox" name="agree_age" required
+                                        style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 checked:bg-sky-600 checked:border-sky-600 focus:ring-2 focus:ring-sky-500/30 transition-all cursor-pointer shrink-0">
+                                    <svg class="w-3.5 h-3.5 absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <span class="flex-1 min-w-0 text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed select-none">
+                                    I confirm I am at least 18 years old and legally able to enter this agreement.
+                                    <span class="text-red-600 font-bold">*</span>
+                                </span>
+                            </label>
+
+                            <!-- Checkbox 3: Marketing Opt-in (Optional, Never Required) -->
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <div class="relative flex items-center justify-center mt-0.5 shrink-0" style="width: 20px; height: 20px;">
+                                    <input type="checkbox" name="agree_marketing"
+                                        style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 checked:bg-sky-600 checked:border-sky-600 focus:ring-2 focus:ring-sky-500/30 transition-all cursor-pointer shrink-0">
+                                    <svg class="w-3.5 h-3.5 absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <span class="flex-1 min-w-0 text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed select-none">
+                                    I agree to receive marketing messages and updates from TravelNTreat.com at the email address and phone number I provided. Message and data rates may apply. I can unsubscribe at any time using the link in any message or by replying STOP.
+                                    <span class="text-slate-400 text-xs italic">(optional)</span>
+                                </span>
+                            </label>
+                        </div>
+
                         <button type="submit"
                             class="w-full mt-8 bg-slate-900 dark:bg-slate-700 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold py-4 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
                             :class="{'hover:bg-indigo-600': role === 'HOSPITAL', 'opacity-50 cursor-not-allowed': isSubmitting}"

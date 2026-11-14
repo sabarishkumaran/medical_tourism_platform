@@ -39,8 +39,18 @@
             </div>
             
             <div class="footer">
-                <p>This is an automated notification from MedTour. Please do not reply to this email.</p>
-                <p>&copy; {% now "Y" %} Thipak's LLC. All rights reserved.</p>
+                {% if is_booking_confirmation %}
+                <p style="font-size: 12px; color: #64748b; line-height: 1.5; margin-bottom: 12px;">
+                    Your booking was arranged through TravelNTreat.com, operated by Thipak’s LLC. Your treatment will be provided by the independent provider named above. Please keep this email. Policies: 
+                    <a href="https://travelntreat.com{% url 'legal:terms_of_use' %}" style="color: #0ea5e9;">Terms</a> | 
+                    <a href="https://travelntreat.com{% url 'legal:refund_policy' %}" style="color: #0ea5e9;">Refund &amp; Cancellation</a> | 
+                    <a href="https://travelntreat.com{% url 'legal:complaints' %}" style="color: #0ea5e9;">Complaints</a> | 
+                    <a href="https://travelntreat.com{% url 'legal:privacy_policy' %}" style="color: #0ea5e9;">Privacy</a>.
+                </p>
+                {% else %}
+                <p>This is an automated notification from TravelNTreat.com. Please do not reply to this email.</p>
+                {% endif %}
+                <p>&copy; {% now "Y" %} Thipak's LLC, North Carolina. All rights reserved.</p>
             </div>
         </div>
     </div>

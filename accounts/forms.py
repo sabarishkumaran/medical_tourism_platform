@@ -32,6 +32,16 @@ class RegisterForm(UserCreationForm):
     hospital_certificate = forms.FileField(required=False)
     hospital_accreditation = forms.ChoiceField(choices=Hospital.ACCREDITATION_CHOICES, required=False)
 
+    agree_terms = forms.BooleanField(
+        required=True, 
+        error_messages={'required': 'You must read and agree to the Terms of Use, Patient Agreement, and Privacy Policy.'}
+    )
+    agree_age = forms.BooleanField(
+        required=True, 
+        error_messages={'required': 'You must confirm that you are at least 18 years old and legally able to enter this agreement.'}
+    )
+    agree_marketing = forms.BooleanField(required=False)
+
     class Meta:
         model = User
         fields = [

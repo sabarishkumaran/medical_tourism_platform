@@ -25,11 +25,14 @@ def send_payment_receipt(inquiry, amount, payment_choice):
     
     try:
         html_message = render_to_string('generic_email_html.html', {
-            'title': f"Payment Receipt - Inquiry #{inquiry.id}",
+            'title': f"Booking Confirmation & Payment Receipt - Case #{inquiry.id}",
             'message': f"Dear {inquiry.patient.get_full_name() or inquiry.patient.username},\n\n"
                        f"We have successfully received your {payment_choice} payment of ${amount:.2f} "
                        f"for your treatment at {inquiry.hospital.name}.\n\n"
-                       f"Thank you for choosing MedTour.",
+                       f"Your booking was arranged through TravelNTreat.com, operated by Thipak’s LLC. "
+                       f"Your treatment will be provided by the independent provider named above ({inquiry.hospital.name}). Please keep this email for your records.\n\n"
+                       f"Thank you for choosing TravelNTreat.com.",
+            'is_booking_confirmation': True,
         })
         
         send_mail(

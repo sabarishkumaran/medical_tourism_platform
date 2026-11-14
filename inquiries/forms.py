@@ -23,6 +23,11 @@ class InquiryForm(forms.ModelForm):
         required=False
     )
 
+    health_data_consent = forms.BooleanField(
+        required=True,
+        error_messages={'required': 'You must explicitly consent to the collection and processing of your health information to submit this inquiry.'}
+    )
+
     class Meta:
         model = Inquiry
         fields = [

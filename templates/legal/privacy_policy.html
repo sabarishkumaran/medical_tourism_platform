@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-12 max-w-5xl">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-8 md:px-12 py-12 text-white relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-400/30">
+                    Data Protection &amp; Privacy
+                </span>
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3" style="font-family: 'Outfit', sans-serif;">
+                    TravelNTreat.com Privacy Policy
+                </h1>
+                <p class="text-slate-300 text-sm">
+                    <strong>Effective date:</strong> 11/4/2026 &nbsp;|&nbsp; <strong>Controller:</strong> Thipak’s LLC (<a href="mailto:info@thipaksllc.com" class="underline hover:text-white">info@thipaksllc.com</a>)
+                </p>
+            </div>
+        </div>
+
+        <!-- Document Content -->
+        <div class="px-8 md:px-12 py-10 space-y-8 text-slate-700 dark:text-slate-300 text-sm md:text-base leading-relaxed">
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    1. What this policy covers
+                </h2>
+                <p>
+                    This policy explains how we collect, use, share, and protect personal information through TravelNTreat.com and related services. Because our service involves health information and transfers between countries, please read it carefully.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    2. Information we collect
+                </h2>
+                <div class="space-y-3 mt-3">
+                    <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl">
+                        <strong class="text-slate-900 dark:text-slate-100 font-semibold block mb-1">Information you give us:</strong>
+                        <p class="text-sm">Name, email, phone, date of birth, country, passport/travel details where needed for travel bookings, payment details (processed by our payment provider; we do not store full card numbers), messages, and reviews.</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border-l-4 border-amber-500">
+                        <strong class="text-slate-900 dark:text-slate-100 font-semibold block mb-1">Health information you choose to share (Sensitive Data):</strong>
+                        <p class="text-sm">Medical history, diagnoses, medications, allergies, images, test results, treatment interests, and records you upload. This is sensitive data.</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl">
+                        <strong class="text-slate-900 dark:text-slate-100 font-semibold block mb-1">Information collected automatically:</strong>
+                        <p class="text-sm">IP address, device and browser type, pages viewed, referral source, approximate location, and cookie and similar-technology data (see <a href="{% url 'legal:cookie_policy' %}" class="text-sky-600 hover:text-sky-500 underline font-medium">Cookie Policy</a>).</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl">
+                        <strong class="text-slate-900 dark:text-slate-100 font-semibold block mb-1">Information from others:</strong>
+                        <p class="text-sm">Providers (appointment status, quotes, treatment summaries you authorize), travel suppliers, payment processors, and identity or fraud-prevention services.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    3. How we use information and our legal bases (GDPR/UK GDPR)
+                </h2>
+                <ul class="list-disc list-inside space-y-2 mt-3 pl-2">
+                    <li><strong>To create your account and provide the service:</strong> match you with providers, transmit your inquiries, and arrange bookings (legal basis: <em>contract performance</em>).</li>
+                    <li><strong>To process and share your health information:</strong> with providers you select (legal basis: <em>your explicit consent</em>).</li>
+                    <li><strong>To process payments, prevent fraud, and meet obligations:</strong> legal, tax, and accounting obligations (legal basis: <em>legal obligation and legitimate interests</em>).</li>
+                    <li><strong>To provide customer support:</strong> handle complaints, and improve the Platform (legal basis: <em>legitimate interests</em>).</li>
+                    <li><strong>To send marketing communications:</strong> consent or, where lawful, legitimate interests, with easy opt-out (legal basis: <em>consent / legitimate interests</em>).</li>
+                    <li><strong>To enforce our Terms:</strong> and protect rights, safety, and security (legal basis: <em>legitimate interests</em>).</li>
+                </ul>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    4. How we share information
+                </h2>
+                <p>
+                    We share information only as needed: (a) with providers and travel suppliers you choose or are matched with; (b) with service providers acting on our behalf (hosting, payment processing, communications, analytics, customer support, translation), bound by contracts; (c) where required by law, court order, or to protect rights and safety; (d) in a merger, acquisition, or sale of assets, with notice; and (e) with your consent. We do not sell your personal information, and we do not sell or share your health information for advertising.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    5. International transfers
+                </h2>
+                <p>
+                    Your information, including health information, will be transferred to and processed in countries outside your own, including the United States and the countries where your chosen providers are located. These countries may not offer the same level of protection as your home country. Where required, we rely on safeguards such as Standard Contractual Clauses, adequacy decisions, and your explicit consent for specific transfers. You can request details of the safeguards by contacting us.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    6. Retention
+                </h2>
+                <p>
+                    We keep information only as long as necessary for the purposes described, to comply with law (for example tax and record-keeping), and to resolve disputes. Account data is retained for the life of the account plus 3 years; booking and payment records for 3 years; health records you upload for 12 months after your last booking unless you ask for earlier deletion.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    7. Your rights
+                </h2>
+                <p>
+                    Depending on where you live, you may have the right to access, correct, delete, restrict, or object to processing of your information; to data portability; to withdraw consent at any time; to opt out of targeted advertising or the sale or sharing of personal data; to limit use of sensitive information; and to lodge a complaint with your data protection authority. To exercise rights, email <a href="mailto:info@thipaksllc.com" class="text-sky-600 hover:text-sky-500 underline font-medium">info@thipaksllc.com</a>. We will verify your identity and respond within the legally required period (generally 30 to 45 days). We will not discriminate against you for exercising your rights.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    8. Security
+                </h2>
+                <p>
+                    We use administrative, technical, and physical safeguards such as encryption in transit and at rest, access controls, and staff confidentiality obligations. No system is perfectly secure. If a breach affects you, we will notify you and regulators as required by law.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    9. Providers' own handling
+                </h2>
+                <p>
+                    Once a provider receives your information, the provider processes it under its own privacy practices and local law as an independent controller. We are not responsible for providers' handling. Ask providers about their practices.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    10. Children
+                </h2>
+                <p>
+                    The Platform is not directed to anyone under 18, and we do not knowingly collect information from minors. If you believe a minor has provided information, contact us and we will delete it.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    11. Cookies and tracking
+                </h2>
+                <p>
+                    We use essential cookies and, with consent where required, analytics and marketing cookies. See our <a href="{% url 'legal:cookie_policy' %}" class="text-sky-600 hover:text-sky-500 underline font-medium">Cookie Policy</a> for the list and how to change settings. We honor opt-out preference signals such as Global Privacy Control where required.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    12. HIPAA note
+                </h2>
+                <p>
+                    Thipak’s LLC is not a healthcare provider and, depending on how we operate, may not be a HIPAA covered entity. Where we handle protected health information on behalf of a HIPAA-covered US provider, we do so under a Business Associate Agreement.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    13. Changes to this policy
+                </h2>
+                <p>
+                    We will post updates here with a new effective date and, for material changes, notify you directly or request new consent where required.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    14. Contact
+                </h2>
+                <p>
+                    Privacy questions: <a href="mailto:info@thipaksllc.com" class="text-sky-600 hover:text-sky-500 font-semibold underline">info@thipaksllc.com</a>
+                </p>
+            </section>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

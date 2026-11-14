@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 md:px-8 py-12 max-w-5xl">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-8 md:px-12 py-12 text-white relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-sky-500/20 text-sky-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-sky-400/30">
+                    Legal Agreement
+                </span>
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3" style="font-family: 'Outfit', sans-serif;">
+                    TravelNTreat.com Terms of Use
+                </h1>
+                <p class="text-slate-300 text-sm">
+                    <strong>Effective date:</strong> 11/4/2026 &nbsp;|&nbsp; <strong>Operated by:</strong> Thipak’s LLC, North Carolina
+                </p>
+            </div>
+        </div>
+
+        <!-- Quick Notice Box -->
+        <div class="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800/40 px-8 md:px-12 py-5">
+            <p class="text-xs md:text-sm text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                <strong>Important Notice:</strong> TravelNTreat.com is a facilitator and booking marketplace only. We are not a healthcare provider and do not provide medical advice, diagnosis, or treatment. Healthcare services are provided solely by independent third-party providers. In a medical emergency, immediately contact your local emergency services.
+            </p>
+        </div>
+
+        <!-- Document Content -->
+        <div class="px-8 md:px-12 py-10 space-y-8 text-slate-700 dark:text-slate-300 text-sm md:text-base leading-relaxed">
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    1. Who we are and what these Terms cover
+                </h2>
+                <p>
+                    TravelNTreat.com and related apps and services (the "Platform") are operated by Thipak’s LLC, a North Carolina limited liability company. By accessing or using the Platform, creating an account, or making a booking, you agree to these Terms. If you do not agree, do not use the Platform.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    2. Our role: facilitator only
+                </h2>
+                <p>
+                    TravelNTreat.com provides an online marketplace that lets patients discover independent healthcare providers worldwide, request quotes, and arrange bookings, and that helps with related travel coordination. We act only as an intermediary and booking agent. We are not a healthcare provider, hospital, clinic, pharmacy, insurer, or medical practice. We do not practice medicine, give medical advice, diagnose conditions, recommend specific treatments, or supervise or control any provider. Any treatment contract is between you and the provider.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    3. Independent providers
+                </h2>
+                <p>
+                    Providers listed on the Platform are independent businesses and professionals, not our employees, partners, or agents. Providers are solely responsible for their licensure, qualifications, facilities, medical judgment, treatment, informed consent, billing for services, and follow-up care. We make reasonable efforts to collect credentialing information from providers, but we do not guarantee its accuracy and do not independently verify every statement. You are responsible for doing your own due diligence on any provider.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    4. No medical advice; no emergencies
+                </h2>
+                <p>
+                    Content on the Platform, including provider descriptions, articles, price estimates, and communications from our staff, is informational only and is not medical advice. The Platform is not for emergencies. If you have a medical emergency, contact local emergency services immediately.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    5. Eligibility and accounts
+                </h2>
+                <p>
+                    You must be at least 18 and able to form a binding contract. You may book on behalf of another adult only if you have their authority and consent. You agree to provide accurate, current, complete information (including medical history shared with providers), keep your login credentials confidential, and notify us of unauthorized use. We may suspend or close accounts that violate these Terms.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    6. Bookings, quotes and fees
+                </h2>
+                <p>
+                    Quotes and prices displayed are provided by providers and may change after your medical assessment; a final treatment plan and price are set by the provider. Our service or booking fee, if any, is shown before you pay. Unless stated otherwise, payments for medical services are made to or on behalf of the provider, and our fee is separate. Currency conversion, bank, and card fees may apply. Refunds and cancellations are governed by our <a href="{% url 'legal:refund_policy' %}" class="text-sky-600 hover:text-sky-500 underline font-medium">Refund & Cancellation Policy</a> and the provider's own terms.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    7. Travel services
+                </h2>
+                <p>
+                    Where we help arrange flights, accommodation, transfers, or visas, those services are supplied by third-party suppliers under their own terms. You are responsible for passports, visas, vaccinations, travel insurance, and entry requirements. We strongly recommend purchasing medical travel insurance that covers complications and emergency repatriation.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    8. Risks you acknowledge
+                </h2>
+                <p>
+                    All medical procedures carry risks, including complications, adverse outcomes, infection, and in rare cases death. Receiving care abroad adds risks such as air travel after surgery, differing standards of care and regulation, language barriers, limited legal recourse, and limited continuity of follow-up care at home. No outcome is guaranteed. You accept these risks voluntarily. See our <a href="{% url 'legal:risk_acknowledgment' %}" class="text-sky-600 hover:text-sky-500 underline font-medium">Medical and Travel Risk Acknowledgment</a>.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    9. User content and reviews
+                </h2>
+                <p>
+                    If you post reviews, photos, messages, or other content, you grant us a worldwide, non-exclusive, royalty-free, sublicensable license to host, display, and use it to operate and promote the Platform. You confirm that it is truthful, that you own it or have the right to share it, and that it does not infringe others' rights or violate our Acceptable Use rules. We may remove content at our discretion. Reviews must reflect genuine personal experience; fake, paid, or incentivized reviews without disclosure are prohibited.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    10. Acceptable use
+                </h2>
+                <p>
+                    You may not: misuse the Platform or interfere with its operation; scrape or harvest data without permission; impersonate others or provide false information; upload malicious code; harass or defame others; use the Platform for unlawful purposes, including obtaining controlled substances without lawful authority; attempt to circumvent our fees by contacting a provider introduced through the Platform solely to avoid our fee, where your agreement with us says fees apply; or violate sanctions or export-control laws.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    11. Intellectual property
+                </h2>
+                <p>
+                    The Platform, its design, text, logos, and software are owned by Thipak’s LLC or its licensors and are protected by law. We grant you a limited, revocable, non-transferable license to use the Platform for personal, non-commercial purposes. Our DMCA/IP policy explains how to report infringement.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    12. Third-party links and services
+                </h2>
+                <p>
+                    The Platform may link to or integrate third-party sites and services (payment processors, maps, translation, financing). We do not control and are not responsible for them.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    13. Disclaimers
+                </h2>
+                <p class="font-semibold text-xs md:text-sm uppercase tracking-wide leading-relaxed text-slate-800 dark:text-slate-200">
+                    TO THE FULLEST EXTENT PERMITTED BY LAW, THE PLATFORM AND ALL CONTENT ARE PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THE QUALITY, SAFETY, OR OUTCOMES OF ANY MEDICAL OR TRAVEL SERVICES, THE ACCURACY OF PROVIDER INFORMATION OR REVIEWS, OR THAT THE PLATFORM WILL BE UNINTERRUPTED OR ERROR-FREE.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    14. Limitation of liability
+                </h2>
+                <p class="font-semibold text-xs md:text-sm uppercase tracking-wide leading-relaxed text-slate-800 dark:text-slate-200">
+                    TO THE FULLEST EXTENT PERMITTED BY LAW, THIPAK’S LLC, ITS MEMBERS, MANAGERS, OFFICERS, EMPLOYEES, AND AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR ANY LOSS ARISING FROM MEDICAL TREATMENT, PROVIDER ACTS OR OMISSIONS, MALPRACTICE, OR TRAVEL SUPPLIER FAILURES. OUR TOTAL LIABILITY FOR ANY CLAIM RELATING TO THE PLATFORM WILL NOT EXCEED THE GREATER OF (A) THE FEES YOU PAID TO US FOR THE BOOKING AT ISSUE AND (B) US$100.
+                </p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-3">
+                    Some jurisdictions do not allow certain limitations; in those places, these limits apply only to the extent permitted. Nothing in these Terms excludes liability that cannot lawfully be excluded, including for fraud or, where applicable, for death or personal injury caused by our own negligence.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    15. Indemnification
+                </h2>
+                <p>
+                    You agree to indemnify and hold harmless Thipak’s LLC and its personnel from claims, damages, and expenses (including reasonable attorneys' fees) arising from your breach of these Terms, your content, or your misuse of the Platform, to the extent permitted by law.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    16. Termination
+                </h2>
+                <p>
+                    You may stop using the Platform at any time. We may suspend or terminate access at any time for any reason, including violation of these Terms. Sections that by nature should survive (including 8, 9, 11, 13 to 16) survive termination.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    17. Changes
+                </h2>
+                <p>
+                    We may update these Terms. For material changes, we will notify you by email or on the Platform and, where required, ask you to accept the new Terms. Continued use after the effective date means you accept the changes.
+                </p>
+            </section>
+
+            <section class="border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    18. General
+                </h2>
+                <p>
+                    These Terms and the policies they reference are the entire agreement between you and us on this subject. If a provision is unenforceable, the rest remains in effect. Failure to enforce a right is not a waiver. You may not assign these Terms without our consent; we may assign them in a merger, acquisition, or sale of assets.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-3" style="font-family: 'Outfit', sans-serif;">
+                    19. Contact
+                </h2>
+                <p>
+                    Thipak’s LLC<br>
+                    Email: <a href="mailto:info@thipaksllc.com" class="text-sky-600 hover:text-sky-500 font-semibold underline">info@thipaksllc.com</a>
+                </p>
+            </section>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
