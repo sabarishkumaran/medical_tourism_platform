@@ -39,7 +39,6 @@ def handler404(request, exception=None):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("__reload__/", include("django_browser_reload.urls")),
     path('', include('treatments.urls')),
     path('hospitals/', include('hospitals.urls')),
     path('inquiries/', include('inquiries.urls')),

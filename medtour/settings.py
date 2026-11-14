@@ -69,7 +69,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'accounts.middleware.HospitalApprovalMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'

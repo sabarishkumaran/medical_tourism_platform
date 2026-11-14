@@ -24,8 +24,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy project files
 COPY . /app/
 
-# Create folders for media and staticfiles
-RUN mkdir -p /app/media /app/staticfiles
+# Create folders for media and staticfiles, and initialize empty database file
+RUN mkdir -p /app/media /app/staticfiles && touch /app/db.sqlite3
 
 EXPOSE 8000
 
