@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-p_)z$ldjg&76w_4@r*2l$h31&5az5&5a-$!d@8fh0z44ya&(x#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1","ootyalbum.pythonanywhere.com","localhost"]
+ALLOWED_HOSTS = ["127.0.0.1","travelntreat.com","187.124.244.235","www.travelntreat.com"]
 
 
 # Application definition
@@ -55,6 +55,11 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'accounts.User'
 
 TAILWIND_APP_NAME = 'theme'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://travelntreat.com',
+    'https://www.travelntreat.com',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
