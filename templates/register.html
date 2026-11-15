@@ -472,12 +472,12 @@
                                 <div class="relative w-full">
                                     <input :type="show ? 'text' : 'password'" name="{{ form.password1.name }}"
                                         id="{{ form.password1.id_for_label }}" x-model="password"
-                                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none"
+                                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:focus:bg-slate-900 dark:bg-slate-950 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none"
                                         required>
-                                    <button type="button" @mousedown="show = true" @mouseup="show = false"
-                                        @mouseleave="show = false" @touchstart="show = true" @touchend="show = false"
+                                    <button type="button" @click="show = !show"
                                         style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);"
-                                        class="text-slate-400 dark:text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
+                                        class="text-slate-400 dark:text-slate-500 hover:text-sky-500 dark:hover:text-sky-400 transition-colors p-1 focus:outline-none cursor-pointer flex items-center justify-center"
+                                        :title="show ? 'Hide password' : 'Show password'">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -538,12 +538,12 @@
                                 <div class="relative w-full">
                                     <input :type="show ? 'text' : 'password'" name="{{ form.password2.name }}"
                                         id="{{ form.password2.id_for_label }}"
-                                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:bg-slate-900 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none"
+                                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-slate-800 dark:text-slate-200 transition-all focus:bg-white dark:focus:bg-slate-900 dark:bg-slate-950 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none"
                                         required>
-                                    <button type="button" @mousedown="show = true" @mouseup="show = false"
-                                        @mouseleave="show = false" @touchstart="show = true" @touchend="show = false"
+                                    <button type="button" @click="show = !show"
                                         style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);"
-                                        class="text-slate-400 dark:text-slate-400 hover:text-sky-600 transition-colors p-1 focus:outline-none cursor-pointer">
+                                        class="text-slate-400 dark:text-slate-500 hover:text-sky-500 dark:hover:text-sky-400 transition-colors p-1 focus:outline-none cursor-pointer flex items-center justify-center"
+                                        :title="show ? 'Hide password' : 'Show password'">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
